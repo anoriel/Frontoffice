@@ -1,6 +1,6 @@
 <template>
   <v-app-bar app color="primary" dark>
-    <v-toolbar-title>My App</v-toolbar-title>
+    <v-toolbar-title>{{ appTitle }}</v-toolbar-title>
     <v-spacer></v-spacer>
     <v-btn
       v-for="route in filteredRoutes"
@@ -16,6 +16,8 @@
 <script setup>
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+
+const appTitle = import.meta.env.VITE_APP_TITLE
 
 const router = useRouter()
 
