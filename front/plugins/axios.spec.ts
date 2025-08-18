@@ -8,8 +8,8 @@ jest.mock('axios', () => ({
 }))
 
 describe('axios plugin', () => {
-  let axiosPlugin
-  let mockApp
+  let axiosPlugin: any
+  let mockApp: any
 
   beforeEach(() => {
     jest.clearAllMocks()

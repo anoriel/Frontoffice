@@ -34,7 +34,7 @@ jest.mock('./plugins/axios', () => ({
   name: 'axios',
 }))
 
-describe('main.js', () => {
+describe('main.ts', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     // Clear the module cache to ensure fresh imports
@@ -42,7 +42,7 @@ describe('main.js', () => {
   })
 
   it('creates Vue app with App component', () => {
-    require('./main.js')
+    require('./main.ts')
     
     expect(mockCreateApp).toHaveBeenCalledTimes(1)
     expect(mockCreateApp).toHaveBeenCalledWith(expect.objectContaining({
@@ -51,7 +51,7 @@ describe('main.js', () => {
   })
 
   it('creates and uses Pinia store', () => {
-    require('./main.js')
+    require('./main.ts')
     
     expect(mockCreatePinia).toHaveBeenCalledTimes(1)
     expect(mockUse).toHaveBeenCalledWith(expect.objectContaining({
@@ -60,7 +60,7 @@ describe('main.js', () => {
   })
 
   it('uses all required plugins in correct order', () => {
-    require('./main.js')
+    require('./main.ts')
     
     expect(mockUse).toHaveBeenCalledTimes(4)
     
@@ -73,14 +73,14 @@ describe('main.js', () => {
   })
 
   it('mounts the app to #app element', () => {
-    require('./main.js')
+    require('./main.ts')
     
     expect(mockMount).toHaveBeenCalledTimes(1)
     expect(mockMount).toHaveBeenCalledWith('#app')
   })
 
   it('follows the correct initialization sequence', () => {
-    require('./main.js')
+    require('./main.ts')
     
     // Verify the correct sequence: createApp -> use plugins -> mount
     const createAppCall = mockCreateApp.mock.invocationCallOrder[0]
@@ -92,7 +92,7 @@ describe('main.js', () => {
   })
 
   it('creates app instance and configures it properly', () => {
-    require('./main.js')
+    require('./main.ts')
     
     expect(mockCreateApp).toHaveBeenCalled()
     expect(mockUse).toHaveBeenCalled()

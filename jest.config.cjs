@@ -1,5 +1,5 @@
 module.exports = {
-  collectCoverageFrom: ['front/**/*.js', '!**/node_modules/**'],
+  collectCoverageFrom: ['front/**/*.{js,ts}', '!**/node_modules/**'],
   coverageReporters: ['html', 'text', 'text-summary', 'cobertura'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/front/$1',
@@ -8,9 +8,9 @@ module.exports = {
   testEnvironment: 'jest-environment-jsdom',
   transform: {
     '^.+\\.vue$': '@vue/vue3-jest',
-    '^.+\\.js$': 'babel-jest',
+    '^.+\\.(js|ts)$': 'babel-jest',
   },
-  moduleFileExtensions: ['vue', 'js', 'json', 'node'],
+  moduleFileExtensions: ['vue', 'js', 'ts', 'json', 'node'],
   transformIgnorePatterns: [
     'node_modules/(?!(vuetify|@mdi/font)/)'
   ],

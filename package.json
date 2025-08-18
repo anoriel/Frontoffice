@@ -8,13 +8,14 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vue-tsc --noEmit && vite build",
     "cover": "jest --collectCoverage --coverageDirectory=\"./dist/coverage\" --ci --reporters=default --reporters=jest-junit --watchAll=false",
     "coverage": "jest --coverage",
     "preview": "vite preview",
     "test": "jest",
     "lint": "eslint . --fix",
-    "format": "prettier --write front/"
+    "format": "prettier --write front/",
+    "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
     "@babel/preset-react": "^7.27.1",
@@ -29,7 +30,10 @@
   "devDependencies": {
     "@babel/core": "^7.28.3",
     "@babel/preset-env": "^7.28.3",
+    "@babel/preset-typescript": "^7.27.1",
     "@eslint/js": "^9.31.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.3.0",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/test-utils": "^2.4.6",
@@ -43,7 +47,9 @@
     "jest-environment-jsdom": "^29.0.0",
     "jest-junit": "^16.0.0",
     "prettier": "3.6.2",
+    "typescript": "^5.9.2",
     "vite": "^7.0.6",
-    "vite-plugin-vue-devtools": "^8.0.0"
+    "vite-plugin-vue-devtools": "^8.0.0",
+    "vue-tsc": "^3.0.5"
   }
 }
