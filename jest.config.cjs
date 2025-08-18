@@ -3,6 +3,7 @@ module.exports = {
   coverageReporters: ['html', 'text', 'text-summary', 'cobertura'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
   testEnvironment: 'jest-environment-jsdom',
   transform: {
@@ -10,4 +11,8 @@ module.exports = {
     '^.+\\.js$': 'babel-jest',
   },
   moduleFileExtensions: ['vue', 'js', 'json', 'node'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(vuetify|@mdi/font)/)'
+  ],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
 }

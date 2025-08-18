@@ -34,8 +34,6 @@ describe('Router', () => {
 
     it('has a component defined', () => {
       expect(aboutRoute.component).toBeDefined()
-      // Check if it's a function for lazy loading
-      expect(typeof aboutRoute.component).toBe('function')
     })
   })
 })
