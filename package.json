@@ -14,7 +14,7 @@
     "preview": "vite preview",
     "test": "jest",
     "lint": "eslint . --fix",
-    "format": "prettier --write src/"
+    "format": "prettier --write front/"
   },
   "dependencies": {
     "@babel/preset-react": "^7.27.1",

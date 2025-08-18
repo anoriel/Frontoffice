@@ -1,4 +1,4 @@
-// src/plugins/vuetify.js
+// front/plugins/vuetify.js
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'

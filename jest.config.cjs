@@ -1,8 +1,8 @@
 module.exports = {
-  collectCoverageFrom: ['src/**/*.js', '!**/node_modules/**'],
+  collectCoverageFrom: ['front/**/*.js', '!**/node_modules/**'],
   coverageReporters: ['html', 'text', 'text-summary', 'cobertura'],
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@/(.*)$': '<rootDir>/front/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
   testEnvironment: 'jest-environment-jsdom',
