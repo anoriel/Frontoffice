@@ -13,9 +13,9 @@ describe('App.vue', () => {
   it('has the expected template structure', () => {
     const expectedElements = ['v-app', 'nav-bar', 'v-main', 'router-view']
     const templateString = (App as any).template || ''
-    
+
     if (typeof templateString === 'string' && templateString) {
-      expectedElements.forEach(element => {
+      expectedElements.forEach((element) => {
         expect(templateString.toLowerCase()).toContain(element.toLowerCase())
       })
     } else {

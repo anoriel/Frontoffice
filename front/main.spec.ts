@@ -43,27 +43,31 @@ describe('main.ts', () => {
 
   it('creates Vue app with App component', () => {
     require('./main.ts')
-    
+
     expect(mockCreateApp).toHaveBeenCalledTimes(1)
-    expect(mockCreateApp).toHaveBeenCalledWith(expect.objectContaining({
-      template: '<div>Mock App</div>',
-    }))
+    expect(mockCreateApp).toHaveBeenCalledWith(
+      expect.objectContaining({
+        template: '<div>Mock App</div>',
+      }),
+    )
   })
 
   it('creates and uses Pinia store', () => {
     require('./main.ts')
-    
+
     expect(mockCreatePinia).toHaveBeenCalledTimes(1)
-    expect(mockUse).toHaveBeenCalledWith(expect.objectContaining({
-      install: expect.any(Function)
-    }))
+    expect(mockUse).toHaveBeenCalledWith(
+      expect.objectContaining({
+        install: expect.any(Function),
+      }),
+    )
   })
 
   it('uses all required plugins in correct order', () => {
     require('./main.ts')
-    
+
     expect(mockUse).toHaveBeenCalledTimes(4)
-    
+
     // Check that plugins are used in the expected order
     const calls = mockUse.mock.calls
     expect(calls[0][0]).toEqual(expect.objectContaining({ install: expect.any(Function) })) // Pinia
@@ -74,26 +78,26 @@ describe('main.ts', () => {
 
   it('mounts the app to #app element', () => {
     require('./main.ts')
-    
+
     expect(mockMount).toHaveBeenCalledTimes(1)
     expect(mockMount).toHaveBeenCalledWith('#app')
   })
 
   it('follows the correct initialization sequence', () => {
     require('./main.ts')
-    
+
     // Verify the correct sequence: createApp -> use plugins -> mount
     const createAppCall = mockCreateApp.mock.invocationCallOrder[0]
     const firstUseCall = mockUse.mock.invocationCallOrder[0]
     const mountCall = mockMount.mock.invocationCallOrder[0]
-    
+
     expect(createAppCall).toBeLessThan(firstUseCall)
     expect(firstUseCall).toBeLessThan(mountCall)
   })
 
   it('creates app instance and configures it properly', () => {
     require('./main.ts')
-    
+
     expect(mockCreateApp).toHaveBeenCalled()
     expect(mockUse).toHaveBeenCalled()
     expect(mockMount).toHaveBeenCalled()

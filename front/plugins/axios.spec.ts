@@ -27,7 +27,7 @@ describe('axios plugin', () => {
 
   it('installs axios instance on app', () => {
     axiosPlugin.install(mockApp)
-    
+
     expect(mockApp.config.globalProperties.$axios).toBeDefined()
   })
 

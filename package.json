@@ -9,8 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
-    "cover": "jest --collectCoverage --coverageDirectory=\"./dist/coverage\" --ci --reporters=default --reporters=jest-junit --watchAll=false",
-    "coverage": "jest --coverage",
+    "coverage": "jest --collectCoverage --coverageDirectory=\"./dist/coverage\" --ci --reporters=default --reporters=jest-junit --watchAll=false",
     "preview": "vite preview",
     "test": "jest",
     "lint": "eslint . --fix",
@@ -34,6 +33,8 @@
     "@eslint/js": "^9.31.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.39.1",
+    "@typescript-eslint/parser": "^8.39.1",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/test-utils": "^2.4.6",

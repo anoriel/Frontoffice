@@ -6,7 +6,7 @@ describe('Router', () => {
   })
 
   describe('Home Route', () => {
-    const homeRoute = router.options.routes.find(r => r.name === 'home')
+    const homeRoute = router.options.routes.find((r) => r.name === 'home')
 
     it('has the correct path', () => {
       expect(homeRoute?.path).toBe('/')
@@ -22,7 +22,7 @@ describe('Router', () => {
   })
 
   describe('About Route', () => {
-    const aboutRoute = router.options.routes.find(r => r.name === 'about')
+    const aboutRoute = router.options.routes.find((r) => r.name === 'about')
 
     it('has the correct path', () => {
       expect(aboutRoute?.path).toBe('/about')

@@ -2,12 +2,7 @@
   <v-app-bar app color="primary" dark>
     <v-toolbar-title>{{ appTitle }}</v-toolbar-title>
     <v-spacer></v-spacer>
-    <v-btn
-      v-for="route in filteredRoutes"
-      :key="route.name"
-      :to="route.path"
-      text
-    >
+    <v-btn v-for="route in filteredRoutes" :key="route.name" :to="route.path" text>
       {{ route.name }}
     </v-btn>
   </v-app-bar>
@@ -22,7 +17,7 @@ const appTitle = import.meta.env.VITE_APP_TITLE
 const router = useRouter()
 
 const filteredRoutes = computed(() => {
-  return router.options.routes.filter(route => route.name)
+  return router.options.routes.filter((route) => route.name)
 })
 </script>
 
