@@ -1,51 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="36" failures="0" errors="0" time="1.27">
-  <testsuite name="App.vue" errors="0" failures="0" skipped="0" timestamp="2025-08-18T14:44:30" time="0.456" tests="3">
+<testsuites name="jest tests" tests="36" failures="0" errors="0" time="1.457">
+  <testsuite name="App.vue" errors="0" failures="0" skipped="0" timestamp="2025-08-20T07:09:09" time="0.467" tests="3">
     <testcase classname="App.vue is a Vue component" name="App.vue is a Vue component" time="0.001">
     </testcase>
-    <testcase classname="App.vue imports NavBar component" name="App.vue imports NavBar component" time="0">
+    <testcase classname="App.vue imports NavBar component" name="App.vue imports NavBar component" time="0.001">
     </testcase>
     <testcase classname="App.vue has the expected template structure" name="App.vue has the expected template structure" time="0">
     </testcase>
   </testsuite>
-  <testsuite name="Counter Store" errors="0" failures="0" skipped="0" timestamp="2025-08-18T14:44:30" time="0.101" tests="5">
+  <testsuite name="Counter Store" errors="0" failures="0" skipped="0" timestamp="2025-08-20T07:09:09" time="0.067" tests="5">
     <testcase classname="Counter Store initializes with default state" name="Counter Store initializes with default state" time="0.002">
     </testcase>
-    <testcase classname="Counter Store increments count" name="Counter Store increments count" time="0.001">
+    <testcase classname="Counter Store increments count" name="Counter Store increments count" time="0">
     </testcase>
-    <testcase classname="Counter Store calculates doubleCount correctly" name="Counter Store calculates doubleCount correctly" time="0.001">
+    <testcase classname="Counter Store calculates doubleCount correctly" name="Counter Store calculates doubleCount correctly" time="0">
     </testcase>
-    <testcase classname="Counter Store doubleCount is reactive to count changes" name="Counter Store doubleCount is reactive to count changes" time="0">
+    <testcase classname="Counter Store doubleCount is reactive to count changes" name="Counter Store doubleCount is reactive to count changes" time="0.001">
     </testcase>
     <testcase classname="Counter Store increment function exists and is callable" name="Counter Store increment function exists and is callable" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="Router" errors="0" failures="0" skipped="0" timestamp="2025-08-18T14:44:30" time="0.065" tests="7">
-    <testcase classname="Router has the correct number of routes" name="Router has the correct number of routes" time="0">
+  <testsuite name="Router" errors="0" failures="0" skipped="0" timestamp="2025-08-20T07:09:09" time="0.049" tests="7">
+    <testcase classname="Router has the correct number of routes" name="Router has the correct number of routes" time="0.001">
     </testcase>
     <testcase classname="Router Home Route has the correct path" name="Router Home Route has the correct path" time="0">
     </testcase>
-    <testcase classname="Router Home Route has the correct name" name="Router Home Route has the correct name" time="0">
+    <testcase classname="Router Home Route has the correct name" name="Router Home Route has the correct name" time="0.001">
     </testcase>
     <testcase classname="Router Home Route has a component defined" name="Router Home Route has a component defined" time="0">
     </testcase>
-    <testcase classname="Router About Route has the correct path" name="Router About Route has the correct path" time="0.001">
+    <testcase classname="Router About Route has the correct path" name="Router About Route has the correct path" time="0">
     </testcase>
     <testcase classname="Router About Route has the correct name" name="Router About Route has the correct name" time="0">
     </testcase>
     <testcase classname="Router About Route has a component defined" name="Router About Route has a component defined" time="0">
     </testcase>
   </testsuite>
-  <testsuite name="vuetify plugin" errors="0" failures="0" skipped="0" timestamp="2025-08-18T14:44:31" time="0.05" tests="3">
-    <testcase classname="vuetify plugin can be imported without errors" name="vuetify plugin can be imported without errors" time="0.013">
-    </testcase>
-    <testcase classname="vuetify plugin exports a vuetify instance" name="vuetify plugin exports a vuetify instance" time="0">
-    </testcase>
-    <testcase classname="vuetify plugin has expected structure" name="vuetify plugin has expected structure" time="0.001">
-    </testcase>
-  </testsuite>
-  <testsuite name="main.ts" errors="0" failures="0" skipped="0" timestamp="2025-08-18T14:44:31" time="0.054" tests="6">
-    <testcase classname="main.ts creates Vue app with App component" name="main.ts creates Vue app with App component" time="0.013">
+  <testsuite name="main.ts" errors="0" failures="0" skipped="0" timestamp="2025-08-20T07:09:10" time="0.033" tests="6">
+    <testcase classname="main.ts creates Vue app with App component" name="main.ts creates Vue app with App component" time="0.004">
     </testcase>
     <testcase classname="main.ts creates and uses Pinia store" name="main.ts creates and uses Pinia store" time="0.001">
     </testcase>
@@ -58,23 +50,31 @@
     <testcase classname="main.ts creates app instance and configures it properly" name="main.ts creates app instance and configures it properly" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="NavBar.vue" errors="0" failures="0" skipped="0" timestamp="2025-08-18T14:44:31" time="0.037" tests="3">
+  <testsuite name="vuetify plugin" errors="0" failures="0" skipped="0" timestamp="2025-08-20T07:09:10" time="0.031" tests="3">
+    <testcase classname="vuetify plugin can be imported without errors" name="vuetify plugin can be imported without errors" time="0.003">
+    </testcase>
+    <testcase classname="vuetify plugin exports a vuetify instance" name="vuetify plugin exports a vuetify instance" time="0">
+    </testcase>
+    <testcase classname="vuetify plugin has expected structure" name="vuetify plugin has expected structure" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="axios plugin" errors="0" failures="0" skipped="0" timestamp="2025-08-20T07:09:10" time="0.028" tests="3">
+    <testcase classname="axios plugin has install method" name="axios plugin has install method" time="0.002">
+    </testcase>
+    <testcase classname="axios plugin installs axios instance on app" name="axios plugin installs axios instance on app" time="0">
+    </testcase>
+    <testcase classname="axios plugin is a valid Vue plugin" name="axios plugin is a valid Vue plugin" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="NavBar.vue" errors="0" failures="0" skipped="0" timestamp="2025-08-20T07:09:10" time="0.035" tests="3">
     <testcase classname="NavBar.vue is a Vue component" name="NavBar.vue is a Vue component" time="0.001">
     </testcase>
     <testcase classname="NavBar.vue can be imported successfully" name="NavBar.vue can be imported successfully" time="0">
     </testcase>
-    <testcase classname="NavBar.vue is a valid Vue SFC" name="NavBar.vue is a valid Vue SFC" time="0">
+    <testcase classname="NavBar.vue is a valid Vue SFC" name="NavBar.vue is a valid Vue SFC" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="axios plugin" errors="0" failures="0" skipped="0" timestamp="2025-08-18T14:44:31" time="0.044" tests="3">
-    <testcase classname="axios plugin has install method" name="axios plugin has install method" time="0.016">
-    </testcase>
-    <testcase classname="axios plugin installs axios instance on app" name="axios plugin installs axios instance on app" time="0">
-    </testcase>
-    <testcase classname="axios plugin is a valid Vue plugin" name="axios plugin is a valid Vue plugin" time="0.001">
-    </testcase>
-  </testsuite>
-  <testsuite name="HomeView.vue" errors="0" failures="0" skipped="0" timestamp="2025-08-18T14:44:31" time="0.036" tests="3">
+  <testsuite name="HomeView.vue" errors="0" failures="0" skipped="0" timestamp="2025-08-20T07:09:10" time="0.034" tests="3">
     <testcase classname="HomeView.vue is a Vue component" name="HomeView.vue is a Vue component" time="0">
     </testcase>
     <testcase classname="HomeView.vue can be imported successfully" name="HomeView.vue can be imported successfully" time="0.001">
@@ -82,10 +82,10 @@
     <testcase classname="HomeView.vue is a valid Vue SFC" name="HomeView.vue is a valid Vue SFC" time="0">
     </testcase>
   </testsuite>
-  <testsuite name="AboutView.vue" errors="0" failures="0" skipped="0" timestamp="2025-08-18T14:44:31" time="0.031" tests="3">
+  <testsuite name="AboutView.vue" errors="0" failures="0" skipped="0" timestamp="2025-08-20T07:09:10" time="0.032" tests="3">
     <testcase classname="AboutView.vue is a Vue component" name="AboutView.vue is a Vue component" time="0">
     </testcase>
-    <testcase classname="AboutView.vue can be imported successfully" name="AboutView.vue can be imported successfully" time="0">
+    <testcase classname="AboutView.vue can be imported successfully" name="AboutView.vue can be imported successfully" time="0.001">
     </testcase>
     <testcase classname="AboutView.vue is a valid Vue SFC" name="AboutView.vue is a valid Vue SFC" time="0">
     </testcase>
