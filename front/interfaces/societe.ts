@@ -1,5 +1,6 @@
-export interface Societe {
-  "@id"?: string;
+import { Item } from './item';
+
+export interface Societe extends Item {
   nom?: string;
   active?: boolean;
   pays?: any;

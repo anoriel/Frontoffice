@@ -1,5 +1,6 @@
-export interface Customer {
-  "@id"?: string;
+import { Item } from './item';
+
+export interface Customer extends Item {
   nomSociete?: string;
   customerType?: any;
   tel?: string;

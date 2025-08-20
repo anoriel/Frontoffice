@@ -29,7 +29,7 @@ jest.mock('./plugins/vuetify', () => ({
   name: 'vuetify',
 }))
 
-jest.mock('./plugins/axios', () => ({
+jest.mock('./plugins/axios/axios', () => ({
   install: jest.fn(),
   name: 'axios',
 }))

@@ -1,5 +1,6 @@
-export interface OssIntegration {
-  "@id"?: string;
+import { Item } from './item';
+
+export interface OssIntegration extends Item {
   customer?: string;
   invoiceConditions?: string;
   user?: string;

@@ -1,5 +1,6 @@
-export interface Interlocuteur {
-  "@id"?: string;
+import { Item } from './item';
+
+export interface Interlocuteur extends Item {
   civilite?: string;
   nom?: string;
   prenom?: string;

@@ -1,4 +1,5 @@
-export interface ProprieteDesignation {
-  "@id"?: string;
+import { Item } from './item';
+
+export interface ProprieteDesignation extends Item {
   codeText?: any;
 }

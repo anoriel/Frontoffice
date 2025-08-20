@@ -1,5 +1,6 @@
-export interface OperationType {
-  "@id"?: string;
+import { Item } from './item';
+
+export interface OperationType extends Item {
   label?: string;
   code?: string;
 }

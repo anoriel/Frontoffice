@@ -1,5 +1,6 @@
-export interface MediaObject {
-  "@id"?: string;
+import { Item } from './item';
+
+export interface MediaObject extends Item {
   filename?: string;
   mimeType?: string;
   filesystem?: string;

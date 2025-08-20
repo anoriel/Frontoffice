@@ -1,5 +1,6 @@
-export interface Lead {
-  "@id"?: string;
+import { Item } from './item';
+
+export interface Lead extends Item {
   createdAt?: Date;
   customerName?: string;
   name?: string;

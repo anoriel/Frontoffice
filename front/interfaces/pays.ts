@@ -1,5 +1,6 @@
-export interface Pays {
-  "@id"?: string;
+import { Item } from './item';
+
+export interface Pays extends Item {
   nom?: string;
   iso3166?: string;
   langue?: string;

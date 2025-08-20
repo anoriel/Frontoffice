@@ -1,5 +1,6 @@
-export interface FileIntegrationStatus {
-  "@id"?: string;
+import { Item } from './item';
+
+export interface FileIntegrationStatus extends Item {
   name?: string;
   position?: number;
   description?: string;

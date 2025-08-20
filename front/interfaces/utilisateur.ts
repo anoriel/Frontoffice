@@ -1,5 +1,6 @@
-export interface Utilisateur {
-  "@id"?: string;
+import { Item } from './item';
+
+export interface Utilisateur extends Item {
   nom?: string;
   prenom?: string;
   email?: string;

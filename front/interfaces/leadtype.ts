@@ -1,5 +1,6 @@
-export interface LeadType {
-  "@id"?: string;
+import { Item } from './item';
+
+export interface LeadType extends Item {
   name?: string;
   isHidden?: boolean;
   isDefault?: boolean;

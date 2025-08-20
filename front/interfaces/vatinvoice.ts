@@ -1,5 +1,6 @@
-export interface VatInvoice {
-  "@id"?: string;
+import { Item } from './item';
+
+export interface VatInvoice extends Item {
   number?: string;
   invoiceDate?: Date;
   createdAt?: Date;

@@ -1,5 +1,6 @@
-export interface Agency {
-  "@id"?: string;
+import { Item } from './item';
+
+export interface Agency extends Item {
   nom?: string;
   active?: boolean;
   pays?: any;

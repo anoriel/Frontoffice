@@ -1,3 +1,4 @@
-export interface VatIntegration {
-  "@id"?: string;
+import { Item } from './item';
+
+export interface VatIntegration extends Item {
 }

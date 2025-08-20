@@ -1,4 +1,5 @@
-export interface MediaCategory {
-  "@id"?: string;
+import { Item } from './item';
+
+export interface MediaCategory extends Item {
   name?: string;
 }
