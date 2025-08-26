@@ -2,6 +2,8 @@ import _ from 'lodash';
 import moment from "moment";
 import * as ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { SHA1 } from 'crypto-js';
+
 
 interface GenericListItem
 {
@@ -87,7 +89,7 @@ interface CommonHelperMethods
 interface Vue3Instance extends CommonHelperMethods
 {
   $t: (key: string) => string;
-  $CryptoJS: any;
+  $vueCryptojs: any;
   $createElement: any;
   $bvToast: any;
 }
@@ -373,7 +375,7 @@ export default function useCommonHelper()
     } else if (ciphertext === -1) {
       return "FFFFFF";
     }
-    const code = this.$CryptoJS.HmacSHA1(ciphertext, "Secret Passphrase").toString();
+    const code = SHA1(ciphertext.toString()).toString();
     return code.slice(5 + addColor, 6 + addColor) + code.slice(10 + addColor, 11 + addColor) + code.slice(15 + addColor, 16 + addColor) + code.slice(20 + addColor, 21 + addColor) + code.slice(25 + addColor, 26 + addColor) + code.slice(30 + addColor, 31 + addColor);
   }
 

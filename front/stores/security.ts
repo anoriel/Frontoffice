@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import SecurityAPI from '@/api/security'
 import { Utilisateur } from '@/interfaces/utilisateur'
-import { APIResponse } from '@/plugins/axios/type/APIResponse'
 
 function parseJwt(JWTToken: string | null): JWTTokenInfo | null
 {
@@ -393,9 +392,10 @@ export const useSecurityStore = defineStore('security', {
     // {
     //   commit(SWITCH_USER, user)
     // },
-    // switchUserReset()
-    // {
-    //   commit(SWITCH_USER_RESET)
-    // },
+    switchUserReset()
+    {
+      this.switch_user = null;
+      this.currentUserRoles = this.JWTTokenInfo.roles;
+    },
   },
 })
