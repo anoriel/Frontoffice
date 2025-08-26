@@ -9,7 +9,7 @@ export interface Utilisateur extends Item {
   societe?: any;
   impersonateUser?: any;
   lastActivityAt?: Date;
-  readonly roles?: string;
+  readonly roles?: string[];
   readonly stringValue?: string;
   readonly activeNow?: boolean;
   readonly lastPointsPerDate?: any;

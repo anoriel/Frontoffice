@@ -2,15 +2,22 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
 import App from './App.vue'
-import router from './router'
-import vuetify from './plugins/vuetify'
+import useCommonHelper from './helpers/commonHelper'
 import axios from './plugins/axios/axios'
+import i18n from './plugins/i18n'
+import vuetify from './plugins/vuetify'
+import router from './router'
+
+const helpers = useCommonHelper()
 
 const app = createApp(App)
 
 app.use(createPinia())
+app.use(i18n)
 app.use(router)
 app.use(vuetify)
-app.use(axios)
+
+app.config.globalProperties.$axios = axios
+app.config.globalProperties.$helpers = helpers
 
 app.mount('#app')
