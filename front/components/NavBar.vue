@@ -14,7 +14,7 @@
 
         <v-menu activator="parent" open-on-hover open-delay="10" close-delay="10" v-if="route.meta.isDropdown">
           <v-list>
-            <v-list-item v-for="child in getChildren(route)" :key="child.name" :to="child.path" density="compact">
+            <v-list-item v-for="child in getChildren(route)" :key="child.name" :to="child.path" density="compact" base-color="blue-darken-4">
               <v-list-item-title>{{ $helpers.capitalizeFirstLetter($t(child.name)) }}</v-list-item-title>
               <template v-slot:prepend>
                 <FlagIcon v-if="child.meta.flag" :code="child.meta.flag" />
@@ -28,7 +28,7 @@
                 v-if="child.meta.isDropdown">
                 <v-list>
                   <v-list-item v-for="subChild in getChildren(child)" :key="subChild.name" :to="subChild.path"
-                    density="compact">
+                    density="compact" base-color="blue-darken-4">
                     <v-list-item-title>{{ $helpers.capitalizeFirstLetter($t(subChild.name)) }}</v-list-item-title>
                     <template v-slot:prepend>
                       <FlagIcon v-if="subChild.meta.flag" :code="subChild.meta.flag" />
