@@ -55,7 +55,7 @@ function searchRoleInList(role: string, list: any, roleHierarchyMap: any)
   if (!list) {
     return false
   }
-  if (list.indexOf(role) >= 0) {
+  if (list.indexOf(role) >= 0 || !role.length) {
     return true
   }
 
@@ -108,7 +108,6 @@ interface JWTTokenInfo
   lastname?: string;
   username?: string;
   authToken?: string;
-  legacyIntranetUrl?: string;
   points?: number;
   lastPoints?: number;
 }
@@ -144,13 +143,6 @@ export const useSecurityStore = defineStore('security', {
         state.JWTTokenInfo = parseJwt(sessionStorage.getItem("JWTToken"))
       }
       return state.JWTTokenInfo != null ? state.JWTTokenInfo.authToken : null
-    },
-    getLegacyIntranetUrl(state)
-    {
-      //url for legacy intranet
-      return state.JWTTokenInfo != null
-        ? state.JWTTokenInfo.legacyIntranetUrl
-        : null
     },
     getEmail(state)
     {
@@ -323,36 +315,45 @@ export const useSecurityStore = defineStore('security', {
       this.isLoading = false
       return token
     },
-    // onRefresh(, [JWTToken, authToken])
-    // {
-    //   commit(PROVIDING_DATA_ON_REFRESH_SUCCESS, [JWTToken, authToken])
-    // },
+    onRefresh()
+    {
+      this.disconnect()
+      this.JWTToken = sessionStorage.getItem("JWTToken");
+      this.isAuthenticated = this.JWTToken != null;
+      if(this.JWTToken != null){
+        this.JWTTokenInfo = parseJwt(this.JWTToken);
+        this.currentUserRoles = this.JWTTokenInfo.roles;
+        sessionStorage.setItem("JWTTokenInfo", JSON.stringify(this.JWTTokenInfo));
+      }
+    },
+    destroySessionStorage(){
+      sessionStorage.removeItem("JWTToken");
+      sessionStorage.removeItem("JWTTokenInfo");
+      sessionStorage.removeItem("authToken");
+      sessionStorage.removeItem("username");
+      sessionStorage.removeItem("human_iat");
+      sessionStorage.removeItem("human_exp");
+      sessionStorage.removeItem("points");
+      sessionStorage.removeItem("lastPoints");
+    },
     disconnect()
     {
       this.isAuthenticated = false;
+      this.JWTToken = null;
+      this.JWTTokenInfo = null;
+      this.currentUserRoles = [];
+      this.roles = [];
+      this.roleHierarchy = {};
+      this.roleHierarchyMap = {};
     },
     async logout()
     {
       this.error = null
-      this.isAuthenticated = false;
       this.isLoading = true
       try {
         await SecurityAPI.logout()
-
-        this.JWTToken = null;
-        this.JWTTokenInfo = null;
-        this.currentUserRoles = [];
-        this.roles = [];
-        this.roleHierarchy = {};
-        this.roleHierarchyMap = {};
-        sessionStorage.removeItem("JWTToken");
-        sessionStorage.removeItem("JWTTokenInfo");
-        sessionStorage.removeItem("authToken");
-        sessionStorage.removeItem("username");
-        sessionStorage.removeItem("human_iat");
-        sessionStorage.removeItem("human_exp");
-        sessionStorage.removeItem("points");
-        sessionStorage.removeItem("lastPoints");
+        this.disconnect()
+        this.destroySessionStorage()
       } catch (error) {
         this.error = error
       }

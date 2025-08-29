@@ -334,6 +334,13 @@ export default function useCommonHelper()
     }
   }
 
+  function formatDateTime(value: string | Date | null | undefined): string | undefined
+  {
+    if (value) {
+      return moment(new Date(String(value))).format("YYYY-MM-DD HH:mm:ss");
+    }
+  }
+
   function formatDateTimeZulu(value: string | Date | null | undefined): string | undefined
   {
     if (value) {
@@ -346,21 +353,6 @@ export default function useCommonHelper()
     if (value) {
       return moment(new Date(String(value))).format("YYYY-MM");
     }
-  }
-
-  function getBaseLegacyIntranetUrl(redirect: string | null = null): string | null
-  {
-    const legacyIntranetUrl = localStorage.getItem('legacyIntranetUrl');
-    const username = localStorage.getItem('username');
-    const authToken = localStorage.getItem('authToken');
-    if (null == legacyIntranetUrl || null == username || null == authToken) {
-      return null;
-    }
-    let query = "/admin/identification.php?identifiant=" + username + "&authToken=" + authToken;
-    if (redirect) {
-      query += "&redirect_to=" + encodeURIComponent(redirect);
-    }
-    return "" + legacyIntranetUrl + "" + query;
   }
 
   function getDifference(a: Record<string, any>, b: Record<string, any>): Record<string, any>
@@ -625,9 +617,9 @@ export default function useCommonHelper()
     ExcelDateToJSDate,
     formatBytesArray,
     formatDate,
+    formatDateTime,
     formatDateTimeZulu,
     formatPeriod,
-    getBaseLegacyIntranetUrl,
     getDifference,
     getHexColor,
     getHourFromDate,

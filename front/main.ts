@@ -7,6 +7,8 @@ import axios from './plugins/axios/axios'
 import i18n from './plugins/i18n'
 import vuetify from './plugins/vuetify'
 import router from './router'
+import 'vue3-flag-icons/styles'
+import vueDebounce from 'vue-debounce'
 
 const helpers = useCommonHelper()
 
@@ -20,4 +22,5 @@ app.use(vuetify)
 app.config.globalProperties.$axios = axios
 app.config.globalProperties.$helpers = helpers
 
-app.mount('#app')
+app.directive('debounce', vueDebounce({ lock: true }))
+  .mount('#app')
