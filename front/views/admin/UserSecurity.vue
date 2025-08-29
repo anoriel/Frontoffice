@@ -21,10 +21,18 @@
     <v-row>
       <v-col cols="6">
         <v-data-table :hover="true" :headers="visibleColumns" striped="even" density="compact"
-          :loading-text="$t('loading')" :loading="userStore.isLoading" :row-props="rowProps" :search="userFilter"
-          :custom-filter="customFilter" :items="filteredList" @click:row="selectUser">
+          :loading-text="$t('loading')" :loading="userStore.isLoading" :search="userFilter"
+          :custom-filter="customFilter" :items="filteredList" @click:row="selectUser"
+          v-model:page="userStore.currentPage" v-model:items-per-page="globalStore.perPage"
+          :filter-keys="['stringValue']">
+
+
+          <template v-slot:top>
+            <small class="text-center" v-if="filteredList.length"><i>{{ filteredList.length }} {{ $t("record", filteredList.length) }}</i></small>
+          </template>
+
           <template v-slot:[`item.stringValue`]="{ item, value }">
-            <span :class="{ 'font-italic': !item.actif }">
+            <span :class="{ 'font-italic opacity-50': !item.actif }">
               <UserCircle :nom="item.nom" :prenom="item.prenom" />
               {{ value }}
             </span>
@@ -32,6 +40,19 @@
           <template v-slot:[`item.lastActivityAt`]="{ item, value }">
             {{ $helpers.formatDateTime(value) }}&nbsp;
             <v-icon v-if="item.selected" class="position-absolute right-0">mdi-menu-right</v-icon>
+          </template>
+
+          <template v-slot:bottom>
+            <v-row>
+              <v-col cols="3">
+                <v-select v-model="globalStore.perPage" :items="globalStore.perPageOptions" density="compact"
+                  :label="$helpers.capitalizeFirstLetter($t('per page'))" />
+              </v-col>
+              <v-col cols="9" class="text-center pt-2">
+                <v-pagination v-model="userStore.currentPage" :length="pageCount" rounded="circle"
+                  active-color="blue-darken-4" color="blue-darken-4"></v-pagination>
+              </v-col>
+            </v-row>
           </template>
         </v-data-table>
       </v-col>
@@ -78,7 +99,7 @@ import useCommonHelper from '@/helpers/commonHelper'
 const helpers = useCommonHelper()
 
 const activeItem = ref(null)
-const showInactiveUsers = ref(true)
+const showInactiveUsers = ref(false)
 const userFilter = ref(null)
 const filteredList = ref([])
 
@@ -101,11 +122,13 @@ const visibleColumns = ref([
 
 const pageCount = computed(() =>
 {
-  return Math.ceil(getUsersList.length / globalStore.perPage)
+  console.log("pageCount");
+  return Math.ceil(filteredList.value.length / globalStore.perPage)
 })
 
 function customFilter(value, query, item)
 {
+  console.log("customFilter");
   if (!showInactiveUsers.value && !item.raw.actif)
   {
     return false
@@ -116,6 +139,7 @@ function customFilter(value, query, item)
 
 async function getUsersList()
 {
+  console.log("getUsersList");
   await userStore.findAll()
   let list = JSON.parse(JSON.stringify(userStore.list));
   if (!showInactiveUsers.value)
@@ -132,14 +156,17 @@ getUsersList()
 
 function getUserName(e)
 {
+  console.log("getUserName");
   if (e && e.nom && e.prenom)
     return e.nom + ", " + e.prenom;
   return "";
 }
 
 
-function disabledRowStyle(item)
+function rowProps({ item })
 {
+  console.log("rowProps");
+
   let classNames = [];
   if (!item?.actif)//disable item so opacity
   {
@@ -149,17 +176,15 @@ function disabledRowStyle(item)
   {
     classNames.push("selectedItem bg-blue-darken-4");
   }
-  return classNames.join(" ");
-}
-function rowProps({ item })
-{
+
   return {
-    class: disabledRowStyle(item),
+    class: classNames.join(" "),
   };
 }
 
 function impersonate()
 {
+  console.log("impersonate");
   securityStore.switchUser(activeItem.value);
   $store.dispatch("crmListSettings/reset", activeItem.value);
   router.push({ path: "/" });
@@ -167,6 +192,7 @@ function impersonate()
 
 function selectUser(click, row)
 {
+  console.log("selectUser");
   //hide previously selected row icon
   let foundItemInFilteredList = filteredList.value.find(e => e.id == activeItem?.value?.id);
   let index = filteredList.value.indexOf(foundItemInFilteredList);
@@ -197,6 +223,7 @@ function selectUser(click, row)
 
 async function updated()
 {
+  console.log("updated");
   let foundItemInFilteredList = filteredList.value.find(e => e.id == activeItem.value.id);
   let index = filteredList.value.indexOf(foundItemInFilteredList);
   activeItem.value.rolesJson = JSON.stringify({
