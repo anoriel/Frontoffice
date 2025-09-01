@@ -81,7 +81,6 @@
 </template>
 
 <script setup>
-import PageTitle from '@/components/PageTitle.vue';
 import { computed, ref, watch } from 'vue'
 import UserCircle from '@/components/UserCircle.vue';
 import FlagIcon from 'vue3-flag-icons'

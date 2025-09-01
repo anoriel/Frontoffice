@@ -36,6 +36,7 @@
     "vue-router": "^4.5.1",
     "vue-star-rating": "^2.1.0",
     "vue3-flag-icons": "^0.0.3",
+    "vue3-gravatar": "github:elemsio/vue3-gravatar",
     "vuedraggable": "^4.1.0",
     "vuetify": "^3.9.0-beta.1"
   },

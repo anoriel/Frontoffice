@@ -24,7 +24,6 @@
 
 <script setup>
 import { computed, ref, onMounted } from 'vue'
-import PageTitle from "@/components/PageTitle.vue";
 import { useUserStore } from '@/stores/user';
 const userStore = useUserStore()
 import { useGlobalStore } from '@/stores/global';
