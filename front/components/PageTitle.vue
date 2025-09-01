@@ -4,7 +4,7 @@
       <h1>
         <FlagIcon v-if="router.currentRoute.value.meta && router.currentRoute.value.meta.flag"
           :code="router.currentRoute.value.meta && router.currentRoute.value.meta.flag" />
-        <v-icon v-if="router.currentRoute.value.meta && router.currentRoute.value.meta.icon">
+        <v-icon v-if="router.currentRoute.value.meta && router.currentRoute.value.meta.icon" size="smaller">
           {{ router.currentRoute.value.meta.icon }}
         </v-icon>
         {{ $helpers.capitalizeFirstLetter($t(router.currentRoute.value.name)) }}
