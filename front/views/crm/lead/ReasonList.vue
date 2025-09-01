@@ -24,8 +24,8 @@
           <v-list-item-title @click="editItem(item)">{{ item.name }}</v-list-item-title>
 
           <template v-slot:append>
-            <v-icon v-if="item.isDeleted" @click="undeleteItem(item)">mdi-delete-restore</v-icon>
-            <v-icon v-else @click="deleteItem(item)">mdi-trash-can</v-icon>
+            <v-icon v-if="item.isDeleted" @click="undeleteItem(item)" color="success">mdi-delete-restore</v-icon>
+            <v-icon v-else @click="deleteItem(item)" color="error">mdi-trash-can</v-icon>
           </template>
 
         </v-list-item>
