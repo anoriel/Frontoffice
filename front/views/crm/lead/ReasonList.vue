@@ -34,8 +34,7 @@
 
 
     <v-dialog v-model="dialog" max-width="500">
-      <v-card :subtitle="`${isEditing ? 'Update' : 'Create'} your favorite book`"
-        :title="`${isEditing ? 'Edit' : 'Add'} a Book`">
+      <v-card :title="$helpers.capitalizeFirstLetter($t(isEditing ? 'update' : 'add')) + ' ' + $t('a reason')">
         <template v-slot:text>
           <v-row>
             <v-col cols="12">
