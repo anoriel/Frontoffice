@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar color="teal-darken-4" image="/images/bg-header.png">
+    <v-app-bar color="blue-darken-4" image="/images/bg-header.png">
       <v-app-bar-title>
         <img src="/images/asd-group-logo-couleur-transparent-white.png" :alt="appTitle" :title="appTitle" height="48" />
         <span>{{ appTitle }}</span>
@@ -18,27 +18,27 @@
           $t('loading') }}...
       </v-btn>
 
-      <v-btn v-if="securityStore.isAdmin && !securityStore.isLoggedAs" @click="showLoggedUsers()">
+      <v-btn v-if="securityStore.isAdmin() && !securityStore.isLoggedAs()" @click="showLoggedUsers()">
         {{ numberOfCurrentlyLoggedUsers }}
-        {{ $tc('# users currently connected', numberOfCurrentlyLoggedUsers) }}
+        {{ $t('# users currently connected', numberOfCurrentlyLoggedUsers) }}
       </v-btn>
 
-      <v-btn v-if="securityStore.isLoggedAs" @click="securityStore.switchUserReset()" color="warning" variant="elevated"
-        append-icon="mdi-logout">
+      <v-btn v-if="securityStore.isLoggedAs()" @click="securityStore.switchUserReset()" color="warning"
+        variant="elevated" append-icon="mdi-logout">
         {{ $helpers.capitalizeFirstLetter($t('log as'))
-        }}{{ $helpers.capitalizeFirstLetter($t(':')) }}{{ securityStore.getLoggedAs }}
+        }}{{ $helpers.capitalizeFirstLetter($t(':')) }}{{ securityStore.getLoggedAs() }}
         <template v-slot:append>
           <v-icon color="white"></v-icon>
         </template>
       </v-btn>
 
-      <v-menu transition="scale-transition" v-if="securityStore.getIsAuthenticated && !securityStore.isLoggedAs">
+      <v-menu transition="scale-transition" v-if="securityStore.getIsAuthenticated() && !securityStore.isLoggedAs()">
         <template v-slot:activator="{ props }">
           <v-btn v-bind="props" color="white" variant="elevated" append-icon="mdi-dots-vertical">
             <template v-slot:prepend>
-              <user-circle :nom="securityStore.getFirstname" :prenom="securityStore.getLastname" />
+              <user-circle :nom="securityStore.getFirstname()" :prenom="securityStore.getLastname()" />
             </template>
-            {{ securityStore.getFirstname }} {{ securityStore.getLastname }}
+            {{ securityStore.getFirstname() }} {{ securityStore.getLastname() }}
 
             <template v-slot:append>
               <v-icon color="primary"></v-icon>
@@ -60,12 +60,17 @@
     </v-app-bar>
     <nav-bar />
     <v-main>
+      <page-title />
       <router-view />
     </v-main>
   </v-app>
 </template>
 
 <style>
+.gravatar {
+  vertical-align: bottom;
+}
+
 .v-toolbar-title__placeholder {
   align-items: center !important;
   display: flex !important;
@@ -83,6 +88,7 @@
 </style>
 
 <script setup>
+import PageTitle from '@/components/PageTitle.vue';
 import NavBar from './components/NavBar.vue'
 import UserCircle from './components/UserCircle.vue'
 import axios from './plugins/axios/axios'
@@ -103,18 +109,32 @@ let axiosIsLoading = ref(false)
 let axiosNbRequests = ref(0)
 let axiosMaxRequests = ref(0)
 
-if (router.currentRoute.value.name != "login" && !securityStore.getIsAuthenticated)
+
+securityStore.onRefresh()
+
+function checkIsLogged()
 {
-  console.log("non auth")
-  router.push({ name: 'login', query: { redirect: route.query.redirect ?? router.currentRoute.value.path } });
+  if (router.currentRoute.value.name != "login" && !securityStore.getIsAuthenticated())
+  {
+    router.push({ name: 'login' });
+    return false;
+  }
+  return true;
 }
 
-router.beforeEach(async (to, from) => {
-  if (!securityStore.getIsAuthenticated && to.name !== 'login'
-  ) {
+router.beforeEach(async (to, from) =>
+{
+  if (!securityStore.getIsAuthenticated() && to.name !== 'login'
+  )
+  {
     return { name: 'login' }
   }
 })
+router.afterEach((to, from) =>
+{
+  document.title = appTitle + (to?.meta?.title ? (' - ' + to?.meta?.title) : '');
+});
+
 
 axios.interceptors.request.use((request) =>
 {
@@ -158,13 +178,7 @@ axios.interceptors.response.use(
     interceptResponse(err)
     if (err.response.status === 401)
     {
-      if (router.currentRoute.value.name != 'login')
-      {
-        securityStore.logout()
-      } else
-      {
-        securityStore.disconnect()
-      }
+      logout()
     } else if (err.response.status === 500 || err.response.status === 400)
     {
       console.log('Erreur lors de la mise à jour', err.response.data.error)
@@ -213,14 +227,22 @@ async function logout()
 {
   await securityStore.logout()
 
-  if (router.currentRoute.value.name != "login")
-  {
-    router.push({ path: "/login", query: { redirect: route.query.redirect ?? router.currentRoute.value.path } });
-  }
+  checkIsLogged()
 }
 
 //load mandatory data
-securityStore.loadRoleHierarchy()
-securityStore.loadRoleHierarchyMap()
+
+if (checkIsLogged())
+{
+  if (!Object.keys(securityStore.roleHierarchy).length)
+  {
+    securityStore.loadRoleHierarchy();
+  }
+
+  if (!Object.keys(securityStore.roleHierarchyMap).length)
+  {
+    securityStore.loadRoleHierarchyMap()
+  }
+}
 // securityStore.getApiMe()
 </script>

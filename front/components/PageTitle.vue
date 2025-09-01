@@ -1,14 +1,16 @@
 <template>
-  <div class="row col">
-    <h1>
-      <FlagIcon v-if="router.currentRoute.value.meta && router.currentRoute.value.meta.flag"
-        :code="router.currentRoute.value.meta && router.currentRoute.value.meta.flag" />
-      <v-icon v-if="router.currentRoute.value.meta && router.currentRoute.value.meta.icon">
-        {{ router.currentRoute.value.meta.icon }}
-      </v-icon>
-      {{ $helpers.capitalizeFirstLetter($t(router.currentRoute.value.name)) }}
-    </h1>
-  </div>
+  <v-row v-if="router.currentRoute.value && router.currentRoute.value.name" class="ml-1">
+    <v-col class="text-blue-darken-4">
+      <h1>
+        <FlagIcon v-if="router.currentRoute.value.meta && router.currentRoute.value.meta.flag"
+          :code="router.currentRoute.value.meta && router.currentRoute.value.meta.flag" />
+        <v-icon v-if="router.currentRoute.value.meta && router.currentRoute.value.meta.icon">
+          {{ router.currentRoute.value.meta.icon }}
+        </v-icon>
+        {{ $helpers.capitalizeFirstLetter($t(router.currentRoute.value.name)) }}
+      </h1>
+    </v-col>
+  </v-row>
 </template>
 
 <script setup>

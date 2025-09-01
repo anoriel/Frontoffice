@@ -274,6 +274,7 @@
 	"invoiceFrom": "",
 	"invoiceTo": "",
 	"label": "",
+	"lastActivityAt": "",
 	"lastUpdatedAt": "",
 	"last_name": "",
 	"lead.activity": "",

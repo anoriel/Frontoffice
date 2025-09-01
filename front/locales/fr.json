@@ -274,6 +274,7 @@
 	"invoiceFrom": "date de facture du",
 	"invoiceTo": "date de facture jusqu'au",
 	"label": "libellé",
+	"lastActivityAt": "dernière activité",
 	"lastUpdatedAt": "date de modification",
 	"last_name": "nom",
 	"lead.activity": "historique",

@@ -274,6 +274,7 @@
 	"invoiceFrom": "invoice date from",
 	"invoiceTo": "invoice date to",
 	"label": "label",
+	"lastActivityAt": "last activity at",
 	"lastUpdatedAt": "modification date",
 	"last_name": "last name",
 	"lead.activity": "activity",

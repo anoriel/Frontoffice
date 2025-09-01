@@ -1,13 +1,5 @@
 <template>
   <v-container>
-    <h1>
-      <FlagIcon v-if="router.currentRoute.value.meta && router.currentRoute.value.meta.flag"
-        :code="router.currentRoute.value.meta.flag" />
-      <v-icon v-if="router.currentRoute.value.meta && router.currentRoute.value.meta.icon">
-        {{ router.currentRoute.value.meta.icon }}
-      </v-icon>
-      {{ $helpers.capitalizeFirstLetter($t(router.currentRoute.value.name)) }}
-    </h1>
     <v-row>
       <v-col>
         <v-text-field v-model="userFilter" :label="$helpers.capitalizeFirstLetter($t('userFilter'))"
@@ -28,12 +20,13 @@
 
 
           <template v-slot:top>
-            <small class="text-center" v-if="filteredList.length"><i>{{ filteredList.length }} {{ $t("record", filteredList.length) }}</i></small>
+            <small class="text-center" v-if="filteredList.length"><i>{{ filteredList.length }} {{ $t("record",
+              filteredList.length) }}</i></small>
           </template>
 
           <template v-slot:[`item.stringValue`]="{ item, value }">
             <span :class="{ 'font-italic opacity-50': !item.actif }">
-              <UserCircle :nom="item.nom" :prenom="item.prenom" />
+              <vue-gravatar :email="item.email" :size="12" default-image="wavatar" class="gravatar" />
               {{ value }}
             </span>
           </template>
@@ -58,7 +51,14 @@
       </v-col>
       <v-col cols="6">
         <v-card v-if="activeItem">
-          <v-card-title>{{ activeItem.stringValue }}</v-card-title>
+          <v-card-item>
+            <template v-slot:prepend>
+              <vue-gravatar :email="activeItem.email" :size="50" default-image="wavatar" />
+            </template>
+            <template v-slot:title>
+              {{ activeItem.stringValue }}
+            </template>
+          </v-card-item>
           <v-checkbox v-model="activeItem.actif" :label="$helpers.capitalizeFirstLetter($t('active'))"
             class="d-inline-block" @change="updated" />
           <v-autocomplete v-model="activeItem.roles" :items="securityStore.roles"
@@ -81,6 +81,7 @@
 </template>
 
 <script setup>
+import PageTitle from '@/components/PageTitle.vue';
 import { computed, ref, watch } from 'vue'
 import UserCircle from '@/components/UserCircle.vue';
 import FlagIcon from 'vue3-flag-icons'
@@ -122,13 +123,11 @@ const visibleColumns = ref([
 
 const pageCount = computed(() =>
 {
-  console.log("pageCount");
   return Math.ceil(filteredList.value.length / globalStore.perPage)
 })
 
 function customFilter(value, query, item)
 {
-  console.log("customFilter");
   if (!showInactiveUsers.value && !item.raw.actif)
   {
     return false
@@ -139,7 +138,6 @@ function customFilter(value, query, item)
 
 async function getUsersList()
 {
-  console.log("getUsersList");
   await userStore.findAll()
   let list = JSON.parse(JSON.stringify(userStore.list));
   if (!showInactiveUsers.value)
@@ -156,7 +154,6 @@ getUsersList()
 
 function getUserName(e)
 {
-  console.log("getUserName");
   if (e && e.nom && e.prenom)
     return e.nom + ", " + e.prenom;
   return "";
@@ -165,7 +162,6 @@ function getUserName(e)
 
 function rowProps({ item })
 {
-  console.log("rowProps");
 
   let classNames = [];
   if (!item?.actif)//disable item so opacity
@@ -184,15 +180,12 @@ function rowProps({ item })
 
 function impersonate()
 {
-  console.log("impersonate");
   securityStore.switchUser(activeItem.value);
-  $store.dispatch("crmListSettings/reset", activeItem.value);
   router.push({ path: "/" });
 }
 
 function selectUser(click, row)
 {
-  console.log("selectUser");
   //hide previously selected row icon
   let foundItemInFilteredList = filteredList.value.find(e => e.id == activeItem?.value?.id);
   let index = filteredList.value.indexOf(foundItemInFilteredList);
@@ -223,7 +216,6 @@ function selectUser(click, row)
 
 async function updated()
 {
-  console.log("updated");
   let foundItemInFilteredList = filteredList.value.find(e => e.id == activeItem.value.id);
   let index = filteredList.value.indexOf(foundItemInFilteredList);
   activeItem.value.rolesJson = JSON.stringify({

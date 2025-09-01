@@ -1,23 +1,25 @@
 <template>
-  <div class="position-relative smallerFont">
-    <v-app>
-      <PageTitle />
-      <v-data-table-server :hover="true" :headers="visibleColumns" striped="even" :items="currentlyLoggedUsersList"
-        :items-length="currentlyLoggedUsersList.length" density="compact" :loading-text="$t('loading')"
-        :loading="userStore.isLoading" v-model:page="userStore.currentPage">
-        <template v-slot:[`item.lastActivityAt`]="{ value }">
-          {{ $helpers.formatDateTime(value) }}
-        </template>
+  <v-container>
+    <v-data-table-server :hover="true" :headers="visibleColumns" striped="even" :items="currentlyLoggedUsersList"
+      :items-length="currentlyLoggedUsersList.length" density="compact" :loading-text="$t('loading')"
+      :loading="userStore.isLoading" v-model:page="userStore.currentPage">
+      <template v-slot:[`item.stringValue`]="{ item, value }">
+        <vue-gravatar :email="item.email" :size="24" default-image="wavatar" class="gravatar" />
+        {{ value }}
+      </template>
+      <template v-slot:[`item.lastActivityAt`]="{ value }">
+        {{ $helpers.formatDateTime(value) }}
+      </template>
 
 
-        <template v-slot:bottom>
-          <div class="text-center pt-2" v-if="pageCount > 1">
-            <v-pagination v-model="globalStore.perPage" :length="pageCount" rounded="circle"></v-pagination>
-          </div>
-        </template>
-      </v-data-table-server>
-    </v-app>
-  </div>
+      <template v-slot:bottom>
+        <div class="text-center pt-2">
+          <v-pagination v-model="userStore.currentPage" :length="pageCount" rounded="circle"
+            active-color="blue-darken-4" color="blue-darken-4"></v-pagination>
+        </div>
+      </template>
+    </v-data-table-server>
+  </v-container>
 </template>
 
 <script setup>
