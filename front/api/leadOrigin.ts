@@ -1,9 +1,8 @@
-import axios from '@/plugins/axios/axios'
 import api_base from './api_base'
 import merge from 'deepmerge-json'
 
 const thisApi = {
-  baseUrl: '/lead_refusal_reasons',
+  baseUrl: '/lead_origins',
 }
 
 let merged = merge(api_base, thisApi)

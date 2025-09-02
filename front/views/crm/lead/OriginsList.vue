@@ -1,10 +1,10 @@
 <template>
-  <simple-list-template currentItemDescription="refusal reason" :currentItemsStore="leadRefusalReasonStore" />
+  <simple-list-template currentItemDescription="lead.origin" :currentItemsStore="leadOriginStore" />
 </template>
 
 <script setup>
-import { useLeadRefusalReasonStore } from '@/stores/leadRefusalReason'
-const leadRefusalReasonStore = useLeadRefusalReasonStore()
+import { useLeadOriginStore } from '@/stores/leadOrigin'
+const leadOriginStore = useLeadOriginStore()
 import SimpleListTemplate from '@/components/SimpleListTemplate.vue';
 </script>
 
