@@ -4,7 +4,7 @@
       :items-length="currentlyLoggedUsersList.length" density="compact" :loading-text="$t('loading')"
       :loading="userStore.isLoading" v-model:page="userStore.currentPage">
       <template v-slot:[`item.stringValue`]="{ item, value }">
-        <vue-gravatar :email="item.email" :size="24" default-image="wavatar" class="gravatar" />
+        <vue-gravatar :email="item.email" :size="24" :default-image="$gravatarDefaultImage" class="gravatar" />
         {{ value }}
       </template>
       <template v-slot:[`item.lastActivityAt`]="{ value }">

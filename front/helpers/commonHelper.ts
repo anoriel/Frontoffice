@@ -435,6 +435,12 @@ export default function useCommonHelper()
     return str.charAt(0).toLowerCase() + str.slice(1);
   }
 
+  function numberToString(i: number): string
+  {
+    const numbers = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"]
+    return numbers[i] ?? "none"
+  }
+
   function makeToast(this: Vue3Instance, title: string, msg: string, variant: string | null = null, delay: number = 0): void
   {
     const today = new Date();
@@ -631,6 +637,7 @@ export default function useCommonHelper()
     isEmptyOrNull,
     listWithSlots,
     lowercaseFirstLetter,
+    numberToString,
     makeToast,
     padZero,
     removeDuplicates,

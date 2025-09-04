@@ -20,6 +20,14 @@ function parseJwt(JWTToken: string | null): JWTTokenInfo | null
         .join("")
     )
 
+    let jsonParsed = JSON.parse(jsonPayload)
+
+    let me = jsonParsed?.me as string | null;
+    if (me != null && jsonParsed != null) {
+      let meObj = JSON.parse(me);
+      jsonParsed.email = meObj.email;
+    }
+
     return JSON.parse(jsonPayload)
   }
   return null
@@ -89,6 +97,7 @@ interface JWTTokenInfo
   roles: string[];
   firstname?: string;
   lastname?: string;
+  email?: string;
   username?: string;
   authToken?: string;
   points?: number;
@@ -139,6 +148,16 @@ let extendedValues = {
       return this.switch_user.id
     }
     return this.JWTTokenInfo != null ? this.JWTTokenInfo.id : null
+  },
+  getEmail()
+  {
+    if (
+      this.JWTTokenInfo == null &&
+      sessionStorage.getItem("JWTToken") != null
+    ) {
+      this.JWTTokenInfo = parseJwt(sessionStorage.getItem("JWTToken"));
+    }
+    return this.JWTTokenInfo != null ? this.JWTTokenInfo.email : null;
   },
   getFirstname()
   {

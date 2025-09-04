@@ -23,6 +23,7 @@ app.use(vuetify)
 
 app.config.globalProperties.$axios = axios
 app.config.globalProperties.$helpers = helpers
+app.config.globalProperties.$gravatarDefaultImage = import.meta.env.VITE_GRAVATAR_DEFAULT_IMAGE
 
 app.directive('debounce', vueDebounce({ lock: true }))
   .mount('#app')

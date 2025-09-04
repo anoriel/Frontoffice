@@ -38,9 +38,9 @@ export const baseStore = {
     this.listLength = 0;
     try {
       let response = await this.api.findAll();
-      this.isLoading = false;
       this.list = response.data["member"];
       this.listLength = response.data["totalItems"];
+      this.isLoading = false;
       return response.data;
     } catch (error) {
       this.isLoading = false;

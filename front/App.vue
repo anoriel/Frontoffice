@@ -13,7 +13,7 @@
         </v-btn>
       </v-app-bar-title>
 
-      <v-btn v-if="global.isBackgroundLoading" size="x-small">
+      <v-btn v-if="globalStore.isBackgroundLoading" size="x-small">
         <v-progress-circular color="white" indeterminate :size="20" :width="2"></v-progress-circular>&nbsp;{{
           $t('loading') }}...
       </v-btn>
@@ -36,7 +36,7 @@
         <template v-slot:activator="{ props }">
           <v-btn v-bind="props" color="white" variant="elevated" append-icon="mdi-dots-vertical">
             <template v-slot:prepend>
-              <user-circle :nom="securityStore.getFirstname()" :prenom="securityStore.getLastname()" />
+              <vue-gravatar :email="securityStore.getEmail()" :size="24" :default-image="$gravatarDefaultImage" class="gravatar" />
             </template>
             {{ securityStore.getFirstname() }} {{ securityStore.getLastname() }}
 
@@ -50,7 +50,7 @@
           <v-list-item append-icon="mdi-logout" link>
             <v-list-item-title @click="logout()">{{
               $helpers.capitalizeFirstLetter($t('logout'))
-              }}</v-list-item-title>
+            }}</v-list-item-title>
             <template v-slot:append>
               <v-icon color="primary"></v-icon>
             </template>
@@ -60,8 +60,12 @@
     </v-app-bar>
     <nav-bar />
     <v-main>
-      <page-title />
-      <router-view />
+      <v-container>
+        <v-row>
+          <page-title />
+          <router-view />
+        </v-row>
+      </v-container>
     </v-main>
   </v-app>
 </template>
@@ -93,7 +97,9 @@ import NavBar from './components/NavBar.vue'
 import UserCircle from './components/UserCircle.vue'
 import axios from './plugins/axios/axios'
 import { useSecurityStore } from './stores/security'
+const securityStore = useSecurityStore()
 import { useGlobalStore } from './stores/global'
+const globalStore = useGlobalStore()
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -102,8 +108,6 @@ const legacyIntranetUrl = import.meta.env.VITE_INTRANET_LEGACY_URL
 const router = useRouter()
 const route = useRoute()
 
-const securityStore = useSecurityStore()
-const global = useGlobalStore()
 
 let axiosIsLoading = ref(false)
 let axiosNbRequests = ref(0)
