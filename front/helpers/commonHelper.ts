@@ -96,6 +96,14 @@ interface Vue3Instance extends CommonHelperMethods
 
 export default function useCommonHelper()
 {
+  function areObjectsEqual(obj1: object, obj2: object)
+  {
+    const obj1Entries = Object.entries(obj1).sort();
+    const obj2Entries = Object.entries(obj2).sort();
+    return JSON.stringify(obj1Entries) === JSON.stringify(obj2Entries);
+  }
+
+
   function booleanListWithSlots(this: Vue3Instance): GenericListItem[]
   {
     return this.listWithSlots([
@@ -613,6 +621,7 @@ export default function useCommonHelper()
   }
 
   return {
+    areObjectsEqual,
     booleanListWithSlots,
     capitalizeFirstLetter,
     clearDate,

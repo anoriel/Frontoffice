@@ -36,7 +36,8 @@
         <template v-slot:activator="{ props }">
           <v-btn v-bind="props" color="white" variant="elevated" append-icon="mdi-dots-vertical">
             <template v-slot:prepend>
-              <vue-gravatar :email="securityStore.getEmail()" :size="24" :default-image="$gravatarDefaultImage" class="gravatar" />
+              <vue-gravatar :email="securityStore.getEmail()" :size="24" :default-image="$gravatarDefaultImage"
+                class="gravatar" />
             </template>
             {{ securityStore.getFirstname() }} {{ securityStore.getLastname() }}
 
@@ -67,6 +68,9 @@
         </v-row>
       </v-container>
     </v-main>
+    <div class="copyright">
+      &copy; 2007-{{ getCopyrightEndDate() }} ASD international - {{ releaseVersion }}{{ getEnvironment() }}
+    </div>
   </v-app>
 </template>
 
@@ -82,6 +86,22 @@
 </style>
 
 <style scoped>
+.copyright {
+  background-image: url(/images/bg-footer.png);
+  background-size: 100% 100%;
+  bottom: 0;
+  color: #e5ebf0;
+  font-size: 10px;
+  height: 26px;
+  left: 0;
+  line-height: 26px;
+  position: fixed;
+  right: 0;
+  text-align: center;
+  z-index: 9999;
+}
+
+
 .v-toolbar-title__placeholder>span {
   align-items: center !important;
   display: flex !important;
@@ -105,6 +125,9 @@ import { useRoute, useRouter } from 'vue-router'
 
 const appTitle = import.meta.env.VITE_APP_TITLE
 const legacyIntranetUrl = import.meta.env.VITE_INTRANET_LEGACY_URL
+const releaseVersion = import.meta.env.VITE_RELEASE_VERSION
+const environment = import.meta.env.VITE_ENV
+
 const router = useRouter()
 const route = useRoute()
 
@@ -196,6 +219,20 @@ axios.interceptors.response.use(
     })
   },
 )
+
+function getCopyrightEndDate()
+{
+  return new Date().getFullYear();
+}
+
+function getEnvironment()
+{
+  if (environment != 'prod')
+  {
+    return " - " + environment;
+  }
+  return "";
+}
 
 function getLegacyIntranetUrl()
 {
