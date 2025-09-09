@@ -1,4 +1,5 @@
 <template>
+  <v-main>
   <v-container>
     <v-row>
       <v-col>
@@ -11,12 +12,12 @@
       </v-col>
     </v-row>
   </v-container>
+  </v-main>
 </template>
 
 <script setup>
-import { useSecurityStore } from '@/stores/security'
 import { ref } from 'vue';
-
+import { useSecurityStore } from '@/stores/security'
 const securityStore = useSecurityStore()
 
 const count = ref(0)
