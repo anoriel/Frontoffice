@@ -60,14 +60,10 @@
       </v-menu>
     </v-app-bar>
     <nav-bar />
-    <v-main>
-      <v-container>
-        <v-row>
-          <page-title />
-          <router-view />
-        </v-row>
-      </v-container>
-    </v-main>
+    <page-title />
+    <v-container>
+      <router-view />
+    </v-container>
     <div class="copyright">
       &copy; 2007-{{ getCopyrightEndDate() }} ASD international - {{ releaseVersion }}{{ getEnvironment() }}
     </div>

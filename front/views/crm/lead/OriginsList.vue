@@ -1,5 +1,7 @@
 <template>
-  <simple-list-template currentItemDescription="lead.origin" :currentItemsStore="leadOriginStore" />
+  <v-main>
+    <simple-list-template currentItemDescription="lead.origin" :currentItemsStore="leadOriginStore" />
+  </v-main>
 </template>
 
 <script setup>

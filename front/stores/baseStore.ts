@@ -1,7 +1,9 @@
 import api_base from '@/api/api_base';
+import { Item } from '@/interfaces/item';
 
 const error: any = null;
-const item: any = null;
+const item: Item|null = null;
+const list: Item[] = [];
 
 export const baseStore = {
   api: api_base,
@@ -9,7 +11,7 @@ export const baseStore = {
   isLoading: false,
   error,
   item,
-  list: [],
+  list,
   listLength: 0,
 
   hasError() { return this.error !== null; },
@@ -72,6 +74,10 @@ export const baseStore = {
       this.error = error;
       return null;
     }
+  },
+  getById(id: Number)
+  {
+    return this.list.find(e => e.id == id)
   },
   reset()
   {

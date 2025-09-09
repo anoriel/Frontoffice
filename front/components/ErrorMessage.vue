@@ -1,5 +1,5 @@
 <template>
-  <v-alert
+  <v-alert v-if="error"
     :text="$helpers.capitalizeFirstLetter($t(getMessage(error)))"
     :title="$helpers.capitalizeFirstLetter($t('connection error'))"
     density="compact"

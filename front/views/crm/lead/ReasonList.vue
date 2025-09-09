@@ -1,5 +1,7 @@
 <template>
-  <simple-list-template currentItemDescription="refusal reason" :currentItemsStore="leadRefusalReasonStore" />
+  <v-main>
+    <simple-list-template currentItemDescription="refusal reason" :currentItemsStore="leadRefusalReasonStore" />
+  </v-main>
 </template>
 
 <script setup>
