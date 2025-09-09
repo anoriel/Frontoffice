@@ -25,6 +25,16 @@
       </v-btn>
     </v-row>
 
+    <v-dialog max-width="600" v-model="yesNoDialog">
+      <v-card :title="$helpers.capitalizeFirstLetter($t('are you sure you want to delete this line?'))">
+        <v-card-actions class="bg-surface-light">
+          <v-btn :text="$helpers.capitalizeFirstLetter($t('no'))" color="error" @click="removeRowCancelled()" />
+          <v-spacer></v-spacer>
+          <v-btn :text="$helpers.capitalizeFirstLetter($t('yes'))" color="success" @click="removeRowConfirmed()" />
+        </v-card-actions>
+      </v-card>
+    </v-dialog>>
+
     <v-row>
       <v-skeleton-loader v-if="!assignmentRulesList.filter(e => !e.isDeleted).length" type="table-row-divider@12" />
       <v-data-table v-else :hover="true" :headers="visibleColumns" striped="even" density="compact"
@@ -89,10 +99,11 @@
           </v-container>
         </template>
 
-        <template v-slot:[`item.actions`]="{ value }">
+        <template v-slot:[`item.actions`]="{ item }">
           <v-icon class="text-info">mdi-pencil-circle</v-icon>
-          <v-icon class="text-info">mdi-delete-circle</v-icon>
+          <v-icon class="text-info" @click="removeRow(item)">mdi-delete-circle</v-icon>
         </template>
+
       </v-data-table>
     </v-row>
 
@@ -112,12 +123,13 @@
       </v-card>
     </v-dialog>
 
+
   </v-main>
 </template>
 
 <script setup>
 import { onMounted, ref, watch } from 'vue';
-import PageTitle from '@/components/PageTitle.vue';
+
 import { useGlobalStore } from '@/stores/global'
 const globalStore = useGlobalStore()
 import { useSecurityStore } from '@/stores/security'
@@ -137,8 +149,10 @@ const userStore = useUserStore()
 import { useI18n } from "vue-i18n";
 const { t } = useI18n({ useScope: "global" });
 import useCommonHelper from '@/helpers/commonHelper'
-import CountryComponent from '@/components/CountryComponent.vue';
 const helpers = useCommonHelper()
+
+import CountryComponent from '@/components/CountryComponent.vue';
+import YesNoDialog from '@/components/YesNoDialog.vue';
 
 const assignmentRulesList = ref([])
 const currentEditedItem = ref(null)
@@ -146,6 +160,7 @@ const currentEditedProperty = ref(null)
 const editedItem = ref([])
 const originItems = ref([])
 const itemIdHover = ref(null)
+const rowToRemove = ref(null)
 const ruleFilters = ref([
   { "key": "businessSector", "value": helpers.capitalizeFirstLetter(t("lead.businessSector")) },
   { "key": "countryOfDestination", "value": helpers.capitalizeFirstLetter(t("lead.countryOfDestination")) },
@@ -163,6 +178,7 @@ const visibleColumns = ref([
   { "key": "user", "title": helpers.capitalizeFirstLetter(t("user")) },
   { "key": "actions" }
 ])
+const yesNoDialog = ref(false)
 
 //sort filters by translated values
 ruleFilters.value.sort((a, b) => a.value < b.value ? -1 : a.value > b.value ? 1 : 0);
@@ -267,7 +283,6 @@ function cancelFilter()
   showAddRuleFilterModal.value = false;
 }
 
-
 async function deleteItem(item)
 {
   if (item.id < 0)
@@ -282,7 +297,6 @@ async function deleteItem(item)
 
     removeItemAlreadyEdited(item, true);
     sortList(true);
-    setTimeBeforeSave(true);
   }
 }
 
@@ -426,6 +440,23 @@ function removeItemAlreadyEdited(item, reload = false)
     originItems.value = []
     fetchData(true);
   }
+}
+
+function removeRow(item)
+{
+  yesNoDialog.value = true;
+  rowToRemove.value = item;
+}
+function removeRowCancelled()
+{
+  rowToRemove.value = null;
+  yesNoDialog.value = false;
+}
+async function removeRowConfirmed()
+{
+  originItems.value.push(rowToRemove.value)
+  await deleteItem(rowToRemove.value);
+  removeRowCancelled()
 }
 
 function rowClass(item, type)
