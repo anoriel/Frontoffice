@@ -36,8 +36,7 @@
         <template v-slot:activator="{ props }">
           <v-btn v-bind="props" color="white" variant="elevated" append-icon="mdi-dots-vertical">
             <template v-slot:prepend>
-              <vue-gravatar :email="securityStore.getEmail()" :size="24" :default-image="$gravatarDefaultImage"
-                class="gravatar" />
+              <img :src="$helpers.getGravatarURL(securityStore.getEmail(), 24, $gravatarDefaultImage)"/>
             </template>
             {{ securityStore.getFirstname() }} {{ securityStore.getLastname() }}
 

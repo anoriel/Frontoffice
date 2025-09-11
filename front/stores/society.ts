@@ -1,27 +1,65 @@
 import { defineStore } from 'pinia'
 import thisAPI from '@/api/society'
-import { baseStore } from './baseStore'
 
-let extendedValues = {
-  ...baseStore,
-  api: thisAPI,
-  async findAllActive()
+import { useCommonStore } from './commonStore';
+
+export const useSocietyStore = defineStore('society', () =>
+{
+  const {
+    api,
+    currentPage,
+    isLoading,
+    error,
+    item,
+    list,
+    listLength,
+    deleteItem,
+    findAll,
+    find,
+    hasError,
+    hasItems,
+    getById,
+    reset,
+    save,
+    resetError,
+  } = useCommonStore();
+
+  api.value = thisAPI
+
+  async function findAllActive()
   {
-    this.isLoading = true;
-    this.error = null;
-    this.list = [];
+    isLoading.value = true;
+    error.value = null;
+    list.value = [];
     try {
       let response = await thisAPI.findAllActive();
-      this.isLoading = false;
-      this.list = response.data["member"];
-      this.listLength = response.data["totalItems"];
-      return this.list;
+      isLoading.value = false;
+      list.value = response.data["member"];
+      listLength.value = response.data["totalItems"];
+      return list;
     } catch (error) {
-      this.isLoading = false;
-      this.error = error;
+      isLoading.value = false;
+      error = error;
       return null;
     }
-  },
-}
+  }
 
-export const useSocietyStore = defineStore('society', () => extendedValues)
+  return {
+    currentPage,
+    isLoading,
+    error,
+    item,
+    list,
+    listLength,
+    deleteItem,
+    findAll,
+    findAllActive,
+    find,
+    hasError,
+    hasItems,
+    getById,
+    reset,
+    save,
+    resetError,
+  }
+})

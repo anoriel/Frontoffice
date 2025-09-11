@@ -2,7 +2,7 @@ import _ from 'lodash';
 import moment from "moment";
 import * as ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-import { SHA1 } from 'crypto-js';
+import { SHA1, SHA256 } from 'crypto-js';
 
 
 interface GenericListItem
@@ -368,6 +368,13 @@ export default function useCommonHelper()
     return Object.fromEntries(Object.entries(b).filter(([key, val]) => key in a && a[key] !== val));
   }
 
+  function getGravatarURL(email: string, size: number = 24, imageStyle: string = 'wavatar')
+  {
+    const hashedEmail = SHA256(email);
+    const gravatarUrl = `https://www.gravatar.com/avatar/${hashedEmail}?s=${size}&d=${imageStyle}`;
+    return gravatarUrl;
+  }
+
   function getHexColor(this: Vue3Instance, ciphertext: string | number, addColor: number = 0): string
   {
     if (ciphertext === 0) {
@@ -636,6 +643,7 @@ export default function useCommonHelper()
     formatDateTimeZulu,
     formatPeriod,
     getDifference,
+    getGravatarURL,
     getHexColor,
     getHourFromDate,
     getObjectNameWithCountry,

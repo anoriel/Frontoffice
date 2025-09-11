@@ -1,31 +1,42 @@
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 
-let extendedValues = {
-  backgroundLoadingRequestsCount: 0,
-  isBackgroundLoading: false,
-  perPage: parseInt(sessionStorage.getItem("perPage") ?? '20'),
-  perPageOptions: [1, 3, 5, 10, 20, 50, 100, 200],
+export const useGlobalStore = defineStore('global', () =>
+{
+  const backgroundLoadingRequestsCount = ref(0)
+  const isBackgroundLoading = ref(false)
+  const perPage = ref(parseInt(sessionStorage.getItem("perPage") ?? '20'))
+  const perPageOptions = ref([1, 3, 5, 10, 20, 50, 100, 200])
 
-  setIsBackgroundLoading(val: boolean)
+  function setIsBackgroundLoading(val: boolean)
   {
-    if (this.backgroundLoadingRequestsCount < 0) {
-      this.backgroundLoadingRequestsCount = 0;
+    if (backgroundLoadingRequestsCount.value < 0) {
+      backgroundLoadingRequestsCount.value = 0;
     }
 
     if (val === true) {
-      this.backgroundLoadingRequestsCount++;
+      backgroundLoadingRequestsCount.value++;
     } else if (val === false) {
-      this.backgroundLoadingRequestsCount--;
+      backgroundLoadingRequestsCount.value--;
     }
 
-    this.isBackgroundLoading = this.backgroundLoadingRequestsCount > 0;
+    isBackgroundLoading.value = backgroundLoadingRequestsCount.value > 0;
     return true;
-  },
-  setPerPage(val: number)
-  {
-    this.perPage = val;
-    sessionStorage.setItem("perPage", this.perPage.toString());
-  },
-}
+  }
 
-export const useGlobalStore = defineStore('global', () => extendedValues)
+  function setPerPage(val: number)
+  {
+    perPage.value = val;
+    sessionStorage.setItem("perPage", perPage.value.toString());
+  }
+
+  return {
+    backgroundLoadingRequestsCount,
+    isBackgroundLoading,
+    perPage,
+    perPageOptions,
+
+    setIsBackgroundLoading,
+    setPerPage
+  }
+})

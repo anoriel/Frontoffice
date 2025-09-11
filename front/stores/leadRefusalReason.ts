@@ -1,10 +1,46 @@
 import { defineStore } from 'pinia'
 import thisAPI from '@/api/leadRefusalReason'
-import { baseStore } from './baseStore'
+import { useCommonStore } from './commonStore';
 
-let extendedValues = {
-  ...baseStore,
-  api: thisAPI,
-}
+export const useLeadRefusalReasonStore = defineStore('leadRefusalReason', () =>
+{
+  const {
+    api,
+    currentPage,
+    isLoading,
+    error,
+    item,
+    list,
+    listLength,
+    deleteItem,
+    findAll,
+    find,
+    hasError,
+    hasItems,
+    getById,
+    reset,
+    save,
+    resetError,
+  } = useCommonStore();
 
-export const useLeadRefusalReasonStore = defineStore('leadRefusalReason', () => extendedValues)
+  api.value = thisAPI
+
+
+  return {
+    currentPage,
+    isLoading,
+    error,
+    item,
+    list,
+    listLength,
+    deleteItem,
+    findAll,
+    find,
+    hasError,
+    hasItems,
+    getById,
+    reset,
+    save,
+    resetError,
+  }
+})

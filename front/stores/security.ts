@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
-import SecurityAPI from '@/api/security'
+import thisAPI from '@/api/security'
+import { useCommonStore } from './commonStore';
 import { Utilisateur } from '@/interfaces/utilisateur'
+import { ref } from 'vue';
 
 function parseJwt(JWTToken: string | null): JWTTokenInfo | null
 {
@@ -105,192 +107,227 @@ interface JWTTokenInfo
   [key: string]: string | number | string[] | undefined;
 }
 
-let extendedValues = {
-  error: null as any,
-  isAuthenticated: false,
-  isLoading: false,
-  JWTToken: null as string | null,
-  JWTTokenInfo: null as JWTTokenInfo | null,
-  currentUserRoles: [] as string[] | null,
-  lastPoints: 0,
-  me: null as Utilisateur | null,
-  points: 0,
-  roles: [] as string[],
-  roleHierarchy: {},
-  roleHierarchyMap: {},
-  switch_user: null as Utilisateur | null,
 
-  getJWTToken()
+
+export const useSecurityStore = defineStore('security', () =>
+{
+  const {
+    api,
+    currentPage,
+    isLoading,
+    error,
+    item,
+    list,
+    listLength,
+    deleteItem,
+    findAll,
+    find,
+    hasError,
+    hasItems,
+    getById,
+    reset,
+    save,
+    resetError,
+  } = useCommonStore();
+
+  api.value = thisAPI
+
+
+  const isAuthenticated = ref(false)
+  const JWTToken = ref(null as string | null)
+  const JWTTokenInfo = ref(null as JWTTokenInfo | null)
+  const currentUserRoles = ref([] as string[] | null)
+  const lastPoints = ref(0)
+  const me = ref(null as Utilisateur | null)
+  const points = ref(0)
+  const roles = ref([] as string[])
+  const roleHierarchy = ref({})
+  const roleHierarchyMap = ref({})
+  const switch_user = ref(null as Utilisateur | null)
+
+  function getJWTToken()
   {
-    if (this.JWTToken == null && sessionStorage.getItem("JWTToken") != null) {
-      this.JWTToken = sessionStorage.getItem("JWTToken")
+    if (JWTToken.value == null && sessionStorage.getItem("JWTToken") != null) {
+      JWTToken.value = sessionStorage.getItem("JWTToken")
     }
-    return this.JWTToken
-  },
-  getAuthToken()
+    return JWTToken.value
+  }
+
+  function getAuthToken()
   {
     //authToken for legacy intranet
-    if (this.JWTToken == null && sessionStorage.getItem("JWTToken") != null) {
-      this.JWTTokenInfo = parseJwt(sessionStorage.getItem("JWTToken"))
+    if (JWTToken.value == null && sessionStorage.getItem("JWTToken") != null) {
+      JWTTokenInfo.value = parseJwt(sessionStorage.getItem("JWTToken"))
     }
-    return this.JWTTokenInfo != null ? this.JWTTokenInfo.authToken : null
-  },
-  getId()
+    return JWTTokenInfo.value != null ? JWTTokenInfo.value.authToken : null
+  }
+
+  function getId()
   {
     if (
-      this.JWTTokenInfo == null &&
+      JWTTokenInfo.value == null &&
       sessionStorage.getItem("JWTToken") != null
     ) {
-      this.JWTTokenInfo = parseJwt(sessionStorage.getItem("JWTToken"))
+      JWTTokenInfo.value = parseJwt(sessionStorage.getItem("JWTToken"))
     }
     //user impersonated
-    if (this.switch_user && "id" in this.switch_user) {
-      return this.switch_user.id
+    if (switch_user.value && "id" in switch_user.value) {
+      return switch_user.value.id
     }
-    return this.JWTTokenInfo != null ? this.JWTTokenInfo.id : null
-  },
-  getEmail()
+    return JWTTokenInfo.value != null ? JWTTokenInfo.value.id : null
+  }
+
+  function getEmail()
   {
     if (
-      this.JWTTokenInfo == null &&
+      JWTTokenInfo.value == null &&
       sessionStorage.getItem("JWTToken") != null
     ) {
-      this.JWTTokenInfo = parseJwt(sessionStorage.getItem("JWTToken"));
+      JWTTokenInfo.value = parseJwt(sessionStorage.getItem("JWTToken"));
     }
-    return this.JWTTokenInfo != null ? this.JWTTokenInfo.email : null;
-  },
-  getFirstname()
+    return JWTTokenInfo.value != null ? JWTTokenInfo.value.email : null;
+  }
+
+  function getFirstname()
   {
     if (
-      this.JWTTokenInfo == null &&
+      JWTTokenInfo.value == null &&
       sessionStorage.getItem("JWTToken") != null
     ) {
-      this.JWTTokenInfo = parseJwt(sessionStorage.getItem("JWTToken"))
+      JWTTokenInfo.value = parseJwt(sessionStorage.getItem("JWTToken"))
     }
-    return this.JWTTokenInfo != null ? this.JWTTokenInfo.firstname : null
-  },
-  getLastname()
+    return JWTTokenInfo.value != null ? JWTTokenInfo.value.firstname : null
+  }
+
+  function getLastname()
   {
     if (
-      this.JWTTokenInfo == null &&
+      JWTTokenInfo.value == null &&
       sessionStorage.getItem("JWTToken") != null
     ) {
-      this.JWTTokenInfo = parseJwt(sessionStorage.getItem("JWTToken"))
+      JWTTokenInfo.value = parseJwt(sessionStorage.getItem("JWTToken"))
     }
-    return this.JWTTokenInfo != null ? this.JWTTokenInfo.lastname : null
-  },
-  getLoggedAs()
+    return JWTTokenInfo.value != null ? JWTTokenInfo.value.lastname : null
+  }
+
+  function getLoggedAs()
   {
-    if (this.switch_user) {
-      return this.switch_user.identifiant;
+    if (switch_user.value) {
+      return switch_user.value.identifiant;
     }
     return;
-  },
-  getUsername()
+  }
+
+  function getUsername()
   {
     if (
-      this.JWTTokenInfo == null &&
+      JWTTokenInfo.value == null &&
       sessionStorage.getItem("JWTToken") != null
     ) {
-      this.JWTTokenInfo = parseJwt(sessionStorage.getItem("JWTToken"))
+      JWTTokenInfo.value = parseJwt(sessionStorage.getItem("JWTToken"))
     }
-    return this.JWTTokenInfo != null ? this.JWTTokenInfo.username : null
-  },
-  getJWTTokenInfo()
+    return JWTTokenInfo.value != null ? JWTTokenInfo.value.username : null
+  }
+
+  function getJWTTokenInfo()
   {
-    return parseJwt(this.JWTToken)
-  },
-  isLoggedAs()
+    return parseJwt(JWTToken.value)
+  }
+
+  function isLoggedAs()
   {
-    return this.switch_user != null
-  },
-  getIsAuthenticated()
+    return switch_user.value != null
+  }
+
+  function getIsAuthenticated()
   {
-    if (this.JWTToken == null && sessionStorage.getItem("JWTToken") != null) {
-      this.JWTToken = sessionStorage.getItem("JWTToken")
+    if (JWTToken.value == null && sessionStorage.getItem("JWTToken") != null) {
+      JWTToken.value = sessionStorage.getItem("JWTToken")
     }
-    return this.JWTToken != null
-  },
-  hasError()
+    return JWTToken.value != null
+  }
+
+  function hasRole(role: string)
   {
-    return this.error !== null
-  },
-  hasRole(role: string)
+    return searchRoleInList(role, currentUserRoles.value, roleHierarchyMap.value)
+  }
+
+  function isAdmin()
   {
-    return searchRoleInList(role, this.currentUserRoles, this.roleHierarchyMap)
-  },
-  isAdmin()
-  {
-    let JWTTokenInfo = parseJwt(this.JWTToken)
+    let JWTTokenInfo = parseJwt(JWTToken.value)
     return (
       JWTTokenInfo != null &&
       JWTTokenInfo.roles &&
       JWTTokenInfo.roles.indexOf("ROLE_ADMIN") >= 0
     )
-  },
+  }
 
-  async getApiMe()
+  async function getApiMe()
   {
-    this.error = null
-    this.isLoading = true
+    error.value = null
+    isLoading.value = true
     try {
-      let response = await SecurityAPI.getApiMe()
-      this.me = response.data
-      if (this.me.impersonateUser != null) {
-        delete (this.me.impersonateUser.impersonateUser)
-        this.switch_user = this.me.impersonateUser
-        if (this.me.impersonateUser) {
-          this.currentUserRoles = this.me.impersonateUser.roles
+      let response = await thisAPI.getApiMe()
+      me.value = response.data
+      if (me.value?.impersonateUser != null) {
+        delete (me.value.impersonateUser.impersonateUser)
+        switch_user.value = me.value.impersonateUser
+        if (me.value.impersonateUser) {
+          currentUserRoles.value = me.value.impersonateUser.roles
         }
       } else {
-        this.switch_user = null
-        if (this.me.roles) {
-          this.currentUserRoles = this.me.roles
+        switch_user.value = null
+        if (me.value?.roles) {
+          currentUserRoles.value = me.value.roles
         }
       }
-      if (this.me.lastPoints) {
-        this.lastPoints = this.me.lastPoints
+      if (me.value?.lastPoints) {
+        lastPoints.value = me.value.lastPoints
       }
     } catch (error) {
-      console.log(typeof this.error)
-      // this.error = error
+      console.log(typeof error)
+      // error = error
     }
-    this.isLoading = false
-  },
-  async getLongRequest()
+    isLoading.value = false
+  }
+
+  async function getLongRequest()
   {
-    this.error = null
-    this.isLoading = true
+    error.value = null
+    isLoading.value = true
     try {
-      await SecurityAPI.getLongRequest()
-      this.isLoading = false
+      await thisAPI.getLongRequest()
+      isLoading.value = false
     } catch (error) {
-      this.error = error
-      this.isLoading = false
+      error = error
+      isLoading.value = false
     }
-  },
-  async login(payload: LoginPayload)
+  }
+
+  async function login(payload: LoginPayload)
   {
-    this.error = null
-    this.isAuthenticated = false;
-    this.isLoading = true
-    this.JWTToken = null;
-    this.JWTTokenInfo = null;
-    this.currentUserRoles = [];
+    error.value = null
+    isAuthenticated.value = false;
+    isLoading.value = true
+    JWTToken.value = null;
+    JWTTokenInfo.value = null;
+    currentUserRoles.value = [];
     let token = null
     try {
-      let response = await SecurityAPI.login(payload.login, payload.password)
+      let response = await thisAPI.login(payload.login, payload.password)
 
-      this.JWTToken = response.data.token;
-      this.JWTTokenInfo = parseJwt(this.JWTToken);
-      if (this.JWTTokenInfo != null) {
-        this.currentUserRoles = this.JWTTokenInfo.roles;
+      JWTToken.value = response.data.token;
+      JWTTokenInfo.value = parseJwt(JWTToken.value);
+      if (JWTTokenInfo.value != null) {
+        currentUserRoles.value = JWTTokenInfo.value.roles;
       }
-      sessionStorage.setItem("JWTToken", this.JWTToken);
-      sessionStorage.setItem("JWTTokenInfo", JSON.stringify(this.JWTTokenInfo));
+      if (JWTToken.value) {
+        sessionStorage.setItem("JWTToken", JWTToken.value);
+      }
+      sessionStorage.setItem("JWTTokenInfo", JSON.stringify(JWTTokenInfo.value));
 
-      for (let i in this.JWTTokenInfo) {
-        const value = this.JWTTokenInfo != null ? this.JWTTokenInfo[i] : null;
+      for (let i in JWTTokenInfo.value) {
+        const value = JWTTokenInfo.value != null ? JWTTokenInfo.value[i] : null;
         sessionStorage.setItem(
           i,
           value !== null ? String(value) : ''
@@ -298,27 +335,29 @@ let extendedValues = {
       }
 
       token = response.data.token
-      await this.loadRoleHierarchy();
-      await this.loadRoleHierarchyMap();
-      this.isAuthenticated = true;
+      await loadRoleHierarchy();
+      await loadRoleHierarchyMap();
+      isAuthenticated.value = true;
     } catch (error) {
-      this.error = error
+      error = error
     }
-    this.isLoading = false
+    isLoading.value = false
     return token
-  },
-  onRefresh()
+  }
+
+  function onRefresh()
   {
-    this.disconnect()
-    this.JWTToken = sessionStorage.getItem("JWTToken");
-    this.isAuthenticated = this.JWTToken != null;
-    if (this.JWTToken != null) {
-      this.JWTTokenInfo = parseJwt(this.JWTToken);
-      this.currentUserRoles = this.JWTTokenInfo ? this.JWTTokenInfo.roles : [];
-      sessionStorage.setItem("JWTTokenInfo", JSON.stringify(this.JWTTokenInfo));
+    disconnect()
+    JWTToken.value = sessionStorage.getItem("JWTToken");
+    isAuthenticated.value = JWTToken.value != null;
+    if (JWTToken.value != null) {
+      JWTTokenInfo.value = parseJwt(JWTToken.value);
+      currentUserRoles.value = JWTTokenInfo.value ? JWTTokenInfo.value.roles : [];
+      sessionStorage.setItem("JWTTokenInfo", JSON.stringify(JWTTokenInfo.value));
     }
-  },
-  destroySessionStorage()
+  }
+
+  function destroySessionStorage()
   {
     sessionStorage.removeItem("JWTToken");
     sessionStorage.removeItem("JWTTokenInfo");
@@ -328,70 +367,127 @@ let extendedValues = {
     sessionStorage.removeItem("human_exp");
     sessionStorage.removeItem("points");
     sessionStorage.removeItem("lastPoints");
-  },
-  disconnect()
-  {
-    this.isAuthenticated = false;
-    this.JWTToken = null;
-    this.JWTTokenInfo = null;
-    this.currentUserRoles = [];
-    this.roles = [];
-    this.roleHierarchy = {};
-    this.roleHierarchyMap = {};
-  },
-  async logout()
-  {
-    this.error = null
-    this.isLoading = true
-    try {
-      await SecurityAPI.logout()
-      this.disconnect()
-      this.destroySessionStorage()
-    } catch (error) {
-      this.error = error
-    }
-    this.isLoading = false
-  },
-  async loadRoleHierarchy()
-  {
-    this.error = null
-    this.isLoading = true
-    this.roles = []
-    this.roleHierarchy = {}
-    try {
-      let response = await SecurityAPI.loadRoleHierarchy()
+  }
 
-      this.roles = Object.keys(response.data)
-      this.roleHierarchy = parseRoleHierarchy(response.data, 'ROLE_SUPER_ADMIN')
-    } catch (error) {
-      this.error = error
-    }
-    this.isLoading = false
-  },
-  async loadRoleHierarchyMap()
+  function disconnect()
   {
-    this.error = null
-    this.isLoading = true
-    this.roleHierarchyMap = {}
+    isAuthenticated.value = false;
+    JWTToken.value = null;
+    JWTTokenInfo.value = null;
+    currentUserRoles.value = [];
+    roles.value = [];
+    roleHierarchy.value = {};
+    roleHierarchyMap.value = {};
+  }
+
+  async function logout()
+  {
+    error.value = null
+    isLoading.value = true
     try {
-      let response = await SecurityAPI.loadRoleHierarchyMap()
-
-      this.roleHierarchyMap = response.data
+      await thisAPI.logout()
+      disconnect()
+      destroySessionStorage()
     } catch (error) {
-      this.error = error
+      error = error
     }
-    this.isLoading = false
-  },
-  switchUser(user: Utilisateur)
+    isLoading.value = false
+  }
+  async function loadRoleHierarchy()
   {
-    this.switch_user = user;
-    this.currentUserRoles = user ? user.roles : [];
-  },
-  switchUserReset()
-  {
-    this.switch_user = null;
-    this.currentUserRoles = this.JWTTokenInfo ? this.JWTTokenInfo.roles : [];
-  },
-}
+    error.value = null
+    isLoading.value = true
+    roles.value = []
+    roleHierarchy.value = {}
+    try {
+      let response = await thisAPI.loadRoleHierarchy()
 
-export const useSecurityStore = defineStore('security', () => extendedValues)
+      roles.value = Object.keys(response.data)
+      roleHierarchy.value = parseRoleHierarchy(response.data, 'ROLE_SUPER_ADMIN')
+    } catch (error) {
+      error = error
+    }
+    isLoading.value = false
+  }
+  async function loadRoleHierarchyMap()
+  {
+    error.value = null
+    isLoading.value = true
+    roleHierarchyMap.value = {}
+    try {
+      let response = await thisAPI.loadRoleHierarchyMap()
+
+      roleHierarchyMap.value = response.data
+    } catch (error) {
+      error = error
+    }
+    isLoading.value = false
+  }
+
+  function switchUser(user: Utilisateur)
+  {
+    switch_user.value = user;
+    currentUserRoles.value = user ? user.roles : [];
+  }
+
+  function switchUserReset()
+  {
+    switch_user.value = null;
+    currentUserRoles.value = JWTTokenInfo.value ? JWTTokenInfo.value.roles : [];
+  }
+
+
+  return {
+    currentPage,
+    isLoading,
+    error,
+    item,
+    list,
+    listLength,
+    deleteItem,
+    findAll,
+    find,
+    hasError,
+    hasItems,
+    getById,
+    reset,
+    save,
+    resetError,
+
+    isAuthenticated,
+    JWTToken,
+    JWTTokenInfo,
+    currentUserRoles,
+    lastPoints,
+    me,
+    points,
+    roles,
+    roleHierarchy,
+    roleHierarchyMap,
+    switch_user,
+
+    getJWTToken,
+    getAuthToken,
+    getId,
+    getEmail,
+    getFirstname,
+    getLastname,
+    getLoggedAs,
+    getUsername,
+    getJWTTokenInfo,
+    isLoggedAs,
+    getIsAuthenticated,
+    hasRole,
+    isAdmin,
+    getApiMe,
+    getLongRequest,
+    loadRoleHierarchy,
+    loadRoleHierarchyMap,
+    login,
+    logout,
+    onRefresh,
+    switchUser,
+    switchUserReset,
+  }
+})
+

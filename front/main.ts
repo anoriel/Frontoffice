@@ -9,14 +9,12 @@ import vuetify from './plugins/vuetify'
 import router from './router'
 import 'vue3-flag-icons/styles'
 import vueDebounce from 'vue-debounce'
-import VueGravatar from "vue3-gravatar";
 
 const helpers = useCommonHelper()
 
 const app = createApp(App)
 
 app.use(createPinia())
-app.use(VueGravatar);
 app.use(i18n)
 app.use(router)
 app.use(vuetify)

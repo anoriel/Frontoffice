@@ -26,7 +26,7 @@
           <p>{{ $helpers.capitalizeFirstLetter($t('loading')) }}...</p>
         </div>
 
-        <div v-else-if="securityStore.hasError()">
+        <div v-else-if="securityStore.hasError">
           <error-message :error="securityStore.error" style="font-size: small" />
         </div>
       </v-card>
@@ -68,7 +68,7 @@ async function performLogin()
     redirect = route.query.redirect
 
   await securityStore.login(payload)
-  if (!securityStore.hasError())
+  if (!securityStore.hasError)
   {
     let authToken = securityStore.getAuthToken()
     if (authToken != null)

@@ -26,8 +26,8 @@
             </template>
 
             <template v-slot:[`item.stringValue`]="{ item, value }">
-              <span :class="{ 'font-italic opacity-50': !item.actif }">
-                <vue-gravatar :email="item.email" :size="12" :default-image="$gravatarDefaultImage" class="gravatar" />
+              <span :class="{ 'font-italic opacity-50': !item.actif }" class="d-flex align-center">
+                <img :src="$helpers.getGravatarURL(item.email, 24, $gravatarDefaultImage)" class="mr-1" />
                 {{ value }}
               </span>
             </template>
@@ -54,7 +54,7 @@
           <v-card v-if="activeItem">
             <v-card-item>
               <template v-slot:prepend>
-                <vue-gravatar :email="activeItem.email" :size="50" :default-image="$gravatarDefaultImage" />
+                <img :src="$helpers.getGravatarURL(activeItem.email, 50, $gravatarDefaultImage)" />
               </template>
               <template v-slot:title>
                 {{ activeItem.stringValue }}

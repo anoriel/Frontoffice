@@ -1,28 +1,69 @@
 import { defineStore } from 'pinia'
 import thisAPI from '@/api/agency'
-import { baseStore } from './baseStore'
+import { useCommonStore } from './commonStore';
+import { ref } from 'vue';
 
-let extendedValues = {
-  ...baseStore,
-  api: thisAPI,
-  onlyActive: false,
+export const useAgencyStore = defineStore('agency', () =>
+{
+  const {
+    api,
+    currentPage,
+    isLoading,
+    error,
+    item,
+    list,
+    listLength,
+    deleteItem,
+    findAll,
+    find,
+    hasError,
+    hasItems,
+    getById,
+    reset,
+    save,
+    resetError,
+  } = useCommonStore();
 
-  async findAllActive()
+  api.value = thisAPI
+
+  const onlyActive = ref(false)
+
+  async function findAllActive()
   {
-    this.isLoading = true;
-    this.error = null;
+    isLoading.value = true;
+    error.value = null;
     try {
       let response = await thisAPI.findAllActive();
-      this.isLoading = false;
-      this.list = response.data["member"];
-      this.listLength = response.data["totalItems"];
+      isLoading.value = false;
+      list.value = response.data["member"];
+      listLength.value = response.data["totalItems"];
       return response.list;
-    } catch (error) {
-      this.isLoading = false;
-      this.error = error;
+    } catch (error: any) {
+      isLoading.value = false;
+      error.value = error;
       return null;
     }
-  },
-}
+  }
 
-export const useAgencyStore = defineStore('agency', () => extendedValues)
+  return {
+    currentPage,
+    isLoading,
+    error,
+    item,
+    list,
+    listLength,
+    deleteItem,
+    findAll,
+    find,
+    hasError,
+    hasItems,
+    getById,
+    reset,
+    save,
+    resetError,
+
+    onlyActive,
+
+    findAllActive,
+  }
+})

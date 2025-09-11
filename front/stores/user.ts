@@ -1,95 +1,139 @@
 import { defineStore } from 'pinia'
-import UserAPI from '@/api/user'
-import { baseStore } from "./baseStore";
+import thisAPI from '@/api/user'
+import { useCommonStore } from '@/stores/commonStore';
+import { ref } from 'vue';
 
-let extendedValues = {
-  ...baseStore,
-  api: UserAPI,
-  currentlyLoggedUsersCount: 0,
-  currentlyLoggedUsersList: [],
-  currentlyLoggedUsersListLength: 0,
-  filteredList: [],
-  filteredListLength: 0,
+export const useUserStore = defineStore('user', () =>
+{
+  const {
+    api,
+    currentPage,
+    isLoading,
+    error,
+    item,
+    list,
+    listLength,
+    deleteItem,
+    findAll,
+    find,
+    hasError,
+    hasItems,
+    getById,
+    save,
+    resetError,
+  } = useCommonStore();
 
-  async refreshAll()
+  api.value = thisAPI
+
+  const currentlyLoggedUsersCount = ref(0)
+  const currentlyLoggedUsersList = ref([])
+  const currentlyLoggedUsersListLength = ref(0)
+  const filteredList = ref([])
+  const filteredListLength = ref(0)
+
+  async function refreshAll()
   {
-    this.error = null;
+    error.value = null;
     try {
-      let response = await this.api.findAll();
-      this.list = response.data["member"];
-      this.listLength = response.data["totalItems"];
+      let response = await api.value.findAll();
+      list.value = response.data["member"];
+      listLength.value = response.data["totalItems"];
       return response.data;
     } catch (error) {
-      this.isLoading = false;
-      this.error = error
+      isLoading.value = false;
+      error = error
       return null;
     }
-  },
-  reset()
+  }
+
+  function reset()
   {
-    this.isLoading = false;
-    this.item = null;
-    this.error = null;
-    this.list = [];
-    this.listLength = 0;
-    this.filteredList = [];
-    this.filteredListLength = 0;
+    isLoading.value = false;
+    item.value = null;
+    error.value = null;
+    list.value = [];
+    listLength.value = 0;
+    filteredList.value = [];
+    filteredListLength.value = 0;
     return true;
-  },
-  async findByRole(role: string)
-  {
-    this.isLoading = true;
-    this.error = null;
-    this.filteredList = [];
-    this.filteredListLength = 0;
-    try {
-      let response = await this.api.findBy(false, role);
-      this.isLoading = false;
-      this.filteredList = response.data["member"];
-      this.filteredListLength = response.data["totalItems"];
-      return response.data;
-    } catch (error) {
-      this.isLoading = false;
-      this.error = error;
-      return null;
-    }
-  },
-  async getCurrentlyLoggedUsers()
-  {
-    this.isLoading = true;
-    this.error = null;
-    this.currentlyLoggedUsersList = [];
-    this.currentlyLoggedUsersListLength = 0;
-    try {
-      let response = await this.api.getCurrentlyLoggedUsers();
-      this.isLoading = false;
-      this.error = null;
-      this.currentlyLoggedUsersList = response.data["member"];
-      this.currentlyLoggedUsersListLength = response.data["totalItems"];
-      return response.data;
-    } catch (error) {
-      this.isLoading = false;
-      this.error = error;
-      return null;
-    }
-  },
-  async getNumberOfCurrentlyLoggedUsers()
-  {
-    this.isLoading = true;
-    this.error = null;
-    this.currentlyLoggedUsersCount = 0;
-    try {
-      let response = await this.api.getNumberOfCurrentlyLoggedUsers();
-      this.isLoading = false;
-      this.error = null;
-      this.currentlyLoggedUsersCount = response.data;
-      return response.data;
-    } catch (error) {
-      this.isLoading = false;
-      this.error = error;
-      return null;
-    }
-  },
-}
+  }
 
-export const useUserStore = defineStore('user', () => extendedValues)
+  async function findByRole(role: string)
+  {
+    reset()
+    try {
+      let response = await thisAPI.findBy(false, role);
+      isLoading.value = false;
+      filteredList.value = response.data["member"];
+      filteredListLength.value = response.data["totalItems"];
+      return response.data;
+    } catch (error) {
+      isLoading.value = false;
+      error = error;
+      return null;
+    }
+  }
+
+  async function getCurrentlyLoggedUsers()
+  {
+    reset()
+    try {
+      let response = await thisAPI.getCurrentlyLoggedUsers();
+      isLoading.value = false;
+      error.value = null;
+      currentlyLoggedUsersList.value = response.data;
+      currentlyLoggedUsersListLength.value = response.data.lenght;
+      return response.data;
+    } catch (error) {
+      isLoading.value = false;
+      error = error;
+      return null;
+    }
+  }
+
+  async function getNumberOfCurrentlyLoggedUsers()
+  {
+    isLoading.value = true;
+    error.value = null;
+    currentlyLoggedUsersCount.value = 0;
+    try {
+      let response = await thisAPI.getNumberOfCurrentlyLoggedUsers();
+      isLoading.value = false;
+      error.value = null;
+      currentlyLoggedUsersCount.value = response.data;
+      return response.data;
+    } catch (error) {
+      isLoading.value = false;
+      error = error;
+      return null;
+    }
+  }
+
+  return {
+    currentPage,
+    isLoading,
+    error,
+    item,
+    list,
+    listLength,
+    deleteItem,
+    findAll,
+    find,
+    hasError,
+    hasItems,
+    getById,
+    reset,
+    save,
+
+    currentlyLoggedUsersCount,
+    currentlyLoggedUsersList,
+    currentlyLoggedUsersListLength,
+    filteredList,
+    filteredListLength,
+    resetError,
+    refreshAll,
+    findByRole,
+    getCurrentlyLoggedUsers,
+    getNumberOfCurrentlyLoggedUsers,
+  }
+})

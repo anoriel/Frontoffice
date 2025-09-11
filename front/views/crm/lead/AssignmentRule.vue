@@ -2,13 +2,13 @@
   <v-main>
     <v-row class="flex-row-reverse position-fixed right-0 mt-0 mr-2" style="z-index: 9;">
       <v-badge location="top right" color="error" v-if="timeBeforeSave != null" :content="timeBeforeSave">
-        <v-btn :disabled="!originItems.length || !assignmentRulesListIsValid()" color="success" @click="save()"
+        <v-btn :disabled="!originItems.length || !assignmentRulesListAreValid()" color="success" @click="save()"
           class="ml-1">
           <v-icon class="mr-1">mdi-content-save</v-icon>
           {{ $helpers.capitalizeFirstLetter($t('save')) }}
         </v-btn>
       </v-badge>
-      <v-btn v-else :disabled="!originItems.length || !assignmentRulesListIsValid()" color="success" @click="save()"
+      <v-btn v-else :disabled="!originItems.length || !assignmentRulesListAreValid()" color="success" @click="save()"
         class="ml-1">
         <v-icon class="mr-1">mdi-content-save</v-icon>
         {{ $helpers.capitalizeFirstLetter($t('save')) }}
@@ -25,6 +25,10 @@
       </v-btn>
     </v-row>
 
+    <v-row v-if="editedItem.length">
+      <span class="mr-1" v-for="item in editedItem" :key="item.id">{{ item.id }}</span>
+    </v-row>
+
     <v-dialog max-width="600" v-model="yesNoDialog">
       <v-card :title="$helpers.capitalizeFirstLetter($t('are you sure you want to delete this line?'))">
         <v-card-actions class="bg-surface-light">
@@ -33,10 +37,109 @@
           <v-btn :text="$helpers.capitalizeFirstLetter($t('yes'))" color="success" @click="removeRowConfirmed()" />
         </v-card-actions>
       </v-card>
-    </v-dialog>>
+    </v-dialog>
+
+    <v-dialog v-model="editDialog" max-width="500">
+      <v-card :title="$helpers.capitalizeFirstLetter($t('modify data'))">
+        <v-card-text>
+          <v-autocomplete v-model="currentEditedItem.user" :items="userStore.filteredList" :item-title="getUserName"
+            :label="$helpers.capitalizeFirstLetter($t('lead.user'))"
+            :placeholder="$helpers.capitalizeFirstLetter($t('lead.user'))" return-object auto-focus clearable
+            auto-select-first>
+            <template v-slot:selection="{ item }">
+              <v-list-item :prepend-avatar="$helpers.getGravatarURL(item.raw.email, 40, $gravatarDefaultImage)"
+                :title="item.raw.prenom + ' ' + item.raw.nom"></v-list-item>
+            </template>
+            <template v-slot:item="{ props, item }">
+              <v-list-item v-bind="props"
+                :prepend-avatar="$helpers.getGravatarURL(item.raw.email, 40, $gravatarDefaultImage)"
+                :title="item.raw.prenom + ' ' + item.raw.nom"></v-list-item>
+            </template>
+          </v-autocomplete>
+
+          <v-row v-for="(key, i) in Object.keys(currentEditedItem.rules)" :key="currentEditedItem.id + '-' + key"
+            :class="{ 'mt-1': i }">
+            <v-col cols="1" class="align-center d-flex">
+              <v-btn variant="outlined" color="error" size="x-small" @click="deleteRuleFilter(key)">
+                <v-icon>
+                  mdi-trash-can-outline
+                </v-icon>
+              </v-btn>
+            </v-col>
+            <v-col cols="11">
+              <v-autocomplete v-model="currentEditedItem.rules[key]" :items="getItemsList(key)"
+                :label="$helpers.capitalizeFirstLetter($te('lead.' + key) ? $t('lead.' + key) : $t(key))"
+                :item-title="['countryOfEstablishment', 'countryOfDestination'].includes(key) ? 'nom' : 'name'"
+                item-value="id" multiple chips closable-chips clearable>
+                <template v-slot:chip="{ props, item }">
+                  <v-chip v-bind="props" v-if="['countryOfEstablishment', 'countryOfDestination'].includes(key)">
+                    <country-component :country="item.raw" />
+                  </v-chip>
+                  <v-chip v-else color="success">{{ item.raw.stringValue }}</v-chip>
+                </template>
+                <template v-slot:item="{ props, item }">
+                  <v-list-item v-bind="props" subtitle="" title="">
+                    <v-list-item-title>
+                      <country-component v-if="['countryOfEstablishment', 'countryOfDestination'].includes(key)"
+                        :country="item.raw" />
+                      <v-chip v-else color="success">{{ item.raw.stringValue }}</v-chip>
+                    </v-list-item-title>
+                  </v-list-item>
+                </template>
+              </v-autocomplete>
+              <small v-if="!currentEditedItem.rules[key].length" class="text-danger">
+                {{ $helpers.capitalizeFirstLetter($t('field required', {
+                  field: $helpers.capitalizeFirstLetter($te('lead.' + key) ?
+                    $t('lead.' +
+                      key) : $t(key))
+                })) }}
+              </small>
+            </v-col>
+          </v-row>
+
+          <v-row v-if="!Object.keys(currentEditedItem.rules).length" class="bg-error">
+            <v-alert color="error" density="compact" class="">{{ $helpers.capitalizeFirstLetter($t('please add filter'))
+              }}</v-alert>
+          </v-row>
+
+          <v-row v-if="Object.keys(currentEditedItem.rules).length != ruleFilters.length">
+            <v-col offset="2">
+              <v-btn color="info" @click="displayAddRuleFilterModal()" rounded>
+                <v-icon>mdi-flask-plus-outline</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('add filter')) }}
+              </v-btn>
+            </v-col>
+          </v-row>
+
+        </v-card-text>
+
+        <v-card-actions>
+          <v-btn :text="$helpers.capitalizeFirstLetter($t('cancel'))" color="error" @click="editItemCancelled()" />
+          <v-spacer></v-spacer>
+          <v-btn :text="$helpers.capitalizeFirstLetter($t('save'))" color="success" @click="editItemConfirmed()"
+            :disabled="!Object.keys(currentEditedItem.rules).length" />
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="addFilterDialog" max-width="600">
+      <v-card :title="$helpers.capitalizeFirstLetter($t('add filter'))">
+        <v-form :label="$helpers.capitalizeFirstLetter($t('select filter to add'))" label-for="selectFilterInput">
+          <v-select id="selectFilterInput" v-model="selectedFilter" name="selectFilterInput" :items="getRuleFilters()"
+            required item-title="value" item-value="key">
+          </v-select>
+        </v-form>
+
+        <v-card-actions class="bg-surface-light">
+          <v-btn :text="$helpers.capitalizeFirstLetter($t('cancel'))" color="error" @click="cancelFilter"></v-btn>
+          <v-spacer></v-spacer>
+          <v-btn :text="$helpers.capitalizeFirstLetter($t('add'))" color="success" @click="addFilter"
+            :disabled="!selectedFilter"></v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <v-row>
-      <v-skeleton-loader v-if="!assignmentRulesList.filter(e => !e.isDeleted).length" type="table-row-divider@12" />
+      <v-skeleton-loader v-if="!dataAreFetched" type="table-row-divider@12" />
       <v-data-table v-else :hover="true" :headers="visibleColumns" striped="even" density="compact"
         :loading-text="$t('loading')" :loading="leadAssignmentRuleStore.isLoading"
         :items="assignmentRulesList.filter(e => !e.isDeleted)" :items-per-page="-1" :hide-default-footer="true"
@@ -74,54 +177,44 @@
           </v-row>
         </template>
 
-        <template v-slot:[`item.user`]="{ value }">
-          <vue-gravatar :email="value.email" :size="24" :default-image="$gravatarDefaultImage" class="gravatar" />
-          {{ value.prenom }} {{ value.nom }}
+        <template v-slot:[`item.user`]="{ item }">
+          <v-container>
+            <v-card class="w-100 pb-1">
+              <v-list-item :prepend-avatar="$helpers.getGravatarURL(item.user.email, 40, $gravatarDefaultImage)"
+                :title="item.user.prenom + ' ' + item.user.nom"></v-list-item>
+            </v-card>
+          </v-container>
         </template>
 
         <template v-slot:[`item.rules`]="{ item, value }">
           <v-container>
             <v-row v-for="(key, i) in Object.keys(value)" :key="item.id + '-' + key" align="center"
               :class="{ 'mt-5': i > 0 }">
-              <v-card class="w-100 pb-1">
-                <template v-slot:subtitle>
-                  <small class="left-1 position-absolute top-0 font-weight-bold">{{
-                    $helpers.capitalizeFirstLetter($te('lead.' + key) ?
-                      $t('lead.' + key) : $t(key)) }}</small>
-                </template>
-                <span v-for="element in value[key]" :key="element" class="ma-3">
-                  <country-component v-if="['countryOfEstablishment', 'countryOfDestination'].includes(key)"
-                    :country="countryStore.getById(element)" />
-                  <v-chip v-else color="success">{{ getStringValue(key, element) }}</v-chip>
-                </span>
-              </v-card>
+              <v-container>
+                <v-card class="w-100 pb-1">
+                  <template v-slot:subtitle>
+                    <small class="left-1 position-absolute top-0 font-weight-bold">{{
+                      $helpers.capitalizeFirstLetter($te('lead.' + key) ?
+                        $t('lead.' + key) : $t(key)) }}</small>
+                  </template>
+                  <span v-for="element in value[key]" :key="element" class="ma-3">
+                    <country-component v-if="['countryOfEstablishment', 'countryOfDestination'].includes(key)"
+                      :country="countryStore.getById(element)" />
+                    <v-chip v-else color="success">{{ getStringValue(key, element) }}</v-chip>
+                  </span>
+                </v-card>
+              </v-container>
             </v-row>
           </v-container>
         </template>
 
         <template v-slot:[`item.actions`]="{ item }">
-          <v-icon class="text-info">mdi-pencil-circle</v-icon>
+          <v-icon class="text-info" @click="editItem(item)">mdi-pencil-circle</v-icon>
           <v-icon class="text-info" @click="removeRow(item)">mdi-delete-circle</v-icon>
         </template>
 
       </v-data-table>
     </v-row>
-
-    <v-dialog v-model="showAddRuleFilterModal" max-width="500">
-      <v-card :title="$helpers.capitalizeFirstLetter($t('add filter'))">
-        <v-form :label="$helpers.capitalizeFirstLetter($t('select filter to add'))" label-for="selectFilterInput">
-          <v-select id="selectFilterInput" v-model="selectedFilter" name="selectFilterInput" :items="getRuleFilters()"
-            required item-title="value" item-value="key">
-          </v-select>
-        </v-form>
-
-        <v-card-actions class="bg-surface-light">
-          <v-btn :text="$helpers.capitalizeFirstLetter($t('cancel'))" color="error" @click="cancelFilter"></v-btn>
-          <v-spacer></v-spacer>
-          <v-btn :text="$helpers.capitalizeFirstLetter($t('add'))" color="success" @click="addFilter"></v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
 
 
   </v-main>
@@ -153,10 +246,15 @@ const helpers = useCommonHelper()
 
 import CountryComponent from '@/components/CountryComponent.vue';
 import YesNoDialog from '@/components/YesNoDialog.vue';
+import { update } from 'lodash';
 
+const addFilterDialog = ref(false)
 const assignmentRulesList = ref([])
+const confirmEdit = ref(null)
 const currentEditedItem = ref(null)
 const currentEditedProperty = ref(null)
+const dataAreFetched = ref(false)
+const editDialog = ref(false)
 const editedItem = ref([])
 const originItems = ref([])
 const itemIdHover = ref(null)
@@ -169,7 +267,6 @@ const ruleFilters = ref([
   { "key": "serviceType", "value": helpers.capitalizeFirstLetter(t("lead.serviceType")) },
 ])
 const selectedFilter = ref(null)
-const showAddRuleFilterModal = ref(false)
 const timeBeforeSave = ref(null)
 const timeoutBeforeSave = ref(null)
 const visibleColumns = ref([
@@ -186,17 +283,13 @@ ruleFilters.value.sort((a, b) => a.value < b.value ? -1 : a.value > b.value ? 1 
 
 
 //add id for admin only
-onMounted(() =>
+onMounted(async () =>
 {
   if (visibleColumns.value[0]['key'] != 'id' && securityStore.hasRole("ROLE_SUPER_ADMIN"))
   {
     visibleColumns.value.unshift({ "key": "id", "title": "id" });
   }
-  fetchData();
-})
 
-async function fetchData(reload = false)
-{
   if (!businessSectorStore.listLength)
   {
     await businessSectorStore.findAll();
@@ -205,32 +298,39 @@ async function fetchData(reload = false)
   {
     await countryStore.findAll();
   }
-  if (!serviceDomainStore.listLength)
-  {
-    await serviceDomainStore.findAll();
-  }
   if (!serviceTypeStore.listLength)
   {
     await serviceTypeStore.findAll();
-  }
-  if (!leadAssignmentRuleStore.listLength || reload)
-  {
-    await leadAssignmentRuleStore.findAll();
   }
   if (!userStore.filteredListLength)
   {
     await userStore.findByRole('CRM');
   }
+  if (!serviceDomainStore.listLength)
+  {
+    await serviceDomainStore.findAll();
+  }
+
+  await fetchData();
+})
+
+function closeInput(e) { e.srcElement.blur(); }
+
+
+async function fetchData()
+{
+  await leadAssignmentRuleStore.findAll();
+
   assignmentRulesList.value = leadAssignmentRuleStore.list;
   sortList();
+  dataAreFetched.value = true;
 }
 
 function addFilter()
 {
-  assignmentRulesList.value[assignmentRulesList.value.indexOf(currentEditedItem.value)].rules[selectedFilter.value] = [];
-  currentEditedItem.value = null;
+  currentEditedItem.value.rules[selectedFilter.value] = [];
   selectedFilter.value = null;
-  showAddRuleFilterModal.value = false;
+  addFilterDialog.value = false;
 }
 
 function addItemToEditedItemsList(item)
@@ -264,7 +364,7 @@ function assignmentRuleIsValid(item)
   return true;
 }
 
-function assignmentRulesListIsValid()
+function assignmentRulesListAreValid()
 {
   for (let i in assignmentRulesList.value)
   {
@@ -278,9 +378,8 @@ function assignmentRulesListIsValid()
 
 function cancelFilter()
 {
-  currentEditedItem.value = null;
   selectedFilter.value = null;
-  showAddRuleFilterModal.value = false;
+  addFilterDialog.value = false;
 }
 
 async function deleteItem(item)
@@ -298,6 +397,30 @@ async function deleteItem(item)
     removeItemAlreadyEdited(item, true);
     sortList(true);
   }
+}
+
+function deleteRuleFilter(key)
+{
+  delete currentEditedItem.value.rules[key]
+}
+
+function editItem(item)
+{
+  stopTimeBeforeSave();
+  editDialog.value = true;
+
+  currentEditedItem.value = JSON.parse(JSON.stringify(item))
+}
+
+function editItemCancelled()
+{
+  editDialog.value = false;
+}
+
+async function editItemConfirmed()
+{
+  await updated(currentEditedItem.value);
+  editItemCancelled()
 }
 
 function deleteRule(item)
@@ -320,7 +443,7 @@ function getItemsList(key)
 function getStringValue(key, value)
 {
   let store = getStoreFromKey(key)
-  let item = store.list.find(e => e.id = value);
+  let item = store.list.find(e => e.id == value);
   return item.stringValue;
 }
 
@@ -376,21 +499,21 @@ function getMinId()
 
 function getRuleFilters()
 {
-  let list = this.ruleFilters;
-  if (this.currentEditedItem)
+  let list = ruleFilters.value;
+  if (currentEditedItem.value)
   {
-    list = list.filter(el => !Object.keys(this.currentEditedItem.rules).includes(el));
+    list = list.filter(el => !Object.keys(currentEditedItem.value.rules).includes(el.key));
   }
   return list;
 }
 
 function getUserName(e)
 {
-  let returnValue = '< ' + $t('not assigned').toUpperCase() + ' >';
+  let returnValue = '< ' + t('not assigned').toUpperCase() + ' >';
 
   if (e.id == 0)
   {
-    returnValue = '< ' + $t('anyone').toUpperCase() + ' >';
+    returnValue = '< ' + t('anyone').toUpperCase() + ' >';
   }
   else if (e && e.nom && e.prenom)
   {
@@ -438,7 +561,7 @@ function removeItemAlreadyEdited(item, reload = false)
   if (reload && editedItem.value.length == 0)
   {
     originItems.value = []
-    fetchData(true);
+    fetchData();
   }
 }
 
@@ -493,7 +616,7 @@ function setTimeoutBeforeSave(reset = false)
 
 function setTimeBeforeSave(reset = false)
 {
-  if (!assignmentRulesListIsValid())
+  if (!assignmentRulesListAreValid())
   {
     return;
   }
@@ -522,10 +645,9 @@ function save()
   }
 }
 
-function displayAddRuleFilterModal(item)
+function displayAddRuleFilterModal()
 {
-  currentEditedItem.value = item;
-  showAddRuleFilterModal.value = true;
+  addFilterDialog.value = true;
 }
 
 function stopTimeBeforeSave()
@@ -543,7 +665,6 @@ function stopTimeBeforeSave()
 
 function sortList(reset = false)
 {
-  assignmentRulesList.value = assignmentRulesList.value.sort((a, b) => a.priority < b.priority ? -1 : a.priority > b.priority ? 1 : 0);
   if (reset)
   {
     let priority = 1;
@@ -552,12 +673,14 @@ function sortList(reset = false)
       let item = assignmentRulesList.value[i];
       if (item.priority != priority)
       {
-        currentEditedItem.value = item;
         item.priority = priority;
         addItemToEditedItemsList(item);
       }
       priority++;
     }
+  } else
+  {
+    assignmentRulesList.value = assignmentRulesList.value.sort((a, b) => a.priority < b.priority ? -1 : a.priority > b.priority ? 1 : 0);
   }
 }
 
@@ -567,6 +690,12 @@ async function updated(item)
   let response = await leadAssignmentRuleStore.save(item.id, item);
   if (response)
   {
+    let index = assignmentRulesList.value.findIndex((element) => element.id === item.id)
+    if (index > -1)
+    {
+      assignmentRulesList.value[index] = item;
+    }
+
     removeItemAlreadyEdited(item, true);
   }
 }

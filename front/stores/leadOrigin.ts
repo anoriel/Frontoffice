@@ -1,10 +1,46 @@
 import { defineStore } from 'pinia'
 import thisAPI from '@/api/leadOrigin'
-import { baseStore } from './baseStore'
+import { useCommonStore } from './commonStore';
 
-let extendedValues = {
-  ...baseStore,
-  api: thisAPI,
-}
+export const useLeadOriginStore = defineStore('leadOrigin', () =>
+{
+  const {
+    api,
+    currentPage,
+    isLoading,
+    error,
+    item,
+    list,
+    listLength,
+    deleteItem,
+    findAll,
+    find,
+    hasError,
+    hasItems,
+    getById,
+    reset,
+    save,
+    resetError,
+  } = useCommonStore();
 
-export const useLeadOriginStore = defineStore('leadOrigin', () => extendedValues)
+  api.value = thisAPI
+
+
+  return {
+    currentPage,
+    isLoading,
+    error,
+    item,
+    list,
+    listLength,
+    deleteItem,
+    findAll,
+    find,
+    hasError,
+    hasItems,
+    getById,
+    reset,
+    save,
+    resetError,
+  }
+})

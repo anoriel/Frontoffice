@@ -1,10 +1,46 @@
 import { defineStore } from 'pinia'
-import thisAPI from '@/api/serviceDomain'
-import { baseStore } from './baseStore'
+import thisAPI from '@/api/serviceDomain';
+import { useCommonStore } from './commonStore';
 
-let extendedValues = {
-  ...baseStore,
-  api: thisAPI,
-}
+export const useServiceDomainStore = defineStore('serviceDomain', () =>
+{
+  const {
+    api,
+    currentPage,
+    isLoading,
+    error,
+    item,
+    list,
+    listLength,
+    deleteItem,
+    findAll,
+    find,
+    hasError,
+    hasItems,
+    getById,
+    reset,
+    save,
+    resetError,
+  } = useCommonStore();
 
-export const useServiceDomainStore = defineStore('serviceDomain', () => extendedValues)
+  api.value = thisAPI
+
+
+  return {
+    currentPage,
+    isLoading,
+    error,
+    item,
+    list,
+    listLength,
+    deleteItem,
+    findAll,
+    find,
+    hasError,
+    hasItems,
+    getById,
+    reset,
+    save,
+    resetError,
+  }
+})
