@@ -26,7 +26,7 @@
     </v-row>
 
     <v-row v-if="editedItem.length">
-      <span class="mr-1" v-for="item in editedItem" :key="item.id">{{ item.id }}</span>
+      <span class="mr-1" v-for="item in editedItem" :key="item.id">{{ item.id }} / {{ item.priority }}</span>
     </v-row>
 
     <v-dialog max-width="600" v-model="yesNoDialog">
@@ -75,7 +75,7 @@
                   <v-chip v-bind="props" v-if="['countryOfEstablishment', 'countryOfDestination'].includes(key)">
                     <country-component :country="item.raw" />
                   </v-chip>
-                  <v-chip v-else color="success">{{ item.raw.stringValue }}</v-chip>
+                  <v-chip v-bind="props" v-else color="success">{{ item.raw.stringValue }}</v-chip>
                 </template>
                 <template v-slot:item="{ props, item }">
                   <v-list-item v-bind="props" subtitle="" title="">
@@ -99,7 +99,7 @@
 
           <v-row v-if="!Object.keys(currentEditedItem.rules).length" class="bg-error">
             <v-alert color="error" density="compact" class="">{{ $helpers.capitalizeFirstLetter($t('please add filter'))
-              }}</v-alert>
+            }}</v-alert>
           </v-row>
 
           <v-row v-if="Object.keys(currentEditedItem.rules).length != ruleFilters.length">
@@ -116,7 +116,7 @@
           <v-btn :text="$helpers.capitalizeFirstLetter($t('cancel'))" color="error" @click="editItemCancelled()" />
           <v-spacer></v-spacer>
           <v-btn :text="$helpers.capitalizeFirstLetter($t('save'))" color="success" @click="editItemConfirmed()"
-            :disabled="!Object.keys(currentEditedItem.rules).length" />
+            :disabled="!Object.keys(currentEditedItem.rules).length || leadAssignmentRuleStore.isLoading" />
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -526,7 +526,6 @@ function priorityUpdate(item, add)
 {
   stopTimeBeforeSave();
 
-
   let priorityPlus = item.priority + add;
   let foundsList = assignmentRulesList.value.filter(e => e.priority == priorityPlus);
   if (foundsList && foundsList.length)
@@ -539,6 +538,7 @@ function priorityUpdate(item, add)
     }
   }
   item.priority += add;
+
   addItemToEditedItemsList(item);
   sortList(true);
   setTimeBeforeSave(true);
@@ -665,6 +665,7 @@ function stopTimeBeforeSave()
 
 function sortList(reset = false)
 {
+  assignmentRulesList.value = assignmentRulesList.value.sort((a, b) => a.priority < b.priority ? -1 : a.priority > b.priority ? 1 : 0);
   if (reset)
   {
     let priority = 1;
@@ -678,9 +679,6 @@ function sortList(reset = false)
       }
       priority++;
     }
-  } else
-  {
-    assignmentRulesList.value = assignmentRulesList.value.sort((a, b) => a.priority < b.priority ? -1 : a.priority > b.priority ? 1 : 0);
   }
 }
 
