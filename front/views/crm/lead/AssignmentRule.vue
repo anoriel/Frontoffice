@@ -25,10 +25,6 @@
       </v-btn>
     </v-row>
 
-    <v-row v-if="editedItem.length">
-      <span class="mr-1" v-for="item in editedItem" :key="item.id">{{ item.id }} / {{ item.priority }}</span>
-    </v-row>
-
     <v-dialog max-width="600" v-model="yesNoDialog">
       <v-card :title="$helpers.capitalizeFirstLetter($t('are you sure you want to delete this line?'))">
         <v-card-actions class="bg-surface-light">
@@ -314,8 +310,6 @@ onMounted(async () =>
   await fetchData();
 })
 
-function closeInput(e) { e.srcElement.blur(); }
-
 
 async function fetchData()
 {
@@ -419,7 +413,7 @@ function editItemCancelled()
 
 async function editItemConfirmed()
 {
-  await updated(currentEditedItem.value);
+  updated(currentEditedItem.value);
   editItemCancelled()
 }
 
@@ -561,7 +555,6 @@ function removeItemAlreadyEdited(item, reload = false)
   if (reload && editedItem.value.length == 0)
   {
     originItems.value = []
-    fetchData();
   }
 }
 
@@ -580,21 +573,6 @@ async function removeRowConfirmed()
   originItems.value.push(rowToRemove.value)
   await deleteItem(rowToRemove.value);
   removeRowCancelled()
-}
-
-function rowClass(item, type)
-{
-  if (!item || type !== 'row') return;
-  let classString = [];
-  if (itemIdHover.value == item.id)
-  {
-    classString.push('bg-danger-50');
-  }
-  if (!assignmentRuleIsValid(item))
-  {
-    classString.push('bg-danger-20');
-  }
-  return classString;
 }
 
 function setTimeoutBeforeSave(reset = false)
@@ -688,10 +666,10 @@ async function updated(item)
   let response = await leadAssignmentRuleStore.save(item.id, item);
   if (response)
   {
-    let index = assignmentRulesList.value.findIndex((element) => element.id === item.id)
+    let index = assignmentRulesList.value.findIndex((element) => element.id === response.id)
     if (index > -1)
     {
-      assignmentRulesList.value[index] = item;
+      assignmentRulesList.value[index] = response;
     }
 
     removeItemAlreadyEdited(item, true);
