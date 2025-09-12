@@ -30,7 +30,7 @@ function parseJwt(JWTToken: string | null): JWTTokenInfo | null
       jsonParsed.email = meObj.email;
     }
 
-    return JSON.parse(jsonPayload)
+    return jsonParsed
   }
   return null
 }
