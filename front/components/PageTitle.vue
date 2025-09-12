@@ -4,9 +4,8 @@
 ">
     <v-breadcrumbs :items="getBreadcrumbs(router.currentRoute.value, true)" density="compact">
       <template v-slot:item="{ item }">
-       <FlagIcon v-if="item.meta && item.meta.flag"
-          :code="item.meta && item.meta.flag" />
-        <v-icon v-if="item.meta && item.meta.icon" size="smaller">
+        <FlagIcon v-if="item.meta && item.meta.flag" :code="item.meta && item.meta.flag" class="mr-1" />
+        <v-icon v-if="item.meta && item.meta.icon" size="smaller" class="mr-1">
           {{ item.meta.icon }}
         </v-icon>
         {{ $helpers.capitalizeFirstLetter($t(item.name)) }}
