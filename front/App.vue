@@ -36,7 +36,7 @@
         <template v-slot:activator="{ props }">
           <v-btn v-bind="props" color="white" variant="elevated" append-icon="mdi-dots-vertical">
             <template v-slot:prepend>
-              <img :src="$helpers.getGravatarURL(securityStore.getEmail(), 24, $gravatarDefaultImage)"/>
+              <img :src="$helpers.getGravatarURL(securityStore.getEmail(), 24, $gravatarDefaultImage)" />
             </template>
             {{ securityStore.getFirstname() }} {{ securityStore.getLastname() }}
 
@@ -50,7 +50,7 @@
           <v-list-item append-icon="mdi-logout" link>
             <v-list-item-title @click="logout()">{{
               $helpers.capitalizeFirstLetter($t('logout'))
-            }}</v-list-item-title>
+              }}</v-list-item-title>
             <template v-slot:append>
               <v-icon color="primary"></v-icon>
             </template>
@@ -117,6 +117,11 @@ import { useGlobalStore } from './stores/global'
 const globalStore = useGlobalStore()
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import useCommonHelper from '@/helpers/commonHelper'
+const helpers = useCommonHelper()
+import { useI18n } from "vue-i18n";
+const { t } = useI18n({ useScope: "global" });
+
 
 const appTitle = import.meta.env.VITE_APP_TITLE
 const legacyIntranetUrl = import.meta.env.VITE_INTRANET_LEGACY_URL
@@ -154,7 +159,7 @@ router.beforeEach(async (to, from) =>
 })
 router.afterEach((to, from) =>
 {
-  document.title = appTitle + (to?.meta?.title ? (' - ' + to?.meta?.title) : '');
+  document.title = appTitle + (to?.meta?.title ? (' - ' + helpers.capitalizeFirstLetter(t(to.meta.title))) : '');
 });
 
 
