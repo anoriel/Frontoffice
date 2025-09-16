@@ -65,7 +65,7 @@
         <society-component v-if="value" :society="value" />
       </template>
       <template v-slot:[`item.user`]="{ value }">
-        <span v-if="value?.email">
+        <span v-if="value?.email" :class="{ 'font-italic opacity-50': !value.actif }">
           <img :src="$helpers.getGravatarURL(value.email, 24, $gravatarDefaultImage)" style="vertical-align: bottom;" />
           {{ value.stringValue }}
         </span>
@@ -211,7 +211,6 @@ function getLeadTypeVariant(typeName)
 
 async function loadItems({ page, itemsPerPage, sortBy, groupBy, search })
 {
-  console.log('loadItems', page, itemsPerPage, sortBy, groupBy, search);
   loading.value = true;
   let sortByKey = "id"
   let sortByOrder = true
