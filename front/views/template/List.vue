@@ -55,7 +55,7 @@
       </template>
       <template v-slot:[`item.leadType`]="{ value }">
         <v-progress-linear v-if="value" :model-value="getLeadTypeValue(value)" :color="getLeadTypeVariant(value.name)"
-          height="25" :max="highestLeadTypePosition" rounded>
+          height="25" :max="highestLeadTypePosition - lowestLeadTypePosition" rounded>
           <template v-slot:default>
             <small>{{ $helpers.capitalizeFirstLetter($t("lead." + value.stringValue)) }}</small>
           </template>
@@ -217,7 +217,7 @@ async function loadItems({ page, itemsPerPage, sortBy, groupBy, search })
   if (sortBy.length)
   {
     sortByKey = sortBy[0].key
-    sortByOrder = sortBy[0].order == 'asc'
+    sortByOrder = sortBy[0].order == 'desc'
   }
   await store.value.findPage(page, itemsPerPage, sortByKey, sortByOrder, [])
   serverItems.value = store.value.list
