@@ -1,11 +1,12 @@
 <template>
   <v-app>
-    <v-app-bar color="blue-darken-4" image="/images/bg-header.png">
+    <v-app-bar color="blue-darken-4" image="/images/bg-header.png" density="compact">
       <v-app-bar-title>
         <img src="/images/asd-group-logo-couleur-transparent-white.png" :alt="appTitle" :title="appTitle" height="48" />
         <span>{{ appTitle }}</span>
 
-        <v-btn variant="elevated" color="primary" :href="getLegacyIntranetUrl()" class="ml-16">
+        <v-btn color="primary" :href="getLegacyIntranetUrl()" class="ml-16" variant="elevated" elevation="5"
+          rounded="0">
           <v-icon>mdi-link-variant</v-icon>
           &nbsp; Go to
           {{ $helpers.capitalizeFirstLetter($t('legacy intranet')) }} !
@@ -13,18 +14,19 @@
         </v-btn>
       </v-app-bar-title>
 
-      <v-btn v-if="globalStore.isBackgroundLoading" size="x-small">
+      <v-btn v-if="globalStore.isBackgroundLoading" size="x-small" variant="flat" rounded="0">
         <v-progress-circular color="white" indeterminate :size="20" :width="2"></v-progress-circular>&nbsp;{{
           $t('loading') }}...
       </v-btn>
 
-      <v-btn v-if="securityStore.isAdmin() && !securityStore.isLoggedAs()" @click="showLoggedUsers()">
+      <v-btn v-if="securityStore.isAdmin() && !securityStore.isLoggedAs()" @click="showLoggedUsers()" variant="flat"
+        rounded="0">
         {{ numberOfCurrentlyLoggedUsers }}
         {{ $t('# users currently connected', numberOfCurrentlyLoggedUsers) }}
       </v-btn>
 
-      <v-btn v-if="securityStore.isLoggedAs()" @click="securityStore.switchUserReset()" color="warning"
-        variant="elevated" append-icon="mdi-logout">
+      <v-btn v-if="securityStore.isLoggedAs()" @click="securityStore.switchUserReset()" color="warning" variant="flat"
+        rounded="0" append-icon="mdi-logout">
         {{ $helpers.capitalizeFirstLetter($t('log as'))
         }}{{ $helpers.capitalizeFirstLetter($t(':')) }}{{ securityStore.getLoggedAs() }}
         <template v-slot:append>
@@ -34,7 +36,7 @@
 
       <v-menu transition="scale-transition" v-if="securityStore.getIsAuthenticated() && !securityStore.isLoggedAs()">
         <template v-slot:activator="{ props }">
-          <v-btn v-bind="props" color="white" variant="elevated" append-icon="mdi-dots-vertical">
+          <v-btn v-bind="props" color="white" append-icon="mdi-dots-vertical" variant="flat" rounded="0">
             <template v-slot:prepend>
               <img :src="$helpers.getGravatarURL(securityStore.getEmail(), 24, $gravatarDefaultImage)" />
             </template>
@@ -117,6 +119,8 @@ import { useGlobalStore } from './stores/global'
 const globalStore = useGlobalStore()
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+const router = useRouter()
+const route = useRoute()
 import useCommonHelper from '@/helpers/commonHelper'
 const helpers = useCommonHelper()
 import { useI18n } from "vue-i18n";
@@ -128,8 +132,6 @@ const legacyIntranetUrl = import.meta.env.VITE_INTRANET_LEGACY_URL
 const releaseVersion = import.meta.env.VITE_RELEASE_VERSION
 const environment = import.meta.env.VITE_ENV
 
-const router = useRouter()
-const route = useRoute()
 
 
 let axiosIsLoading = ref(false)

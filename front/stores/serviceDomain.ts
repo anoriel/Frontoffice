@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import thisAPI from '@/api/serviceDomain';
-import { useCommonStore } from './commonStore';
+import { useBaseStore } from './baseStore';
 
 export const useServiceDomainStore = defineStore('serviceDomain', () =>
 {
@@ -21,7 +21,7 @@ export const useServiceDomainStore = defineStore('serviceDomain', () =>
     reset,
     save,
     resetError,
-  } = useCommonStore();
+  } = useBaseStore();
 
   api.value = thisAPI
 

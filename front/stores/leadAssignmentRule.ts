@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import thisAPI from '@/api/leadAssignmentRule'
-import { useCommonStore } from './commonStore';
+import { useBaseStore } from './baseStore';
 
 export const useLeadAssignmentRuleStore = defineStore('leadAssignmentRule', () =>
 {
@@ -21,7 +21,7 @@ export const useLeadAssignmentRuleStore = defineStore('leadAssignmentRule', () =
     reset,
     save,
     resetError,
-  } = useCommonStore();
+  } = useBaseStore();
 
   api.value = thisAPI
 

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import thisAPI from '@/api/user'
-import { useCommonStore } from '@/stores/commonStore';
+import { useBaseStore } from '@/stores/baseStore';
 import { ref } from 'vue';
 
 export const useUserStore = defineStore('user', () =>
@@ -21,7 +21,7 @@ export const useUserStore = defineStore('user', () =>
     getById,
     save,
     resetError,
-  } = useCommonStore();
+  } = useBaseStore();
 
   api.value = thisAPI
 

@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar app color="grey-darken-4">
+  <v-app-bar app color="grey-darken-4" density="compact">
     <template v-if="securityStore.getIsAuthenticated()">
       <v-btn v-for="route in filteredRoutes" :key="route.name" text :title="route.meta?.title" variant="flat"
         rounded="0" class="mr-1" color="primary" :class="{ 'disabled': route.meta.isDisabled }">

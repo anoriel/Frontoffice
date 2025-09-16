@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import thisAPI from '@/api/businessSector'
-import { useCommonStore } from './commonStore';
+import { useBaseStore } from './baseStore';
 
 export const useBusinessSectorStore = defineStore('businessSector', () =>
 {
@@ -21,7 +21,7 @@ export const useBusinessSectorStore = defineStore('businessSector', () =>
     reset,
     save,
     resetError,
-  } = useCommonStore();
+  } = useBaseStore();
 
   api.value = thisAPI
 

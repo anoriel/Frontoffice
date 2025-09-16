@@ -1,6 +1,7 @@
 import { Item } from './item';
 
-export interface Lead extends Item {
+export interface Lead extends Item
+{
   createdAt?: Date;
   customerName?: string;
   name?: string;
@@ -37,4 +38,7 @@ export interface Lead extends Item {
   punctualExpectedIncome?: number;
   reminderDate?: Date;
   readonly leadHistories?: any;
+
+
+  [key: string]: any;
 }

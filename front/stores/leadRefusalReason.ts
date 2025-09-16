@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import thisAPI from '@/api/leadRefusalReason'
-import { useCommonStore } from './commonStore';
+import { useBaseStore } from './baseStore';
 
 export const useLeadRefusalReasonStore = defineStore('leadRefusalReason', () =>
 {
@@ -21,7 +21,7 @@ export const useLeadRefusalReasonStore = defineStore('leadRefusalReason', () =>
     reset,
     save,
     resetError,
-  } = useCommonStore();
+  } = useBaseStore();
 
   api.value = thisAPI
 

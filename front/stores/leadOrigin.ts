@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import thisAPI from '@/api/leadOrigin'
-import { useCommonStore } from './commonStore';
+import { useBaseStore } from './baseStore';
 
 export const useLeadOriginStore = defineStore('leadOrigin', () =>
 {
@@ -21,7 +21,7 @@ export const useLeadOriginStore = defineStore('leadOrigin', () =>
     reset,
     save,
     resetError,
-  } = useCommonStore();
+  } = useBaseStore();
 
   api.value = thisAPI
 

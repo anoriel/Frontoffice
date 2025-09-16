@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import thisAPI from '@/api/serviceType'
-import { useCommonStore } from './commonStore';
+import { useBaseStore } from './baseStore';
 
 export const useServiceTypeStore = defineStore('serviceType', () =>
 {
@@ -21,7 +21,7 @@ export const useServiceTypeStore = defineStore('serviceType', () =>
     reset,
     save,
     resetError,
-  } = useCommonStore();
+  } = useBaseStore();
 
   api.value = thisAPI
 
