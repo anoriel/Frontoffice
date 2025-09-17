@@ -167,9 +167,9 @@ router.afterEach((to, from) =>
 
 axios.interceptors.request.use((request) =>
 {
-  axiosIsLoading = true
-  axiosNbRequests++
-  axiosMaxRequests++
+  axiosIsLoading.value = true
+  axiosNbRequests.value++
+  axiosMaxRequests.value++
 
   if (securityStore.switch_user && request.url.length)
   {
@@ -255,14 +255,14 @@ function getLegacyIntranetUrl()
 
 function interceptResponse(response)
 {
-  axiosIsLoading = true
-  axiosNbRequests--
+  axiosIsLoading.value = true
+  axiosNbRequests.value--
 
-  if (axiosNbRequests <= 0)
+  if (axiosNbRequests.value <= 0)
   {
-    axiosNbRequests = 0
-    axiosMaxRequests = 0
-    axiosIsLoading = false
+    axiosNbRequests.value = 0
+    axiosMaxRequests.value = 0
+    axiosIsLoading.value = false
   }
 }
 

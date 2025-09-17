@@ -38,9 +38,9 @@ export function useBaseStore()
       isLoading.value = false;
       item.value = null;
       return true;
-    } catch (error: any) {
+    } catch (err: any) {
       isLoading.value = false;
-      error.value = error;
+      error.value = err;
       return false;
     }
   }
@@ -78,9 +78,9 @@ export function useBaseStore()
       listLength.value = response.data["totalItems"];
       isLoading.value = false;
       return response.data;
-    } catch (error) {
+    } catch (err: any) {
       isLoading.value = false;
-      error = error;
+      error.value = err;
       return null;
     }
   }
@@ -94,9 +94,9 @@ export function useBaseStore()
       isLoading.value = false;
       item.value = response.data;
       return response.data;
-    } catch (error: any) {
+    } catch (err: any) {
       isLoading.value = false;
-      error.value = error;
+      error.value = err;
       return null;
     }
   }
@@ -145,14 +145,15 @@ export function useBaseStore()
         }
       }
 
-      return list;
-    } catch (error: any) {
-      error.value = error.data;
+      return list.value;
+    } catch (err: any) {
+      isLoading.value = false;
+      error.value = err.data;
       return null;
     }
   }
 
-  function getById(id: Number)
+  function getById(id: number)
   {
     return list.value.find(e => e.id == id)
   }
@@ -234,15 +235,14 @@ export function useBaseStore()
     listLength.value = 0;
     return true;
   }
-  async function save(id: number, item: any)
+  async function save(id: number, itemData: any)
   {
     isLoading.value = true;
-    item.value = null;
     error.value = null;
     try {
       //#region properties rewriting
-      for (let key in item) {
-        let property = item[key];
+      for (let key in itemData) {
+        let property = itemData[key];
         if (property != null && typeof (property) == "object" && '@id' in property) {
           property = property['@id'];
         } else if (property != null && Array.isArray(property)) {
@@ -252,24 +252,24 @@ export function useBaseStore()
             }
           }
         }
-        item[key] = property;
+        itemData[key] = property;
       }
       //#endregion
 
       let response = null
-      if (item.id && parseInt(item.id) > 0) {
-        response = await api.value.save(id, item)
+      if (itemData.id && parseInt(itemData.id) > 0) {
+        response = await api.value.save(id, itemData)
       } else {
-        response = await api.value.add(item);
+        response = await api.value.add(itemData);
       }
       if (response != null) {
         isLoading.value = false;
         item.value = response.data;
         return response.data;
       }
-    } catch (error: any) {
+    } catch (err: any) {
       isLoading.value = false;
-      error.value = error;
+      error.value = err;
       return null;
     }
   }
