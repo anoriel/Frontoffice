@@ -38,8 +38,19 @@
 
 
       <template v-slot:top>
-        <small class="text-center" v-if="totalItems"><i>{{ totalItems }} {{ $t("record",
-          totalItems) }}</i></small>
+        <small class="text-center" v-if="totalItems">
+          <i>{{ totalItems }} {{ $t("record", totalItems) }}</i>
+        </small>
+        <v-row>
+          <v-col class="position-relative">
+            <v-select :model-value="itemsPerPage" :items="globalStore.perPageOptions"
+              :label="$helpers.capitalizeFirstLetter($t('per page'))" density="compact"
+              @update:model-value="itemsPerPage = parseInt($event, 10)" class="position-absolute right-0"
+              style="min-width: 120px;" />
+            <v-pagination :total-visible="7" v-model="store.currentPage" :length="Math.ceil(totalItems / itemsPerPage)"
+              rounded="circle" density="compact" active-color="blue-darken-4" color="blue-darken-4"></v-pagination>
+          </v-col>
+        </v-row>
       </template>
 
       <template v-slot:[`item.countryOfDestination`]="{ value }">
@@ -72,26 +83,37 @@
         </span>
       </template>
 
-
       <template v-slot:bottom>
         <v-row>
-          <v-col cols="5" sm="4" md="3" lg="2" xl="1">
-            <v-select :model-value="itemsPerPage" :items="globalStore.perPageOptions"
-              :label="$helpers.capitalizeFirstLetter($t('per page'))" density="compact"
-              @update:model-value="itemsPerPage = parseInt($event, 10)" />
-          </v-col>
-          <v-col class="text-center pt-2" cols="7" sm="8" md="9" lg="10" xl="10" offset-xl="1">
-            <v-pagination v-model="store.currentPage" :length="Math.ceil(totalItems / itemsPerPage)" rounded="circle"
-              density="compact" active-color="blue-darken-4" color="blue-darken-4"></v-pagination>
+          <v-col>
+            <v-pagination :total-visible="7" v-model="store.currentPage" :length="Math.ceil(totalItems / itemsPerPage)"
+              rounded="circle" density="compact" active-color="blue-darken-4" color="blue-darken-4"></v-pagination>
           </v-col>
         </v-row>
       </template>
     </v-data-table-server>
   </v-main>
+
+  <v-dialog v-model="store.isLoadingWithLock" max-width="320" persistent>
+    <v-list class="py-2 bg-blue-darken-4" elevation="12" rounded="lg">
+      <v-list-item :title="$helpers.capitalizeFirstLetter($t('loading'))">
+        <template v-slot:prepend>
+          <div class="pe-4">
+            <img src="/images/asd-group-logo-couleur-transparent-white.png" alt="ASD GROUP" title="ASD GROUP"
+              height="48" />
+          </div>
+        </template>
+
+        <template v-slot:append>
+          <v-progress-circular indeterminate="disable-shrink" size="16" width="2"></v-progress-circular>
+        </template>
+      </v-list-item>
+    </v-list>
+  </v-dialog>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, shallowRef } from "vue";
 import { useRoute, useRouter } from 'vue-router'
 const router = useRouter()
 const route = useRoute()
@@ -128,7 +150,7 @@ const props = defineProps({
   },
 })
 
-const store = ref(null);
+const store = shallowRef(null);
 switch (props.moduleName)
 {
   case "lead":
@@ -138,18 +160,16 @@ switch (props.moduleName)
 
 leadTypeStore.findAll()
 
-const showFilters = ref(false)
-
-const itemsPerPage = ref(globalStore.perPage)
-const serverItems = ref([])
-const loading = ref(true)
-const sortBy = ref([{ key: 'createdAt', order: 'desc' }])
-const totalItems = ref(0)
-
+const itemsPerPage = shallowRef(globalStore.perPage)
+const loading = shallowRef(true)
+const searchFilters = shallowRef([])
+const showFilters = shallowRef(false)
+const serverItems = shallowRef([])
+const sortBy = shallowRef([{ key: 'createdAt', order: 'desc' }])
+const totalItems = shallowRef(0)
 
 const lowestLeadTypePosition = computed(() => { return leadTypeStore.getLowestPosition() })
 const highestLeadTypePosition = computed(() => { return leadTypeStore.getHighestPosition() })
-
 const visibleFields = computed(() =>
 {
   let visibleFields = store.value.getVisibleFields()
@@ -163,14 +183,10 @@ const visibleFields = computed(() =>
   return visibleFields
 })
 
-
-
-
 onMounted(() =>
 {
   crmListStore.findItemsByType(store.value.localStorageName)
 })
-
 
 function addAnItem()
 {
@@ -180,15 +196,14 @@ function addAnItem()
 
 async function exportList()
 {
-  let fields = JSON.parse(JSON.stringify(store.customFields)).map(e => e.key);
+  let fields = JSON.parse(JSON.stringify(store.value.visibleFields)).map(e => e.key);
 
-  let exportList = await this.$store.dispatch(props.moduleName + "/export", [
-    store.getSortBy,
-    store.getSortDesc,
-    store.getSearchFilters,
+  let exportList = await store.value.exportList(
+    sortBy.value,
+    searchFilters.value,
     fields
-  ]);
-  this.saveToExcel(props.moduleName, exportList);
+  );
+  helpers.saveToExcel(props.moduleName, exportList);
 }
 
 function getLeadTypeValue(value) { return value.position - lowestLeadTypePosition.value }

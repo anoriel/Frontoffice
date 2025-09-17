@@ -16,6 +16,7 @@ export const useLeadStore = defineStore('lead', () =>
     customFields,
     defaultContext,
     isLoading,
+    isLoadingWithLock,
     error,
     item,
     list,
@@ -24,6 +25,7 @@ export const useLeadStore = defineStore('lead', () =>
     visibleFields,
 
     deleteItem,
+    exportList,
     find,
     findAll,
     findPage,
@@ -277,6 +279,7 @@ export const useLeadStore = defineStore('lead', () =>
     currentPage,
     customFields,
     isLoading,
+    isLoadingWithLock,
     error,
     item,
     list,
@@ -284,6 +287,7 @@ export const useLeadStore = defineStore('lead', () =>
     visibleFields,
 
     deleteItem,
+    exportList,
     find,
     findAll,
     findPage,

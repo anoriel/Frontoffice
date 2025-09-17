@@ -2,6 +2,7 @@ import { computed, ref } from "vue"
 import api_base from '@/api/api_base';
 import { Item } from '@/interfaces/item';
 import useCommonHelper from '../helpers/commonHelper'
+import { DatatableSortBy } from "@/interfaces/datatableSortBy";
 const helpers = useCommonHelper()
 
 interface AvailableField { 'key': string, 'sortable': boolean, 'title': string | null }
@@ -11,6 +12,7 @@ export function useBaseStore()
   const api = ref(api_base)
   const currentPage = ref(1)
   const isLoading = ref(false)
+  const isLoadingWithLock = ref(false)
   const error = ref(null)
   const item = ref(null as Item | null)
   const list = ref([] as Item[])
@@ -21,7 +23,6 @@ export function useBaseStore()
   const context = ref<Record<string, any>>({})
   const customFields = ref([])
   const defaultContext = ref<Record<string, any>>({})
-  const exportList = ref(null)
   const localStorageName = ref("base")
   const visibleFields = ref([])
 
@@ -43,6 +44,28 @@ export function useBaseStore()
       return false;
     }
   }
+
+  async function exportList(sortBy: DatatableSortBy, filters: any, properties: any)
+  {
+    let parsed = parseArrays(filters);
+    let filtersArray = parsed[0];
+    let isNullArray = parsed[1];
+    let isNotNullArray = parsed[2];
+
+    parsed = parseSortBy(sortBy.key, sortBy.order == 'asc');
+
+    isLoadingWithLock.value = true;
+    error.value = null;
+    try {
+      let response = await api.value.export(parsed[0], parsed[1] ? 'desc' : 'asc', filtersArray, isNullArray, isNotNullArray, properties);
+      isLoadingWithLock.value = false;
+      return response.data;
+    } catch (error: any) {
+      error.value = error.data
+      return null;
+    }
+  }
+
   async function findAll()
   {
     isLoading.value = true;
@@ -265,6 +288,7 @@ export function useBaseStore()
     error,
     exportList,
     isLoading,
+    isLoadingWithLock,
     item,
     list,
     listLength,
