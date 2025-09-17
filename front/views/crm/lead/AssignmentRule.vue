@@ -174,7 +174,7 @@
         </template>
 
         <template v-slot:[`item.user`]="{ item }">
-          <v-container>
+          <v-container v-if="item.user">
             <v-card class="w-100 pb-1">
               <v-list-item :prepend-avatar="$helpers.getGravatarURL(item.user.email, 40, $gravatarDefaultImage)"
                 :title="item.user.prenom + ' ' + item.user.nom"></v-list-item>
@@ -245,14 +245,11 @@ import { update } from 'lodash';
 
 const addFilterDialog = ref(false)
 const assignmentRulesList = ref([])
-const confirmEdit = ref(null)
 const currentEditedItem = ref(null)
-const currentEditedProperty = ref(null)
 const dataAreFetched = ref(false)
 const editDialog = ref(false)
 const editedItem = ref([])
 const originItems = ref([])
-const itemIdHover = ref(null)
 const rowToRemove = ref(null)
 const ruleFilters = ref([
   { "key": "businessSector", "value": helpers.capitalizeFirstLetter(t("lead.businessSector")) },
@@ -339,13 +336,12 @@ function addRule()
 {
   stopTimeBeforeSave();
   let item = {
-    "id": getMinId(),
+    "id": null,
     "user": null,
     "rules": {},
     "priority": getMaxPriority()
   };
-  assignmentRulesList.value.push(item);
-  currentEditedItem.value = item;
+  editItem(item)
 }
 
 function assignmentRuleIsValid(item)
@@ -377,12 +373,8 @@ function cancelFilter()
 
 async function deleteItem(item)
 {
-  if (item.id < 0)
-  {
-    return;
-  }
   stopTimeBeforeSave();
-  let response = await leadAssignmentRuleStore.delete([item.id]);
+  let response = await leadAssignmentRuleStore.deleteItem(item.id);
   if (response)
   {
     assignmentRulesList.value.splice(assignmentRulesList.value.indexOf(item), 1);
@@ -414,18 +406,6 @@ async function editItemConfirmed()
 {
   updated(currentEditedItem.value);
   editItemCancelled()
-}
-
-function deleteRule(item)
-{
-  if (item.id < 0)
-  {
-    assignmentRulesList.value.splice(assignmentRulesList.value.indexOf(item), 1);
-    sortList();
-    return;
-  }
-  item.isDeleted = true;
-  deleteItem(item);
 }
 
 function getItemsList(key)
@@ -474,20 +454,6 @@ function getMaxPriority()
     }
   }
   return max;
-}
-
-function getMinId()
-{
-  let min = -1;
-  for (let i in assignmentRulesList.value)
-  {
-    let rule = assignmentRulesList.value[i];
-    if (rule.id <= min)
-    {
-      min = rule.id - 1;
-    }
-  }
-  return min;
 }
 
 function getRuleFilters()
@@ -669,6 +635,9 @@ async function updated(item)
     if (index > -1)
     {
       assignmentRulesList.value[index] = response;
+    } else
+    {
+      assignmentRulesList.value.push(response);
     }
 
     removeItemAlreadyEdited(item, true);
