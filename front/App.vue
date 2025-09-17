@@ -52,7 +52,7 @@
           <v-list-item append-icon="mdi-logout" link>
             <v-list-item-title @click="logout()">{{
               $helpers.capitalizeFirstLetter($t('logout'))
-              }}</v-list-item-title>
+            }}</v-list-item-title>
             <template v-slot:append>
               <v-icon color="primary"></v-icon>
             </template>
@@ -62,7 +62,7 @@
     </v-app-bar>
     <nav-bar />
     <page-title />
-    <v-container>
+    <v-container min-width="95%">
       <router-view />
     </v-container>
     <div class="copyright">

@@ -423,7 +423,7 @@ export default function useCommonHelper()
 
   function isObject(x: any): boolean
   {
-    return Object.prototype.toString.call(x) === '[object Object]' || typeof x === 'object';
+    return Object.prototype.toString.call(x) === '[object Object]' || (typeof x === 'object' && x !== null);
   }
 
   function isEmptyOrNull(value: any): boolean

@@ -31,7 +31,7 @@
     </v-btn>
   </v-app-bar>
 
-  <v-main>
+  <v-main class="w-100">
     <v-data-table-server :hover="true" v-model:items-per-page="itemsPerPage" :headers="visibleFields" striped="even"
       :items="serverItems" :items-length="totalItems" :loading="loading" @update:options="loadItems"
       v-model:page="store.currentPage" density="compact" v-model:sort-by="sortBy">
@@ -57,7 +57,8 @@
         <v-progress-linear v-if="value" :model-value="getLeadTypeValue(value)" :color="getLeadTypeVariant(value.name)"
           height="25" :max="highestLeadTypePosition - lowestLeadTypePosition" rounded>
           <template v-slot:default>
-            <small>{{ $helpers.capitalizeFirstLetter($t("lead." + value.stringValue)) }}</small>
+            <small :class="getLeadTypeColor(value.name)">{{ $helpers.capitalizeFirstLetter($t("lead." +
+              value.stringValue)) }}</small>
           </template>
         </v-progress-linear>
       </template>
@@ -192,6 +193,24 @@ async function exportList()
 
 function getLeadTypeValue(value) { return value.position - lowestLeadTypePosition.value }
 
+function getLeadTypeColor(typeName)
+{
+  switch (typeName)
+  {
+    case 'lost':
+      return 'text-white';
+
+    case 'spam':
+      return 'text-white';
+
+    case 'won':
+      return 'text-white';
+
+    default:
+      return 'grey-darken-4';
+  }
+}
+
 function getLeadTypeVariant(typeName)
 {
   switch (typeName)
@@ -200,7 +219,7 @@ function getLeadTypeVariant(typeName)
       return 'error';
 
     case 'spam':
-      return 'black';
+      return 'grey-darken-4';
 
     case 'won':
       return 'success';
