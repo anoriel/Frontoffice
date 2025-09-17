@@ -92,10 +92,9 @@ async function fetchData()
     await props.currentItemsStore.findAll();
   }
   list.value = props.currentItemsStore.list;
+  sortList();
 }
 fetchData();
-
-sortList();
 
 function addItem()
 {
@@ -135,10 +134,10 @@ async function saveItem(item: any)
 {
   let savedItem = await props.currentItemsStore.save(item.id, item);
   if (item.id != null) {
-    const index = list.value.findIndex((element: { id: number; }) => element.id === savedItem.id)
+    const index = list.value.findIndex((element: { id: number; }) => element.id === item.id)
     list.value[index] = savedItem
   } else {
-    list.value.push(formModel.value)
+    list.value.push(savedItem)
   }
   sortList();
 

@@ -256,20 +256,20 @@ export function useBaseStore()
       }
       //#endregion
 
+      let response = null
       if (item.id && parseInt(item.id) > 0) {
-        let response = await api.value.save(id, item)
-        isLoading.value = false;
-        item = response.data;
-        return response.data;
+        response = await api.value.save(id, item)
       } else {
-        let response = await api.value.add(item);
+        response = await api.value.add(item);
+      }
+      if (response != null) {
         isLoading.value = false;
-        item = response.data;
+        item.value = response.data;
         return response.data;
       }
-    } catch (error) {
+    } catch (error: any) {
       isLoading.value = false;
-      error = error;
+      error.value = error;
       return null;
     }
   }
