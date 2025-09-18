@@ -39,9 +39,9 @@ export const useUserStore = defineStore('user', () =>
       list.value = response.data["member"];
       listLength.value = response.data["totalItems"];
       return response.data;
-    } catch (error) {
+    } catch (err: any) {
       isLoading.value = false;
-      error = error
+      error.value = err
       return null;
     }
   }
@@ -67,9 +67,9 @@ export const useUserStore = defineStore('user', () =>
       filteredList.value = response.data["member"];
       filteredListLength.value = response.data["totalItems"];
       return response.data;
-    } catch (error) {
+    } catch (err: any) {
       isLoading.value = false;
-      error = error;
+      error.value = err;
       return null;
     }
   }
@@ -82,11 +82,11 @@ export const useUserStore = defineStore('user', () =>
       isLoading.value = false;
       error.value = null;
       currentlyLoggedUsersList.value = response.data;
-      currentlyLoggedUsersListLength.value = response.data.lenght;
+      currentlyLoggedUsersListLength.value = response.data.length;
       return response.data;
-    } catch (error) {
+    } catch (err: any) {
       isLoading.value = false;
-      error = error;
+      error.value = err;
       return null;
     }
   }
@@ -102,9 +102,9 @@ export const useUserStore = defineStore('user', () =>
       error.value = null;
       currentlyLoggedUsersCount.value = response.data;
       return response.data;
-    } catch (error) {
+    } catch (err: any) {
       isLoading.value = false;
-      error = error;
+      error.value = err;
       return null;
     }
   }

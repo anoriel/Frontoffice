@@ -110,7 +110,8 @@ export default [
     meta: {
       parent: "menu.crm",
       isHidden: true,
-      title: "lead.page"
+      title: "lead.page",
+      hasRole: "ROLE_CRM"
     },
   }
 ];
