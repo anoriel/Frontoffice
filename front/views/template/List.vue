@@ -91,6 +91,17 @@
           </template>
         </v-progress-linear>
       </template>
+      <template v-for="key in ['rgpdAccepted', 'onNewsletterList']" v-slot:[`item.${key}`]="{ value }">
+        <v-icon v-if="value === true" class="text-success" :key="key + 'Check'">
+          mdi-check
+        </v-icon>
+        <v-icon v-else-if="value === false" class="text-danger" :key="key + 'Close'">
+          mdi-close
+        </v-icon>
+        <v-icon v-else class="text-warning" :key="key + 'Help'">
+          mdi-help
+        </v-icon>
+      </template>
       <template v-slot:[`item.society`]="{ value }">
         <society-component v-if="value" :society="value" />
       </template>
