@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, shallowRef } from 'vue'
 
 export const useGlobalStore = defineStore('global', () =>
 {
@@ -7,6 +7,7 @@ export const useGlobalStore = defineStore('global', () =>
   const isBackgroundLoading = ref(false)
   const perPage = ref(parseInt(sessionStorage.getItem("perPage") ?? '20'))
   const perPageOptions = ref([1, 3, 5, 10, 20, 50, 100, 200])
+  const showColumnsDialog = shallowRef(false)
 
   function setIsBackgroundLoading(val: boolean)
   {
@@ -35,6 +36,7 @@ export const useGlobalStore = defineStore('global', () =>
     isBackgroundLoading,
     perPage,
     perPageOptions,
+    showColumnsDialog,
 
     setIsBackgroundLoading,
     setPerPage

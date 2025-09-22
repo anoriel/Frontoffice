@@ -54,10 +54,10 @@ describe('Base Store', () => {
     it('should have computed properties working correctly', () => {
       expect(store.hasError.value).toBe(false)
       expect(store.hasItems.value).toBe(false)
-      
+
       store.error.value = 'Some error'
       store.list.value = [{ id: 1, name: 'Test' }]
-      
+
       expect(store.hasError.value).toBe(true)
       expect(store.hasItems.value).toBe(true)
     })
@@ -72,11 +72,11 @@ describe('Base Store', () => {
             totalItems: 1
           }
         }
-        
+
         mockedAPI.findAll.mockResolvedValue(mockResponse)
-        
+
         const result = await store.findAll()
-        
+
         expect(store.isLoading.value).toBe(false)
         expect(store.list.value).toEqual(mockResponse.data.member)
         expect(store.listLength.value).toBe(1)
@@ -86,9 +86,9 @@ describe('Base Store', () => {
       it('should handle findAll error', async () => {
         const mockError = new Error('API Error')
         mockedAPI.findAll.mockRejectedValue(mockError)
-        
+
         const result = await store.findAll()
-        
+
         expect(store.isLoading.value).toBe(false)
         expect(result).toBeNull()
       })
@@ -98,11 +98,11 @@ describe('Base Store', () => {
       it('should find item by id successfully', async () => {
         const mockItem = { id: 1, name: 'Test Item' }
         const mockResponse = { data: mockItem }
-        
+
         mockedAPI.find.mockResolvedValue(mockResponse)
-        
+
         const result = await store.find(1)
-        
+
         expect(store.isLoading.value).toBe(false)
         expect(store.item.value).toEqual(mockItem)
         expect(result).toEqual(mockItem)
@@ -111,9 +111,9 @@ describe('Base Store', () => {
       it('should handle find error', async () => {
         const mockError = new Error('Not found')
         mockedAPI.find.mockRejectedValue(mockError)
-        
+
         const result = await store.find(999)
-        
+
         expect(store.isLoading.value).toBe(false)
         expect(store.error.value).toBe(mockError)
         expect(result).toBeNull()
@@ -123,9 +123,9 @@ describe('Base Store', () => {
     describe('deleteItem', () => {
       it('should delete item successfully', async () => {
         mockedAPI.delete.mockResolvedValue({})
-        
+
         const result = await store.deleteItem(1)
-        
+
         expect(store.isLoading.value).toBe(false)
         expect(store.item.value).toBeNull()
         expect(result).toBe(true)
@@ -135,9 +135,9 @@ describe('Base Store', () => {
       it('should handle delete error', async () => {
         const mockError = new Error('Delete failed')
         mockedAPI.delete.mockRejectedValue(mockError)
-        
+
         const result = await store.deleteItem(1)
-        
+
         expect(store.isLoading.value).toBe(false)
         expect(store.error.value).toBe(mockError)
         expect(result).toBe(false)
@@ -148,11 +148,11 @@ describe('Base Store', () => {
       it('should save existing item (update)', async () => {
         const mockItem = { id: 1, name: 'Updated Item' }
         const mockResponse = { data: mockItem }
-        
+
         mockedAPI.save.mockResolvedValue(mockResponse)
-        
+
         const result = await store.save(1, mockItem)
-        
+
         expect(store.isLoading.value).toBe(false)
         expect(result).toEqual(mockItem)
         expect(mockedAPI.save).toHaveBeenCalledWith(1, mockItem)
@@ -161,11 +161,11 @@ describe('Base Store', () => {
       it('should save new item (create)', async () => {
         const mockItem = { name: 'New Item' }
         const mockResponse = { data: { id: 1, ...mockItem } }
-        
+
         mockedAPI.add.mockResolvedValue(mockResponse)
-        
+
         const result = await store.save(0, mockItem)
-        
+
         expect(store.isLoading.value).toBe(false)
         expect(result).toEqual(mockResponse.data)
         expect(mockedAPI.add).toHaveBeenCalledWith(mockItem)
@@ -174,11 +174,11 @@ describe('Base Store', () => {
       it('should handle save error', async () => {
         const mockError = new Error('Save failed')
         const mockItem = { id: 1, name: 'Test' }
-        
+
         mockedAPI.save.mockRejectedValue(mockError)
-        
+
         const result = await store.save(1, mockItem)
-        
+
         expect(store.isLoading.value).toBe(false)
         expect(result).toBeNull()
       })
@@ -193,18 +193,18 @@ describe('Base Store', () => {
             { '@id': '/api/relations/3' }
           ]
         }
-        
+
         const expectedProcessedItem = {
           id: 1,
           name: 'Test',
           relation: '/api/relations/1',
           relations: ['/api/relations/2', '/api/relations/3']
         }
-        
+
         mockedAPI.save.mockResolvedValue({ data: mockItem })
-        
+
         await store.save(1, mockItem)
-        
+
         expect(mockedAPI.save).toHaveBeenCalledWith(1, expectedProcessedItem)
       })
     })
@@ -227,11 +227,11 @@ describe('Base Store', () => {
             }
           }
         }
-        
+
         mockedAPI.findPage.mockResolvedValue(mockResponse)
-        
+
         const result = await store.findPage(1, 10, 'name', false, {})
-        
+
         expect(store.isLoading.value).toBe(false)
         expect(store.list.value).toEqual(mockResponse.data.member)
         expect(store.listLength.value).toBe(10)
@@ -242,9 +242,9 @@ describe('Base Store', () => {
       it('should handle findPage error', async () => {
         const mockError = { data: 'Error message' }
         mockedAPI.findPage.mockRejectedValue(mockError)
-        
+
         const result = await store.findPage(1, 10, 'id', true, {})
-        
+
         expect(store.error.value).toBe('Error message')
         expect(result).toBeNull()
       })
@@ -257,11 +257,11 @@ describe('Base Store', () => {
             search: { mapping: [] }
           }
         }
-        
+
         mockedAPI.findPage.mockResolvedValue(mockResponse)
-        
+
         await store.findPage(2, 20, 'created', true, { name: 'test' })
-        
+
         expect(mockedAPI.findPage).toHaveBeenCalledWith(
           2, 20, 'created', 'desc', { name: 'test' }, [], []
         )
@@ -276,9 +276,9 @@ describe('Base Store', () => {
           { id: 1, name: 'Item 1' },
           { id: 2, name: 'Item 2' }
         ]
-        
+
         const result = store.getById(2)
-        
+
         expect(result).toEqual({ id: 2, name: 'Item 2' })
       })
 
@@ -286,9 +286,9 @@ describe('Base Store', () => {
         store.list.value = [
           { id: 1, name: 'Item 1' }
         ]
-        
+
         const result = store.getById(999)
-        
+
         expect(result).toBeUndefined()
       })
     })
@@ -299,9 +299,9 @@ describe('Base Store', () => {
         store.error.value = 'Some error'
         store.list.value = [{ id: 1 }]
         store.listLength.value = 5
-        
+
         const result = store.reset()
-        
+
         expect(result).toBe(true)
         expect(store.isLoading.value).toBe(false)
         expect(store.error.value).toBeNull()
@@ -313,9 +313,9 @@ describe('Base Store', () => {
     describe('resetError', () => {
       it('should reset error state', () => {
         store.error.value = 'Some error'
-        
+
         store.resetError()
-        
+
         expect(store.error.value).toBeNull()
       })
     })
@@ -327,9 +327,9 @@ describe('Base Store', () => {
         const mockContext = { filters: { name: 'test' } }
         const mockLocalStorage = window.localStorage as jest.Mocked<Storage>
         mockLocalStorage.getItem.mockReturnValue(JSON.stringify(mockContext))
-        
+
         const result = store.getContextKey()
-        
+
         expect(result).toEqual(mockContext)
         expect(mockLocalStorage.getItem).toHaveBeenCalledWith('base.context')
       })
@@ -338,21 +338,21 @@ describe('Base Store', () => {
         const mockLocalStorage = window.localStorage as jest.Mocked<Storage>
         mockLocalStorage.getItem.mockReturnValue(null)
         store.defaultContext.value = { filters: {} }
-        
+
         const result = store.getContextKey()
-        
+
         expect(result).toEqual({ filters: {} })
         expect(mockLocalStorage.setItem).toHaveBeenCalled()
       })
 
       it('should return specific context key', () => {
-        store.context.value = { 
+        store.context.value = {
           filters: { name: 'test' },
           sorting: { field: 'id' }
         }
-        
+
         const result = store.getContextKey('filters')
-        
+
         expect(result).toEqual({ name: 'test' })
       })
     })
@@ -362,9 +362,9 @@ describe('Base Store', () => {
         // Mock the filters comparison logic
         store.context.value = { filters: { name: 'test', status: 'active' } }
         store.defaultContext.value = { filters: { name: '', status: '' } }
-        
+
         const result = store.getNumberOfFilters()
-        
+
         expect(typeof result).toBe('number')
       })
     })
@@ -374,9 +374,9 @@ describe('Base Store', () => {
     describe('parseArrays', () => {
       it('should parse filters array correctly', () => {
         const filters = { name: 'test', status: 'active' }
-        
+
         const result = store.parseArrays(filters)
-        
+
         expect(result).toEqual([filters, [], []])
       })
     })
@@ -384,9 +384,9 @@ describe('Base Store', () => {
     describe('parseItem', () => {
       it('should return item as-is by default', () => {
         const item = { id: 1, name: 'Test' }
-        
+
         const result = store.parseItem(item)
-        
+
         expect(result).toBe(item)
       })
     })
@@ -394,7 +394,7 @@ describe('Base Store', () => {
     describe('parseSortBy', () => {
       it('should return sort parameters correctly', () => {
         const result = store.parseSortBy('name', true)
-        
+
         expect(result).toEqual(['name', true])
       })
     })
@@ -403,10 +403,10 @@ describe('Base Store', () => {
   describe('Visible Fields Management', () => {
     describe('getVisibleFields', () => {
       it('should return visible fields from context', () => {
-        store.context.value = { customFields: ['name', 'email'] }
-        
+        store.context.value = { visibleFields: ['name', 'email'] }
+
         const result = store.getVisibleFields()
-        
+
         expect(result).toEqual(['name', 'email'])
       })
     })

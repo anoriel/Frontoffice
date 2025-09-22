@@ -13,7 +13,6 @@ export const useLeadStore = defineStore('lead', () =>
     api,
     availableFields,
     currentPage,
-    customFields,
     defaultContext,
     isLoading,
     isLoadingWithLock,
@@ -44,15 +43,6 @@ export const useLeadStore = defineStore('lead', () =>
 
   defaultContext.value = {
     currentPage: 1,
-    customFields: [
-      { "key": "createdAt", "sortable": true },
-      { "key": "customerName", "sortable": true },
-      { "key": "leadType", "sortable": true },
-      { "key": "countryOfEstablishment", "sortable": true },
-      { "key": "countryOfDestination", "sortable": true },
-      { "key": "society", "sortable": true },
-      { "key": "user", "sortable": true }
-    ],
     filters: {
       agencies: [],
       businessSectors: [],
@@ -75,6 +65,16 @@ export const useLeadStore = defineStore('lead', () =>
     sortBy: 'createdAt',
     sortDesc: true,
     sortDirection: 'desc',
+    version: "1.0",
+    visibleFields: [
+      { "key": "createdAt", "sortable": true },
+      { "key": "customerName", "sortable": true },
+      { "key": "leadType", "sortable": true },
+      { "key": "countryOfEstablishment", "sortable": true },
+      { "key": "countryOfDestination", "sortable": true },
+      { "key": "society", "sortable": true },
+      { "key": "user", "sortable": true }
+    ],
   }
   localStorageName.value = "CrmLead"
 
@@ -277,7 +277,6 @@ export const useLeadStore = defineStore('lead', () =>
   return {
     availableFields,
     currentPage,
-    customFields,
     isLoading,
     isLoadingWithLock,
     error,

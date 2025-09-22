@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": [
-      "ES2020",
+      "ES2022",
       "DOM",
       "DOM.Iterable"
     ],

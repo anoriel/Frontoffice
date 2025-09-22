@@ -11,6 +11,13 @@ import vueDebounce from 'vue-debounce'
 import useCommonHelper from './helpers/commonHelper'
 
 
+i18n.global.te = (key: Parameters<typeof i18n.global.te>[0], locale: Parameters<typeof i18n.global.te>[1]) =>
+{
+  const effectiveLocale = locale && locale.length ? locale : i18n.global.locale.value
+  const messages = i18n.global.messages.value as { [key: string]: Record<string, unknown> }
+  return Object.hasOwn(messages[effectiveLocale] || {}, key)
+}
+
 const app = createApp(App)
 
 app.use(createPinia())

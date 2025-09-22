@@ -1,4 +1,4 @@
-import { computed, ref } from "vue"
+import { computed, ref, watch } from "vue"
 import api_base from '@/api/api_base';
 import { Item } from '@/interfaces/item';
 import useCommonHelper from '../helpers/commonHelper'
@@ -21,13 +21,19 @@ export function useBaseStore()
 
   const availableFields = ref<AvailableField[]>([])
   const context = ref<Record<string, any>>({})
-  const customFields = ref([])
   const defaultContext = ref<Record<string, any>>({})
   const localStorageName = ref("base")
-  const visibleFields = ref([])
+  const visibleFields = ref<AvailableField[]>([])
 
   const hasError = computed(() => { return error.value !== null })
   const hasItems = computed(() => { return list.value && list.value.length > 0 })
+
+
+  watch(visibleFields, (newVal, oldVal) =>
+  {
+    console.log(JSON.stringify(newVal), JSON.stringify(oldVal));
+    setContextKey('visibleFields', visibleFields.value)
+  })
 
   async function deleteItem(id: number)
   {
@@ -158,7 +164,7 @@ export function useBaseStore()
     return list.value.find(e => e.id == id)
   }
 
-  function getContextKey(key: string | null = null)
+  function getContext()
   {
     //check if context exists
     if ((typeof context.value == 'undefined' || JSON.stringify(context.value) == '{}') && localStorage.getItem(localStorageName.value + ".context")) {
@@ -168,10 +174,26 @@ export function useBaseStore()
       localStorage.setItem(localStorageName.value + ".context", JSON.stringify(context.value));
     }
 
+    //check context version and replace if it has changed, this will avoid to keep old potentially bugged localStorage
+    if (defaultContext.value.version != context.value.version) {
+      context.value = JSON.parse(JSON.stringify(defaultContext.value));
+      localStorage.setItem(localStorageName.value + ".context", JSON.stringify(context.value));
+    }
+
+    return context.value;
+  }
+
+  function getContextKey(key: string | null = null)
+  {
+    //check if context exists
+    getContext()
+
     //check if context.key iexists
-    if (key != null && typeof context.value[key] == 'undefined') {
+    if (key != null && typeof context.value[key] == 'undefined' && typeof defaultContext.value[key] != 'undefined') {
       context.value[key] = JSON.parse(JSON.stringify(defaultContext.value[key]));
       localStorage.setItem(localStorageName.value + ".context", JSON.stringify(context.value));
+    } else if (key != null && typeof defaultContext.value[key] == 'undefined') {
+      console.log(key);
     }
 
     return key != null ? context.value[key] : context.value;
@@ -202,7 +224,7 @@ export function useBaseStore()
   function getVisibleFields()
   {
     if (Object.keys(visibleFields.value).length == 0) {
-      visibleFields.value = getContextKey("customFields");
+      visibleFields.value = getContextKey("visibleFields");
     }
     return visibleFields.value;
   }
@@ -235,6 +257,12 @@ export function useBaseStore()
     listLength.value = 0;
     return true;
   }
+
+  function resetError()
+  {
+    error.value = null;
+  }
+
   async function save(id: number, itemData: any)
   {
     isLoading.value = true;
@@ -273,9 +301,28 @@ export function useBaseStore()
       return null;
     }
   }
-  function resetError()
+
+  function setContext(context: any)
   {
-    error.value = null;
+    context.value = context;
+    localStorage.setItem(localStorageName.value + ".context", JSON.stringify(context));
+    return context.value;
+  }
+
+  function setContextKey(key: string, value: any)
+  {
+    if (typeof context.value == 'undefined') {
+      context.value = getContext()
+    }
+    context.value[key] = value;
+
+    //reset currentPage if filters change
+    if (key == 'filters' && JSON.stringify(context.value.filters) != JSON.stringify(value)) {
+      context.value.currentPage = 1;
+    }
+
+    localStorage.setItem(localStorageName.value + ".context", JSON.stringify(context.value));
+    return context.value;
   }
 
   return {
@@ -283,7 +330,6 @@ export function useBaseStore()
     availableFields,
     context,
     currentPage,
-    customFields,
     defaultContext,
     error,
     exportList,
@@ -309,7 +355,9 @@ export function useBaseStore()
     parseItem,
     parseSortBy,
     reset,
-    save,
     resetError,
+    save,
+    setContext,
+    setContextKey,
   }
 }

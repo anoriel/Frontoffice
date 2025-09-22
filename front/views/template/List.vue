@@ -26,7 +26,7 @@
       &nbsp;{{ $helpers.capitalizeFirstLetter($t('filters')) }}
     </v-btn>
     <v-btn class="p-0 pr-1 bg-secondary mr-1" size="x-small" :title="$helpers.capitalizeFirstLetter($t('columns'))"
-      @click="showSettings = !showSettings">
+      @click="globalStore.showColumnsDialog = true">
       <v-icon>mdi-table-column-plus-after</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('columns')) }}
     </v-btn>
   </v-app-bar>
@@ -51,6 +51,24 @@
               rounded="circle" density="compact" active-color="blue-darken-4" color="blue-darken-4"></v-pagination>
           </v-col>
         </v-row>
+      </template>
+
+
+      <template v-slot:headers="{ columns, isSorted, getSortIcon, toggleSort }">
+        <tr>
+          <template v-for="column in columns" :key="column.key">
+            <th>
+              <div class="d-flex align-center">
+                <span class="me-2 cursor-pointer" @click="toggleSort(column)">
+                  {{ $helpers.capitalizeFirstLetter($t($te(moduleName + '.' + column.key) ? moduleName + '.' +
+                    column.key : column.key)) }}
+                </span>
+
+                <v-icon v-if="isSorted(column)" :icon="getSortIcon(column)" color="medium-emphasis"></v-icon>
+              </div>
+            </th>
+          </template>
+        </tr>
       </template>
 
       <template v-slot:[`item.countryOfDestination`]="{ value }">
@@ -110,6 +128,9 @@
       </v-list-item>
     </v-list>
   </v-dialog>
+
+  <columns-dialog v-if="store" :moduleName="moduleName" :store="store" :visibleColumns="visibleFields"
+    @saveSettings="saveSettings" />
 </template>
 
 <script setup>
@@ -121,8 +142,6 @@ import { useGlobalStore } from '@/stores/global';
 const globalStore = useGlobalStore()
 import useCommonHelper from '@/helpers/commonHelper'
 const helpers = useCommonHelper()
-import { useI18n } from "vue-i18n";
-const { t } = useI18n({ useScope: "global" });
 import { useLeadStore } from '@/stores/lead'
 import { useLeadTypeStore } from '@/stores/leadType'
 const leadTypeStore = useLeadTypeStore()
@@ -133,6 +152,7 @@ const crmListStore = useCrmListSettings()
 
 import CountryComponent from '@/components/CountryComponent.vue';
 import SocietyComponent from '@/components/SocietyComponent.vue';
+import ColumnsDialog from "./ColumnsDialog.vue";
 
 
 const props = defineProps({
@@ -163,6 +183,7 @@ leadTypeStore.findAll()
 const itemsPerPage = shallowRef(globalStore.perPage)
 const loading = shallowRef(true)
 const searchFilters = shallowRef([])
+const showColumns = shallowRef(false)
 const showFilters = shallowRef(false)
 const serverItems = shallowRef([])
 const sortBy = shallowRef([{ key: 'createdAt', order: 'desc' }])
@@ -172,15 +193,7 @@ const lowestLeadTypePosition = computed(() => { return leadTypeStore.getLowestPo
 const highestLeadTypePosition = computed(() => { return leadTypeStore.getHighestPosition() })
 const visibleFields = computed(() =>
 {
-  let visibleFields = store.value.getVisibleFields()
-  for (let i in visibleFields)
-  {
-    if (!('title' in visibleFields[i]) || visibleFields[i].title === null)
-    {
-      visibleFields[i].title = helpers.capitalizeFirstLetter(t(visibleFields[i].key))
-    }
-  }
-  return visibleFields
+  return store.value.getVisibleFields()
 })
 
 onMounted(() =>
@@ -260,5 +273,14 @@ async function loadItems({ page, itemsPerPage, sortBy, groupBy, search })
   loading.value = false;
 }
 
+function saveSettings(clonedAvailableColumns, clonedVisibleColumns)
+{
+  if (Object.keys(clonedVisibleColumns).length)
+  {
+    store.value.availableFields = JSON.parse(JSON.stringify(clonedAvailableColumns));
+    store.value.visibleFields = JSON.parse(JSON.stringify(clonedVisibleColumns));
+  }
+  globalStore.showColumnsDialog = false
+}
 
 </script>

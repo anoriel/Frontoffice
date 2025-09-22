@@ -1,174 +1,152 @@
 <template>
-  <b-modal
-    :visible="showSettings"
-    hide-footer
-    header-bg-variant="primary"
-    header-text-variant="light"
-    :title="capitalizeFirstLetter($t('columns'))"
-  >
-    <div class="d-block text-center">
-      <div class="row pl-1">
-        {{ capitalizeFirstLetter($t('select fields to show')) }}
-      </div>
-      <div class="row m-1">
-        <div
-          ref="availableColumnsDiv"
-          class="col bg-danger-10"
-        >
-          <h6 class="bg-danger text-light p-1 m-0">
-            {{ capitalizeFirstLetter($t('available columns')) }}
-          </h6>
-          <Draggable
-            v-model="clonedAvailableColumns"
-            class="list-group"
-            group="columns"
-            @end="sortLeadColumns(clonedAvailableColumns)"
-          >
-            <transition-group>
-              <div
-                v-for="column in clonedAvailableColumns"
-                :key="'column_' + column.key"
-                class="cursorDraggable bg-light user-select-none"
-              >
-                {{ capitalizeFirstLetter($te(moduleName + '.' + column.key) ? $t(moduleName + '.' + column.key) : $t(column.key)) }}
-              </div>
-            </transition-group>
-          </Draggable>
-        </div>
-        <div
-          ref="visibleColumns"
-          class="col bg-success-10"
-        >
-          <h6 class="bg-success text-light p-1 m-0">
-            {{ capitalizeFirstLetter($t('visible columns')) }}
-          </h6>
-          <Draggable
-            v-model="clonedVisibleColumns"
-            class="list-group"
-            group="columns"
-            @end="sortLeadColumns(clonedAvailableColumns)"
-          >
-            <transition-group>
-              <div
-                v-for="column in clonedVisibleColumns"
-                :key="'column_' + column.key"
-                class="cursorDraggable bg-light user-select-none"
-              >
-                {{ capitalizeFirstLetter($te(moduleName + '.' + column.key) ? $t(moduleName + '.' + column.key) : $t(column.key)) }}
-              </div>
-            </transition-group>
-          </Draggable>
-        </div>
-      </div>
-    </div>
-  
-    <b-button
-      class="mt-3"
-      variant="outline-danger"
-      block
-      @click="saveSettings"
-    >
-      {{ capitalizeFirstLetter($t('save')) }}
-    </b-button>
-    <b-button
-      class="mt-2"
-      variant="outline-warning"
-      block
-      @click="cancelSettings"
-    >
-      {{ capitalizeFirstLetter($t('cancel')) }}
-    </b-button>
-  </b-modal>
-</template>
-    
-<script>
-export default {
-  name: "SettingsModal",
-  components: { 
-    Draggable: () => import('vuedraggable'),
-  },
-  props: {
-    availableColumns: {
-      type: Array,
-      required: true
-    },
-    moduleName: {
-      type: String,
-      required: true,
-      default: null
-    },
-    showSettings: {
-      type: Boolean,
-      required: true
-    },
-    visibleColumns: {
-      type: Array,
-      required: true
-    },
-  },
-  data()
-  {
-    return {
-      clonedVisibleColumns: [],
-      clonedAvailableColumns: [],
-    }
-  },
-  mounted()
-  {
-    this.clonedVisibleColumns = JSON.parse(JSON.stringify(this.visibleColumns));
-    
-    this.clonedAvailableColumns = JSON.parse(JSON.stringify(this.availableColumns));
-    
-    this.clonedVisibleColumns.forEach(element =>
-    {
-      const objIndex = this.clonedAvailableColumns.findIndex((obj) => obj.key == element.key);
-      if (objIndex >= 0)
-      {
-        this.clonedAvailableColumns.splice(objIndex, 1);
-      }
-    });
-    this.sortLeadColumns(this.clonedAvailableColumns);
+  <v-dialog v-model="globalStore.showColumnsDialog" @afterEnter="updateFields()" @update:modelValue="updated">
+    <v-card :title="$helpers.capitalizeFirstLetter($t('columns'))">
+      <template v-slot:text>
+        <v-container class="text-center">
+          <v-row>
+            <v-col>
+              {{ $helpers.capitalizeFirstLetter($t('select fields to show')) }} {{ moduleName }}
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col ref="availableColumnsDiv" class="col bg-danger-10">
+              <h6 class="bg-error text-light p-1 m-0">
+                {{ $helpers.capitalizeFirstLetter($t('available columns')) }}
+              </h6>
+              <draggable v-if="clonedAvailableColumns.length" v-model="clonedAvailableColumns" item-key="key"
+                @end="sortLeadColumns(clonedAvailableColumns)" group="fields">
+                <template #item="{ element }">
+                  <div class="border cursor-pointer">
+                    {{ $helpers.capitalizeFirstLetter($t(moduleName + '.' + element.key)) }}
+                  </div>
+                </template>
+              </draggable>
+            </v-col>
+            <v-col ref="visibleColumns" class="col bg-success-10">
+              <h6 class="bg-success text-light p-1 m-0">
+                {{ $helpers.capitalizeFirstLetter($t('visible columns')) }}
+              </h6>
+              <draggable v-if="clonedVisibleColumns.length" v-model="clonedVisibleColumns" item-key="key"
+                group="fields">
+                <template #item="{ element }">
+                  <div class="border cursor-pointer">
+                    {{ $helpers.capitalizeFirstLetter($t(moduleName + '.' + element.key)) }}
+                  </div>
+                </template>
+              </draggable>
+            </v-col>
+          </v-row>
+        </v-container>
+      </template>
 
-    this.$root.$on('bv::modal::hide', () => {
-      this.cancelSettings();
-    })
+      <v-card-actions class="bg-surface-light">
+        <v-btn :text="$helpers.capitalizeFirstLetter($t('cancel'))" color="error"
+          @click="globalStore.showColumnsDialog = false"></v-btn>
+
+        <v-spacer></v-spacer>
+
+        <v-btn :text="$helpers.capitalizeFirstLetter($t('save'))" color="success"
+          @click="$emit('saveSettings', clonedAvailableColumns, clonedVisibleColumns)"
+          :disabled="!clonedVisibleColumns.length"></v-btn>
+      </v-card-actions>
+    </v-card>
+
+  </v-dialog>
+</template>
+
+<script setup lang="ts">
+import { shallowRef } from 'vue';
+import draggable from 'vuedraggable'
+import { useGlobalStore } from '@/stores/global';
+import { PropType } from 'vue';
+import { BaseStoreInterface } from '@/interfaces/baseStoreInterface';
+import { AvailableField } from '@/interfaces/availableField';
+const globalStore = useGlobalStore()
+import useCommonHelper from '@/helpers/commonHelper'
+const helpers = useCommonHelper()
+import { useI18n } from "vue-i18n";
+const { t, te } = useI18n({ useScope: "global" });
+
+
+const props = defineProps({
+  moduleName: {
+    type: String,
+    required: true,
   },
-  methods:{
-    cancelSettings()
-    {
-      this.$emit("cancelSettings");
-    },
-    saveSettings()
-    {
-      this.$emit("saveSettings", this.clonedAvailableColumns, this.clonedVisibleColumns);
-    },
-    sortLeadColumns(columnsList){
-      columnsList.sort(function(a, b){
-        let aName = this.capitalizeFirstLetter(this.$te(this.moduleName + '.' + a.key) ? this.$t(this.moduleName + '.' + a.key) : this.$t(a.key));
-        let bName = this.capitalizeFirstLetter(this.$te(this.moduleName + '.' + b.key) ? this.$t(this.moduleName + '.' + b.key) : this.$t(b.key));
-        if ( aName < bName ){
-          return -1;
-        }
-        if ( aName > bName ){
-          return 1;
-        }
-        return 0;
-      }.bind(this)
-      );
-    },
+  store: {
+    type: Object as PropType<BaseStoreInterface>,
+    required: true,
+  },
+  visibleColumns: {
+    type: Array,
+    required: true,
+  },
+})
+
+const clonedAvailableColumns = shallowRef<AvailableField[]>([])
+const clonedVisibleColumns = shallowRef<AvailableField[]>([])
+
+function sortLeadColumns(columnsList: AvailableField[])
+{
+  columnsList.sort(function (a, b)
+  {
+    let aName = helpers.capitalizeFirstLetter(t(props.moduleName + '.' + a.key));
+    let bName = helpers.capitalizeFirstLetter(t(props.moduleName + '.' + b.key));
+    if (aName < bName) {
+      return -1;
+    }
+    if (aName > bName) {
+      return 1;
+    }
+    return 0;
   }
+  );
+}
+
+function updated(event: any)
+{
+  console.log("updated", event);
+}
+
+function updateFields()
+{
+  clonedVisibleColumns.value = JSON.parse(JSON.stringify(props.visibleColumns));
+
+  clonedAvailableColumns.value = props.store.availableFields
+  clonedVisibleColumns.value.forEach(element =>
+  {
+    const objIndex = clonedAvailableColumns.value.findIndex((obj) => obj.key == element.key);
+    if (objIndex >= 0) {
+      clonedAvailableColumns.value.splice(objIndex, 1);
+    }
+  });
+  sortLeadColumns(clonedAvailableColumns.value);
 }
 </script>
 
 <style scoped>
-.list-group{
-  background-color: rgba(4, 30, 140, 0.05);
-  height: calc(100% - 1.5rem);
+.flip-list-move {
+  transition: transform 0.5s;
 }
-.list-group>span {
-  height: 100%;
+
+.no-move {
+  transition: transform 0s;
 }
-.list-group div {
-  border: 1px solid black;
+
+.ghost {
+  opacity: 0.5;
+  background: #c8ebfb;
+}
+
+.list-group {
+  min-height: 20px;
+}
+
+.list-group-item {
+  cursor: move;
+}
+
+.list-group-item i {
+  cursor: pointer;
 }
 </style>
