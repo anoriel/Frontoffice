@@ -29,9 +29,8 @@ export function useBaseStore()
   const hasItems = computed(() => { return list.value && list.value.length > 0 })
 
 
-  watch(visibleFields, (newVal, oldVal) =>
+  watch(visibleFields, () =>
   {
-    console.log(JSON.stringify(newVal), JSON.stringify(oldVal));
     setContextKey('visibleFields', visibleFields.value)
   })
 
