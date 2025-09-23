@@ -1,0 +1,30 @@
+<template>
+  <span>
+    <FlagIcon :code="getIso3166()" size="18" class="mr-1" />
+    {{ $helpers.capitalizeFirstLetter(agency.pays.iso3166) }}, {{ $helpers.capitalizeFirstLetter(agency.stringValue) }}
+  </span>
+</template>
+
+<script setup lang="ts">
+import { type PropType } from 'vue';
+import FlagIcon, { CountryCode } from 'vue3-flag-icons'
+import { Agency } from '@/interfaces/agency';
+
+const props = defineProps({
+  agency: {
+    type: Object as PropType<Agency>,
+    required: true,
+  },
+})
+
+function getIso3166(): CountryCode
+{
+  let code = props.agency.pays?.iso3166 as CountryCode
+  if (code.toLowerCase() == 'xi') {
+    code = 'gb-nir';
+  }
+  return code;
+}
+</script>
+
+<style scoped></style>

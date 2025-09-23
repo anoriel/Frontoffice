@@ -3,6 +3,7 @@ import moment from "moment";
 import * as ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { SHA1, SHA256 } from 'crypto-js';
+import tinycolor from 'tinycolor2'
 
 
 interface GenericListItem
@@ -363,6 +364,84 @@ export default function useCommonHelper()
     }
   }
 
+  function getCssForText(ciphertext: string, gradient = 'none')
+  {
+    let threshold = 0.27
+    let primaryColor = tinycolor(getHexColor(ciphertext))
+    if (primaryColor.getLuminance() > threshold) {
+      primaryColor.darken(10)
+    } else if (primaryColor.getLuminance() < 0.05) {
+      primaryColor.lighten(20)
+    }
+    let primaryColorHexa = primaryColor.toString()
+    let textColor =
+      primaryColor.clone().darken(10).getLuminance() > threshold ? '#000000' : '#FFFFFF'
+
+    let firstColor = tinycolor(primaryColorHexa).lighten(50).toString()
+    let thirdColor = tinycolor(primaryColorHexa).darken(50).toString()
+
+    let css = 'color: ' + textColor + '; '
+    if (gradient == 'none') {
+      css += 'background: ' + primaryColorHexa
+    } else if (gradient == 'linear') {
+      css +=
+        'background: ' +
+        primaryColorHexa +
+        '; background: -moz-linear-gradient(135deg, ' +
+        firstColor +
+        ' 0%, ' +
+        primaryColorHexa +
+        ' 35%, ' +
+        thirdColor +
+        ' 100%); background: -webkit-linear-gradient(135deg, ' +
+        firstColor +
+        ' 0%, ' +
+        primaryColorHexa +
+        ' 35%, ' +
+        thirdColor +
+        ' 100%); background: linear-gradient(135deg, ' +
+        firstColor +
+        ' 0%, ' +
+        primaryColorHexa +
+        ' 35%, ' +
+        thirdColor +
+        ' 100%); filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="' +
+        firstColor +
+        '",endColorstr="' +
+        primaryColorHexa +
+        '",GradientType=1);'
+    } else if (gradient == 'radial') {
+      css +=
+        'background: ' +
+        primaryColorHexa +
+        '; background: -moz-radial-gradient(circle at right top, ' +
+        firstColor +
+        ' 0%, ' +
+        primaryColorHexa +
+        ' 35%, ' +
+        thirdColor +
+        ' 100%); background: -webkit-radial-gradient(circle at right top, ' +
+        firstColor +
+        ' 0%, ' +
+        primaryColorHexa +
+        ' 35%, ' +
+        thirdColor +
+        ' 100%); background: radial-gradient(circle at right top, ' +
+        firstColor +
+        ' 0%, ' +
+        primaryColorHexa +
+        ' 35%, ' +
+        thirdColor +
+        ' 100%); filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#' +
+        primaryColorHexa +
+        '",endColorstr="#' +
+        firstColor +
+        '",GradientType=1);'
+    }
+
+    return css
+  }
+
   function getDifference(a: Record<string, any>, b: Record<string, any>): Record<string, any>
   {
     return Object.fromEntries(Object.entries(b).filter(([key, val]) => key in a && a[key] !== val));
@@ -375,7 +454,7 @@ export default function useCommonHelper()
     return gravatarUrl;
   }
 
-  function getHexColor(this: Vue3Instance, ciphertext: string | number, addColor: number = 0): string
+  function getHexColor(ciphertext: string | number, addColor: number = 0): string
   {
     if (ciphertext === 0) {
       return "000000";
@@ -642,6 +721,7 @@ export default function useCommonHelper()
     formatDateTime,
     formatDateTimeZulu,
     formatPeriod,
+    getCssForText,
     getDifference,
     getGravatarURL,
     getHexColor,

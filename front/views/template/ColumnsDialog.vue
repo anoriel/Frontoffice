@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="globalStore.showColumnsDialog" @afterEnter="updateFields()" @update:modelValue="updated">
+  <v-dialog v-model="globalStore.showColumnsDialog" @afterEnter="loadFields()">
     <v-card :title="$helpers.capitalizeFirstLetter($t('columns'))">
       <template v-slot:text>
         <v-container class="text-center">
@@ -10,11 +10,16 @@
           </v-row>
           <v-row>
             <v-col ref="availableColumnsDiv" class="col bg-danger-10">
-              <h6 class="bg-error text-light p-1 m-0">
+              <h6 class="bg-error text-light pa-1 ma-0">
                 {{ $helpers.capitalizeFirstLetter($t('available columns')) }}
               </h6>
-              <draggable v-if="clonedAvailableColumns.length" v-model="clonedAvailableColumns" item-key="key"
-                @end="sortLeadColumns(clonedAvailableColumns)" group="fields">
+              <draggable v-model="clonedAvailableColumns" item-key="key" @end="sortLeadColumns(clonedAvailableColumns)"
+                group="fields">
+                <template #header>
+                  <v-btn append-icon="mdi-eraser" color="primary" @click="reset()" size="x-small">{{
+                    $helpers.capitalizeFirstLetter($t('reset')) }}</v-btn>
+                </template>
+
                 <template #item="{ element }">
                   <div class="border cursor-pointer">
                     {{ $helpers.capitalizeFirstLetter($t(moduleName + '.' + element.key)) }}
@@ -23,12 +28,14 @@
               </draggable>
             </v-col>
             <v-col ref="visibleColumns" class="col bg-success-10">
-              <h6 class="bg-success text-light p-1 m-0">
+              <h6 class="bg-success text-light pa-1 ma-0">
                 {{ $helpers.capitalizeFirstLetter($t('visible columns')) }}
               </h6>
-              <draggable v-if="clonedVisibleColumns.length" v-model="clonedVisibleColumns" item-key="key"
-                group="fields">
-                <template #item="{ element }">
+              <draggable v-model="clonedVisibleColumns" item-key="key" group="fields">
+                <template #header v-if="!clonedVisibleColumns.length">
+                  <small><i>{{ $helpers.capitalizeFirstLetter($t('drop here')) }}</i></small>
+                </template>
+                <template #item="{ index, element }">
                   <div class="border cursor-pointer">
                     {{ $helpers.capitalizeFirstLetter($t(moduleName + '.' + element.key)) }}
                   </div>
@@ -46,7 +53,7 @@
         <v-spacer></v-spacer>
 
         <v-btn :text="$helpers.capitalizeFirstLetter($t('save'))" color="success"
-          @click="$emit('saveSettings', clonedAvailableColumns, clonedVisibleColumns)"
+          @click="$emit('saveSettings', clonedVisibleColumns)"
           :disabled="!clonedVisibleColumns.length"></v-btn>
       </v-card-actions>
     </v-card>
@@ -65,10 +72,14 @@ const globalStore = useGlobalStore()
 import useCommonHelper from '@/helpers/commonHelper'
 const helpers = useCommonHelper()
 import { useI18n } from "vue-i18n";
-const { t, te } = useI18n({ useScope: "global" });
+const { t } = useI18n({ useScope: "global" });
 
 
 const props = defineProps({
+  defaultColumns: {
+    type: Array,
+    required: true,
+  },
   moduleName: {
     type: String,
     required: true,
@@ -86,6 +97,31 @@ const props = defineProps({
 const clonedAvailableColumns = shallowRef<AvailableField[]>([])
 const clonedVisibleColumns = shallowRef<AvailableField[]>([])
 
+function loadFields()
+{
+  clonedVisibleColumns.value = JSON.parse(JSON.stringify(props.visibleColumns));
+  refreshClonedAvailableColumns();
+}
+
+function refreshClonedAvailableColumns()
+{
+  clonedAvailableColumns.value = JSON.parse(JSON.stringify(props.store.availableFields))
+  clonedVisibleColumns.value.forEach(element =>
+  {
+    const objIndex = clonedAvailableColumns.value.findIndex((obj) => obj.key == element.key);
+    if (objIndex >= 0) {
+      clonedAvailableColumns.value.splice(objIndex, 1);
+    }
+  });
+  sortLeadColumns(clonedAvailableColumns.value);
+}
+
+function reset()
+{
+  clonedVisibleColumns.value = JSON.parse(JSON.stringify(props.defaultColumns));
+  refreshClonedAvailableColumns();
+}
+
 function sortLeadColumns(columnsList: AvailableField[])
 {
   columnsList.sort(function (a, b)
@@ -101,26 +137,6 @@ function sortLeadColumns(columnsList: AvailableField[])
     return 0;
   }
   );
-}
-
-function updated(event: any)
-{
-  console.log("updated", event);
-}
-
-function updateFields()
-{
-  clonedVisibleColumns.value = JSON.parse(JSON.stringify(props.visibleColumns));
-
-  clonedAvailableColumns.value = props.store.availableFields
-  clonedVisibleColumns.value.forEach(element =>
-  {
-    const objIndex = clonedAvailableColumns.value.findIndex((obj) => obj.key == element.key);
-    if (objIndex >= 0) {
-      clonedAvailableColumns.value.splice(objIndex, 1);
-    }
-  });
-  sortLeadColumns(clonedAvailableColumns.value);
 }
 </script>
 

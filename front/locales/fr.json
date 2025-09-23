@@ -202,6 +202,7 @@
 	"description": "description",
 	"do not filter children": "ne pas filtrer les descendants",
 	"drop file here": "déposez votre fichier ici",
+	"drop here": "drop here",
 	"duplicate": "dupliquer",
 	"duplicates met": "doublons trouvés",
 	"duplicates met and need to be fixed": "des doublons ont été trouvés et doivent être corrigés",

@@ -5,6 +5,7 @@ import useCommonHelper from '../helpers/commonHelper'
 const helpers = useCommonHelper()
 import { Lead } from '@/interfaces/lead';
 import { LeadComment } from '@/interfaces/leadcomment';
+import { useLeadTypeStore } from '@/stores/leadType'
 
 
 export const useLeadStore = defineStore('lead', () =>
@@ -14,6 +15,7 @@ export const useLeadStore = defineStore('lead', () =>
     availableFields,
     currentPage,
     defaultContext,
+    fieldsByType,
     isLoading,
     isLoadingWithLock,
     error,
@@ -31,6 +33,7 @@ export const useLeadStore = defineStore('lead', () =>
     hasError,
     hasItems,
     getById,
+    getContextKey,
     getNumberOfFilters,
     getVisibleFields,
     reset,
@@ -40,6 +43,11 @@ export const useLeadStore = defineStore('lead', () =>
 
   api.value = thisAPI
 
+  //load all leadType children object
+  const leadTypeStore = useLeadTypeStore()
+  if (leadTypeStore.listLength == 0) {
+    leadTypeStore.findAll()
+  }
 
   defaultContext.value = {
     currentPage: 1,
@@ -76,6 +84,15 @@ export const useLeadStore = defineStore('lead', () =>
       { "key": "user", "sortable": true }
     ],
   }
+
+  fieldsByType.value.boolean = ['rgpdAccepted', 'onNewsletterList']
+  fieldsByType.value.count = ['leadComments']
+  fieldsByType.value.country = ['countryOfDestination', 'countryOfEstablishment']
+  fieldsByType.value.datetime = ['createdAt', 'lastUpdatedAt']
+  fieldsByType.value.progressBar = [{ name: 'leadType', store: leadTypeStore }]
+  fieldsByType.value.string = ['businessSector', 'origin', 'serviceDomain', 'serviceType']
+  fieldsByType.value.stringsList = ['refusalReasons']
+
   localStorageName.value = "CrmLead"
 
   function parseArrays(filters: any)
@@ -277,6 +294,7 @@ export const useLeadStore = defineStore('lead', () =>
   return {
     availableFields,
     currentPage,
+    fieldsByType,
     isLoading,
     isLoadingWithLock,
     error,
@@ -293,6 +311,7 @@ export const useLeadStore = defineStore('lead', () =>
     hasError,
     hasItems,
     getById,
+    getContextKey,
     getNumberOfFilters,
     getVisibleFields,
     reset,

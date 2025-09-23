@@ -3,9 +3,27 @@ import api_base from '@/api/api_base';
 import { Item } from '@/interfaces/item';
 import useCommonHelper from '../helpers/commonHelper'
 import { DatatableSortBy } from "@/interfaces/datatableSortBy";
+import { Store } from "pinia";
 const helpers = useCommonHelper()
 
 interface AvailableField { 'key': string, 'sortable': boolean, 'title': string | null }
+
+interface FieldsByType
+{
+  'boolean'?: string[],
+  'count'?: string[],
+  'country'?: string[],
+  'date'?: string[],
+  'datetime'?: string[],
+  'progressBar'?: ProgressBarFieldType[],
+  'string'?: string[],
+  'stringsList'?: string[],
+}
+interface ProgressBarFieldType
+{
+  name: string,
+  store: Store
+}
 
 export function useBaseStore()
 {
@@ -20,6 +38,16 @@ export function useBaseStore()
 
 
   const availableFields = ref<AvailableField[]>([])
+  const fieldsByType = ref<FieldsByType>({
+    'boolean': [],
+    'count': [],
+    'country': [],
+    'date': [],
+    'datetime': [],
+    'progressBar': [],
+    'string': [],
+    'stringsList': [],
+  })
   const context = ref<Record<string, any>>({})
   const defaultContext = ref<Record<string, any>>({})
   const localStorageName = ref("base")
@@ -182,13 +210,13 @@ export function useBaseStore()
     return context.value;
   }
 
-  function getContextKey(key: string | null = null)
+  function getContextKey(key: string | null = null, fromDefaultValue = false)
   {
     //check if context exists
     getContext()
 
     //check if context.key iexists
-    if (key != null && typeof context.value[key] == 'undefined' && typeof defaultContext.value[key] != 'undefined') {
+    if (key != null && (fromDefaultValue || typeof context.value[key] == 'undefined') && typeof defaultContext.value[key] != 'undefined') {
       context.value[key] = JSON.parse(JSON.stringify(defaultContext.value[key]));
       localStorage.setItem(localStorageName.value + ".context", JSON.stringify(context.value));
     } else if (key != null && typeof defaultContext.value[key] == 'undefined') {
@@ -332,6 +360,7 @@ export function useBaseStore()
     defaultContext,
     error,
     exportList,
+    fieldsByType,
     isLoading,
     isLoadingWithLock,
     item,

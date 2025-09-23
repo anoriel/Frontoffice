@@ -36,7 +36,7 @@
       :items="serverItems" :items-length="totalItems" :loading="loading" @update:options="loadItems"
       v-model:page="store.currentPage" density="compact" v-model:sort-by="sortBy">
 
-
+      <!-- #region top -->
       <template v-slot:top>
         <small class="text-center" v-if="totalItems">
           <i>{{ totalItems }} {{ $t("record", totalItems) }}</i>
@@ -52,17 +52,19 @@
           </v-col>
         </v-row>
       </template>
+      <!-- #endregion top -->
 
 
+      <!-- #region headers -->
       <template v-slot:headers="{ columns, isSorted, getSortIcon, toggleSort }">
         <tr>
           <template v-for="column in columns" :key="column.key">
             <th>
               <div class="d-flex align-center">
-                <span class="me-2 cursor-pointer" @click="toggleSort(column)">
+                <b class="me-2 cursor-pointer" @click="toggleSort(column)">
                   {{ $helpers.capitalizeFirstLetter($t($te(moduleName + '.' + column.key) ? moduleName + '.' +
                     column.key : column.key)) }}
-                </span>
+                </b>
 
                 <v-icon v-if="isSorted(column)" :icon="getSortIcon(column)" color="medium-emphasis"></v-icon>
               </div>
@@ -70,37 +72,11 @@
           </template>
         </tr>
       </template>
+      <!-- #endregion headers -->
 
-      <template v-slot:[`item.countryOfDestination`]="{ value }">
-        <country-component v-if="value" :country="value" />
-      </template>
-      <template v-slot:[`item.countryOfEstablishment`]="{ value }">
-        <country-component v-if="value" :country="value" />
-      </template>
-      <template v-slot:[`item.createdAt`]="{ value }">
-        <span :title="$helpers.formatDateTime(value)">
-          {{ $helpers.formatDate(value) }}
-        </span>
-      </template>
-      <template v-slot:[`item.leadType`]="{ value }">
-        <v-progress-linear v-if="value" :model-value="getLeadTypeValue(value)" :color="getLeadTypeVariant(value.name)"
-          height="25" :max="highestLeadTypePosition - lowestLeadTypePosition" rounded>
-          <template v-slot:default>
-            <small :class="getLeadTypeColor(value.name)">{{ $helpers.capitalizeFirstLetter($t("lead." +
-              value.stringValue)) }}</small>
-          </template>
-        </v-progress-linear>
-      </template>
-      <template v-for="key in ['rgpdAccepted', 'onNewsletterList']" v-slot:[`item.${key}`]="{ value }">
-        <v-icon v-if="value === true" class="text-success" :key="key + 'Check'">
-          mdi-check
-        </v-icon>
-        <v-icon v-else-if="value === false" class="text-danger" :key="key + 'Close'">
-          mdi-close
-        </v-icon>
-        <v-icon v-else class="text-warning" :key="key + 'Help'">
-          mdi-help
-        </v-icon>
+      <!-- #region raw keys -->
+      <template v-slot:[`item.agency`]="{ value }">
+        <agency-component v-if="value" :agency="value" />
       </template>
       <template v-slot:[`item.society`]="{ value }">
         <society-component v-if="value" :society="value" />
@@ -111,6 +87,55 @@
           {{ value.stringValue }}
         </span>
       </template>
+      <!-- #endregion raw keys-->
+
+      <!-- #region dynamic keys -->
+      <template v-for="key in store.fieldsByType.boolean" v-slot:[`item.${key}`]="{ value }">
+        <v-icon v-if="value === true" class="text-success" :key="key + 'Check'">
+          mdi-check
+        </v-icon>
+        <v-icon v-else-if="value === false" class="text-danger" :key="key + 'Close'">
+          mdi-close
+        </v-icon>
+        <v-icon v-else class="text-warning" :key="key + 'Help'">
+          mdi-help
+        </v-icon>
+      </template>
+      <template v-for="key in store.fieldsByType.count" v-slot:[`item.${key}`]="{ value }" :key="key">
+        <div class="text-center w-100">Nb: {{ value.length }}</div>
+      </template>
+      <template v-for="key in store.fieldsByType.country" v-slot:[`item.${key}`]="{ value }">
+        <country-component v-if="value" :country="value" :key="key" />
+      </template>
+      <template v-for="key in store.fieldsByType.datetime" v-slot:[`item.${key}`]="{ value }" :key="key">
+        <v-tooltip :text="$helpers.formatDateTime(value)" location="top">
+          <template v-slot:activator="{ props }">
+            <span v-bind="props">{{ $helpers.formatDate(value) }}</span>
+          </template>
+        </v-tooltip>
+      </template>
+      <template v-for="object in store.fieldsByType.progressBar" v-slot:[`item.${object.name}`]="{ value }"
+        :key="object">
+        <v-progress-linear :model-value="object.store.getValue(value)" :color="object.store.getVariantByValue(value)"
+          height="25" :max="object.store.getHighestPosition() - object.store.getLowestPosition()" rounded
+          class="text-no-wrap" style="min-width: 7vmin;">
+          <template v-slot:default>
+            <small :class="object.store.getColorByValue(value)">
+              <span v-if="value">{{ $helpers.capitalizeFirstLetter($t(moduleName + "." + value.stringValue)) }}</span>
+              <span v-else>{{ $helpers.capitalizeFirstLetter($t('undefined')) }}</span>
+            </small>
+
+          </template>
+        </v-progress-linear>
+      </template>
+      <template v-for="key in store.fieldsByType.string" v-slot:[`item.${key}`]="{ value }" :key="key">
+        <v-chip v-if="value" :style="$helpers.getCssForText(value.stringValue)">{{ value.stringValue }}</v-chip>
+      </template>
+      <template v-for="key in store.fieldsByType.stringsList" v-slot:[`item.${key}`]="{ value }" :key="key">
+        <v-chip v-for="element in value" :key="element" :style="$helpers.getCssForText(element.stringValue)">{{
+          element.stringValue }}</v-chip>
+      </template>
+      <!-- #endregion dynamic keys-->
 
       <template v-slot:bottom>
         <v-row>
@@ -140,8 +165,8 @@
     </v-list>
   </v-dialog>
 
-  <columns-dialog v-if="store" :moduleName="moduleName" :store="store" :visibleColumns="visibleFields"
-    @saveSettings="saveSettings" />
+  <columns-dialog v-if="store" :defaultColumns="defaultColumns" :moduleName="moduleName" :store="store"
+    :visibleColumns="visibleFields" @saveSettings="saveSettings" />
 </template>
 
 <script setup>
@@ -154,13 +179,12 @@ const globalStore = useGlobalStore()
 import useCommonHelper from '@/helpers/commonHelper'
 const helpers = useCommonHelper()
 import { useLeadStore } from '@/stores/lead'
-import { useLeadTypeStore } from '@/stores/leadType'
-const leadTypeStore = useLeadTypeStore()
 import { useCountryStore } from '@/stores/country'
 const countryStore = useCountryStore()
 import { useCrmListSettings } from '@/stores/crmListSettings'
 const crmListStore = useCrmListSettings()
 
+import AgencyComponent from "@/components/AgencyComponent.vue";
 import CountryComponent from '@/components/CountryComponent.vue';
 import SocietyComponent from '@/components/SocietyComponent.vue';
 import ColumnsDialog from "./ColumnsDialog.vue";
@@ -189,7 +213,6 @@ switch (props.moduleName)
     break;
 }
 
-leadTypeStore.findAll()
 
 const itemsPerPage = shallowRef(globalStore.perPage)
 const loading = shallowRef(true)
@@ -200,12 +223,15 @@ const serverItems = shallowRef([])
 const sortBy = shallowRef([{ key: 'createdAt', order: 'desc' }])
 const totalItems = shallowRef(0)
 
-const lowestLeadTypePosition = computed(() => { return leadTypeStore.getLowestPosition() })
-const highestLeadTypePosition = computed(() => { return leadTypeStore.getHighestPosition() })
+const defaultColumns = computed(() =>
+{
+  return store.value.getContextKey("visibleFields", true)
+})
 const visibleFields = computed(() =>
 {
   return store.value.getVisibleFields()
 })
+
 
 onMounted(() =>
 {
@@ -230,43 +256,8 @@ async function exportList()
   helpers.saveToExcel(props.moduleName, exportList);
 }
 
-function getLeadTypeValue(value) { return value.position - lowestLeadTypePosition.value }
 
-function getLeadTypeColor(typeName)
-{
-  switch (typeName)
-  {
-    case 'lost':
-      return 'text-white';
 
-    case 'spam':
-      return 'text-white';
-
-    case 'won':
-      return 'text-white';
-
-    default:
-      return 'grey-darken-4';
-  }
-}
-
-function getLeadTypeVariant(typeName)
-{
-  switch (typeName)
-  {
-    case 'lost':
-      return 'error';
-
-    case 'spam':
-      return 'grey-darken-4';
-
-    case 'won':
-      return 'success';
-
-    default:
-      return 'warning';
-  }
-}
 
 async function loadItems({ page, itemsPerPage, sortBy, groupBy, search })
 {
@@ -284,11 +275,10 @@ async function loadItems({ page, itemsPerPage, sortBy, groupBy, search })
   loading.value = false;
 }
 
-function saveSettings(clonedAvailableColumns, clonedVisibleColumns)
+function saveSettings(clonedVisibleColumns)
 {
   if (Object.keys(clonedVisibleColumns).length)
   {
-    store.value.availableFields = JSON.parse(JSON.stringify(clonedAvailableColumns));
     store.value.visibleFields = JSON.parse(JSON.stringify(clonedVisibleColumns));
   }
   globalStore.showColumnsDialog = false
