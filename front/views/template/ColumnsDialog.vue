@@ -35,7 +35,7 @@
                 <template #header v-if="!clonedVisibleColumns.length">
                   <small><i>{{ $helpers.capitalizeFirstLetter($t('drop here')) }}</i></small>
                 </template>
-                <template #item="{ index, element }">
+                <template #item="{ element }">
                   <div class="border cursor-pointer">
                     {{ $helpers.capitalizeFirstLetter($t(moduleName + '.' + element.key)) }}
                   </div>

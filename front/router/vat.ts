@@ -1,11 +1,13 @@
+import { RouteRecordRaw } from "vue-router";
 import VATDashboard from "../views/vat/Dashboard.vue";
 import VATIntegration from "../views/vat/Integration.vue";
 import VATList from "../views/vat/List.vue";
 
-export default [
+const moduleRoutes: RouteRecordRaw[] = [
   {
     name: "menu.VAT",
     path: "/#",
+    component: VATDashboard,
     meta: {
       icon: "mdi-chart-areaspline",
       isDropdown: true,
@@ -47,3 +49,6 @@ export default [
     },
   },
 ];
+
+export default moduleRoutes;
+

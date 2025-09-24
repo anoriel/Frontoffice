@@ -32,26 +32,30 @@ export const useLeadTypeStore = defineStore('leadType', () =>
   const lowestLeadTypePosition = ref(0)
   const highestLeadTypePosition = ref(0)
 
-  watch(list, () =>
+  watch(() => list.value, () =>
   {
     lowestLeadTypePosition.value = getLowestPosition()
     highestLeadTypePosition.value = getHighestPosition()
-  })
+  }, { deep: true })
 
   function getHighestPosition()
   {
     let arr = JSON.parse(JSON.stringify(list.value));
     if (!arr.length) { return 0; }
-    arr = arr.filter(function (e: LeadType) { return !e.isHidden; }).sort(function (a: LeadType, b: LeadType) { return a.position < b.position ? -1 : (a.position > b.position ? 1 : 0); }).reverse();
-    return Math.max(arr[0].position - 1, 0);
+    arr = arr.filter(function (e: LeadType) { return !e.isHidden; });
+    if (!arr.length) { return 0; }
+    arr = arr.sort(function (a: LeadType, b: LeadType) { return a.position < b.position ? -1 : (a.position > b.position ? 1 : 0); });
+    return arr[arr.length - 1].position; // Return the highest position
   }
 
   function getLowestPosition()
   {
     let arr = JSON.parse(JSON.stringify(list.value));
     if (!arr.length) { return 0; }
-    arr = arr.filter(function (e: LeadType) { return !e.isHidden; }).sort(function (a: LeadType, b: LeadType) { return a.position < b.position ? -1 : (a.position > b.position ? 1 : 0); });
-    return Math.max(arr[0].position - 1, 0);
+    arr = arr.filter(function (e: LeadType) { return !e.isHidden; });
+    if (!arr.length) { return 0; }
+    arr = arr.sort(function (a: LeadType, b: LeadType) { return a.position < b.position ? -1 : (a.position > b.position ? 1 : 0); });
+    return arr[0].position; // Return the lowest position
   }
   function getColorByValue(value: LeadType | null)
   {

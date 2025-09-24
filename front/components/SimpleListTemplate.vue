@@ -16,7 +16,7 @@
             list.length) }}</i>
           <i v-else>{{ $helpers.capitalizeFirstLetter($t("no result")) }}</i>
         </v-list-subheader>
-        <v-list-item v-for="(item) in list.filter(e => showDeleted || showDeleted == e.isDeleted)" :key="item.id"
+        <v-list-item v-for="(item) in filteredList" :key="item.id"
           :value="item" color="primary" :class="{ 'disabled': item.isDeleted }">
           <template v-slot:prepend>
             <v-icon>mdi-vector-point</v-icon>
@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, toRef, type PropType } from 'vue';
+import { ref, shallowRef, toRef, computed, type PropType } from 'vue';
 
 import { BaseStoreInterface } from '@/interfaces/baseStoreInterface'
 
@@ -81,6 +81,10 @@ const props = defineProps({
 
 const list = ref([]) as any;
 const showDeleted = ref(false);
+
+const filteredList = computed(() => {
+  return list.value.filter((e: any) => showDeleted.value || showDeleted.value == e.isDeleted)
+})
 
 const formModel = ref(createNewRecord())
 const dialog = shallowRef(false)

@@ -1,10 +1,12 @@
+import { RouteRecordRaw } from "vue-router";
 import OSSDashboard from "../views/oss/Dashboard.vue";
 import OSSIntegration from "../views/oss/Integration.vue";
 
-export default [
+const moduleRoutes: RouteRecordRaw[] = [
   {
     name: "OSS.OSS",
     path: "/#",
+    component: OSSDashboard,
     meta: {
       flag: 'eu',
       isDropdown: true,
@@ -34,3 +36,6 @@ export default [
     },
   },
 ];
+
+export default moduleRoutes;
+

@@ -1,3 +1,4 @@
+import { RouteRecordRaw } from "vue-router";
 import AssignmentRule from "../views/crm/lead/AssignmentRule.vue";
 import LeadDashboard from "../views/crm/lead/Dashboard.vue";
 import LeadPage from "../views/crm/lead/LeadPage.vue";
@@ -5,10 +6,11 @@ import OriginsList from "../views/crm/lead/OriginsList.vue";
 import ReasonList from "../views/crm/lead/ReasonList.vue";
 import TemplateList from "../views/template/List.vue";
 
-export default [
+const moduleRoutes: RouteRecordRaw[] = [
   {
     name: "menu.crm",
     path: "/#",
+    component: LeadDashboard,
     meta: {
       icon: "mdi-face-agent",
       isDropdown: true,
@@ -57,6 +59,7 @@ export default [
   {
     name: "crm.settings",
     path: "/#",
+    component: AssignmentRule,
     meta: {
       icon: "mdi-cog",
       isDropdown: true,
@@ -115,3 +118,5 @@ export default [
     },
   }
 ];
+
+export default moduleRoutes;

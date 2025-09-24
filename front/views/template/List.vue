@@ -279,7 +279,7 @@ function saveSettings(clonedVisibleColumns)
 {
   if (Object.keys(clonedVisibleColumns).length)
   {
-    store.value.visibleFields = JSON.parse(JSON.stringify(clonedVisibleColumns));
+    store.value.setVisibleFields(JSON.parse(JSON.stringify(clonedVisibleColumns)));
   }
   globalStore.showColumnsDialog = false
 }

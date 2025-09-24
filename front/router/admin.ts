@@ -1,10 +1,12 @@
 import UserSecurity from "../views/admin/UserSecurity.vue";
 import CurrentlyLoggedUsers from "../views/admin/CurrentlyLoggedUsers.vue";
+import { RouteRecordRaw } from "vue-router";
 
-export default [
+const moduleRoutes: RouteRecordRaw[] = [
   {
     name: "admin.admin",
     path: "/#",
+    component: UserSecurity,
     meta: {
       icon: "mdi-security",
       isDropdown: true,
@@ -36,3 +38,5 @@ export default [
     },
   }
 ];
+
+export default moduleRoutes;

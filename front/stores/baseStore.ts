@@ -1,4 +1,4 @@
-import { computed, ref, watch } from "vue"
+import { computed, ref } from "vue"
 import api_base from '@/api/api_base';
 import { Item } from '@/interfaces/item';
 import useCommonHelper from '../helpers/commonHelper'
@@ -57,10 +57,6 @@ export function useBaseStore()
   const hasItems = computed(() => { return list.value && list.value.length > 0 })
 
 
-  watch(visibleFields, () =>
-  {
-    setContextKey('visibleFields', visibleFields.value)
-  })
 
   async function deleteItem(id: number)
   {
@@ -339,6 +335,7 @@ export function useBaseStore()
   function setContextKey(key: string, value: any)
   {
     if (typeof context.value == 'undefined') {
+      console.log("typeof context.value == 'undefined'")
       context.value = getContext()
     }
     context.value[key] = value;
@@ -349,7 +346,15 @@ export function useBaseStore()
     }
 
     localStorage.setItem(localStorageName.value + ".context", JSON.stringify(context.value));
+    console.log(JSON.stringify(context.value))
     return context.value;
+  }
+
+  function setVisibleFields(fields: AvailableField[])
+  {
+    visibleFields.value = fields;
+
+    setContextKey('visibleFields', visibleFields.value)
   }
 
   return {
@@ -387,5 +392,6 @@ export function useBaseStore()
     save,
     setContext,
     setContextKey,
+    setVisibleFields,
   }
 }

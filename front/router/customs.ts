@@ -1,10 +1,13 @@
+import { RouteRecordRaw } from "vue-router";
 import CustomsCommissionCategoryList from "../views/customs/CustomCommissionCategoryList.vue";
 import CustomsCommissionsList from "../views/customs/CustomsCommissionsList.vue"
 
-export default [
+
+const moduleRoutes: RouteRecordRaw[] = [
   {
     name: "menu.customs",
     path: "/#",
+    component: CustomsCommissionsList,
     meta: {
       icon: "mdi-police-station",
       isDropdown: true,
@@ -24,6 +27,7 @@ export default [
   {
     name: "customs.settings",
     path: "/#",
+    component: CustomsCommissionCategoryList,
     meta: {
       icon: "mdi-cog",
       isDropdown: true,
@@ -46,3 +50,6 @@ export default [
     },
   }
 ];
+
+export default moduleRoutes;
+

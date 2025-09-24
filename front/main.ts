@@ -10,12 +10,22 @@ import 'vue3-flag-icons/styles'
 import vueDebounce from 'vue-debounce'
 import useCommonHelper from './helpers/commonHelper'
 
-
+//custom directive to make te function effective
 i18n.global.te = (key: Parameters<typeof i18n.global.te>[0], locale: Parameters<typeof i18n.global.te>[1]) =>
 {
   const effectiveLocale = locale && locale.length ? locale : i18n.global.locale.value
   const messages = i18n.global.messages.value as { [key: string]: Record<string, unknown> }
   return Object.hasOwn(messages[effectiveLocale] || {}, key)
+}
+
+//custom directive to make $helpers accessible from typescript component
+declare module '@vue/runtime-core' {
+  export interface ComponentCustomProperties
+  {
+    $helpers: typeof helpers,
+    $t: typeof i18n.global.t,
+    $gravatarDefaultImage: string,
+  }
 }
 
 const app = createApp(App)

@@ -38,6 +38,7 @@ export const useLeadStore = defineStore('lead', () =>
     getVisibleFields,
     reset,
     save,
+    setVisibleFields,
     resetError,
   } = useBaseStore();
 
@@ -316,6 +317,7 @@ export const useLeadStore = defineStore('lead', () =>
     getVisibleFields,
     reset,
     save,
+    setVisibleFields,
     resetError,
 
     defaultContext,

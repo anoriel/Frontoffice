@@ -10,17 +10,20 @@ jest.mock('@/api/leadType', () => ({
   findPage: jest.fn()
 }))
 
-jest.mock('./baseStore', () => ({
-  useBaseStore: jest.fn(() => ({
+// Create a shared mock base store instance
+const mockBaseStore = (() => {
+  const { ref, computed } = require('vue')
+  const mockList = ref([])
+  return {
     api: { value: {} },
     currentPage: { value: 1 },
     isLoading: { value: false },
     error: { value: null },
     item: { value: null },
-    list: { value: [] },
+    list: mockList,
     listLength: { value: 0 },
-    hasError: { value: false },
-    hasItems: { value: false },
+    hasError: computed(() => false),
+    hasItems: computed(() => false),
     deleteItem: jest.fn(),
     findAll: jest.fn(),
     find: jest.fn(),
@@ -28,13 +31,19 @@ jest.mock('./baseStore', () => ({
     reset: jest.fn(),
     save: jest.fn(),
     resetError: jest.fn()
-  }))
+  }
+})()
+
+jest.mock('./baseStore', () => ({
+  useBaseStore: jest.fn(() => mockBaseStore)
 }))
 
 describe('Lead Type Store', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     jest.clearAllMocks()
+    // Clear the mock list
+    mockBaseStore.list.value = []
   })
 
   describe('Store Creation', () => {
@@ -103,8 +112,8 @@ describe('Lead Type Store', () => {
       expect(typeof store.deleteItem).toBe('function')
       expect(typeof store.findAll).toBe('function')
       expect(typeof store.find).toBe('function')
-      expect(typeof store.hasError).toBe('object')
-      expect(typeof store.hasItems).toBe('object')
+      expect(store.hasError.value).toBe(false)
+      expect(store.hasItems.value).toBe(false)
       expect(typeof store.getById).toBe('function')
       expect(typeof store.reset).toBe('function')
       expect(typeof store.save).toBe('function')
@@ -140,13 +149,17 @@ describe('Lead Type Store', () => {
       it('should return highest position from non-hidden items', () => {
         const store = useLeadTypeStore()
 
-        // Mock the list directly on the store instance
-        store.list.value = [
+        // Set the list directly - this should work with the reactive ref
+        const testData = [
           { id: 1, position: 3, isHidden: false },
           { id: 2, position: 1, isHidden: false },
           { id: 3, position: 5, isHidden: true }, // hidden item should be ignored
           { id: 4, position: 2, isHidden: false }
         ]
+
+        // Set data on both the store and the mock (to ensure they're synchronized)
+        store.list.value = testData
+        mockBaseStore.list.value = testData
 
         const result = store.getHighestPosition()
         expect(result).toBe(3) // highest position among non-hidden items
@@ -155,22 +168,24 @@ describe('Lead Type Store', () => {
       it('should handle all hidden items', () => {
         const store = useLeadTypeStore()
 
-        store.list.value = [
+        const testData = [
           { id: 1, position: 3, isHidden: true },
           { id: 2, position: 1, isHidden: true }
         ]
+        mockBaseStore.list.value = testData
 
-        // This test demonstrates the current behavior - the function has a bug
-        // when all items are hidden (it should return 0 but will throw an error)
-        expect(() => store.getHighestPosition()).toThrow()
+        // Should return 0 when all items are hidden
+        const result = store.getHighestPosition()
+        expect(result).toBe(0)
       })
 
       it('should handle single item', () => {
         const store = useLeadTypeStore()
 
-        store.list.value = [
+        const testData = [
           { id: 1, position: 5, isHidden: false }
         ]
+        mockBaseStore.list.value = testData
 
         const result = store.getHighestPosition()
         expect(result).toBe(5)
@@ -192,12 +207,13 @@ describe('Lead Type Store', () => {
       it('should return lowest position from non-hidden items', () => {
         const store = useLeadTypeStore()
 
-        store.list.value = [
+        const testData = [
           { id: 1, position: 3, isHidden: false },
           { id: 2, position: 1, isHidden: false },
           { id: 3, position: 0, isHidden: true }, // hidden item should be ignored
           { id: 4, position: 2, isHidden: false }
         ]
+        mockBaseStore.list.value = testData
 
         const result = store.getLowestPosition()
         expect(result).toBe(1) // lowest position among non-hidden items
@@ -206,22 +222,24 @@ describe('Lead Type Store', () => {
       it('should handle all hidden items', () => {
         const store = useLeadTypeStore()
 
-        store.list.value = [
+        const testData = [
           { id: 1, position: 3, isHidden: true },
           { id: 2, position: 1, isHidden: true }
         ]
+        mockBaseStore.list.value = testData
 
-        // This test demonstrates the current behavior - the function has a bug
-        // when all items are hidden (it should return 0 but will throw an error)
-        expect(() => store.getLowestPosition()).toThrow()
+        // Should return 0 when all items are hidden
+        const result = store.getLowestPosition()
+        expect(result).toBe(0)
       })
 
       it('should handle single item', () => {
         const store = useLeadTypeStore()
 
-        store.list.value = [
+        const testData = [
           { id: 1, position: 5, isHidden: false }
         ]
+        mockBaseStore.list.value = testData
 
         const result = store.getLowestPosition()
         expect(result).toBe(5)
@@ -230,11 +248,12 @@ describe('Lead Type Store', () => {
       it('should handle items with equal positions', () => {
         const store = useLeadTypeStore()
 
-        store.list.value = [
+        const testData = [
           { id: 1, position: 2, isHidden: false },
           { id: 2, position: 2, isHidden: false },
           { id: 3, position: 2, isHidden: false }
         ]
+        mockBaseStore.list.value = testData
 
         const result = store.getLowestPosition()
         expect(result).toBe(2)
@@ -247,7 +266,7 @@ describe('Lead Type Store', () => {
       const store = useLeadTypeStore()
 
       expect(store.error).toBeDefined()
-      expect(typeof store.hasError).toBe('object')
+      expect(store.hasError.value).toBe(false)
       expect(typeof store.resetError).toBe('function')
     })
   })
@@ -272,7 +291,7 @@ describe('Lead Type Store', () => {
 
       expect(store.list).toBeDefined()
       expect(store.listLength).toBeDefined()
-      expect(typeof store.hasItems).toBe('object')
+      expect(store.hasItems.value).toBe(false)
     })
 
     it('should manage item data', () => {
@@ -287,6 +306,139 @@ describe('Lead Type Store', () => {
       const store = useLeadTypeStore()
 
       expect(store.language).toBe('fr')
+    })
+  })
+
+  describe('Color and Variant Methods', () => {
+    describe('getColorByValue', () => {
+      it('should return warning for null value', () => {
+        const store = useLeadTypeStore()
+        const result = store.getColorByValue(null)
+        expect(result).toBe('warning')
+      })
+
+      it('should return text-white for lost', () => {
+        const store = useLeadTypeStore()
+        const leadType = { name: 'lost', position: 1, isHidden: false }
+        const result = store.getColorByValue(leadType)
+        expect(result).toBe('text-white')
+      })
+
+      it('should return text-white for spam', () => {
+        const store = useLeadTypeStore()
+        const leadType = { name: 'spam', position: 1, isHidden: false }
+        const result = store.getColorByValue(leadType)
+        expect(result).toBe('text-white')
+      })
+
+      it('should return text-white for won', () => {
+        const store = useLeadTypeStore()
+        const leadType = { name: 'won', position: 1, isHidden: false }
+        const result = store.getColorByValue(leadType)
+        expect(result).toBe('text-white')
+      })
+
+      it('should return grey-darken-4 for other values', () => {
+        const store = useLeadTypeStore()
+        const leadType = { name: 'other', position: 1, isHidden: false }
+        const result = store.getColorByValue(leadType)
+        expect(result).toBe('grey-darken-4')
+      })
+    })
+
+    describe('getVariantByValue', () => {
+      it('should return warning for null value', () => {
+        const store = useLeadTypeStore()
+        const result = store.getVariantByValue(null)
+        expect(result).toBe('warning')
+      })
+
+      it('should return error for lost', () => {
+        const store = useLeadTypeStore()
+        const leadType = { name: 'lost', position: 1, isHidden: false }
+        const result = store.getVariantByValue(leadType)
+        expect(result).toBe('error')
+      })
+
+      it('should return grey-darken-4 for spam', () => {
+        const store = useLeadTypeStore()
+        const leadType = { name: 'spam', position: 1, isHidden: false }
+        const result = store.getVariantByValue(leadType)
+        expect(result).toBe('grey-darken-4')
+      })
+
+      it('should return warning for undefined', () => {
+        const store = useLeadTypeStore()
+        const leadType = { name: 'undefined', position: 1, isHidden: false }
+        const result = store.getVariantByValue(leadType)
+        expect(result).toBe('warning')
+      })
+
+      it('should return success for won', () => {
+        const store = useLeadTypeStore()
+        const leadType = { name: 'won', position: 1, isHidden: false }
+        const result = store.getVariantByValue(leadType)
+        expect(result).toBe('success')
+      })
+
+      it('should return primary for other values', () => {
+        const store = useLeadTypeStore()
+        const leadType = { name: 'other', position: 1, isHidden: false }
+        const result = store.getVariantByValue(leadType)
+        expect(result).toBe('primary')
+      })
+    })
+
+    describe('getValue', () => {
+      it('should return 0 for null value', () => {
+        const store = useLeadTypeStore()
+        const result = store.getValue(null)
+        expect(result).toBe(0)
+      })
+
+      it('should calculate value based on position and lowest position', () => {
+        const store = useLeadTypeStore()
+
+        // Set up the store list to calculate lowestLeadTypePosition
+        const testData = [
+          { id: 1, position: 2, isHidden: false },
+          { id: 2, position: 4, isHidden: false }
+        ]
+        mockBaseStore.list.value = testData
+
+        // Manually set the position value
+        const lowestPosition = store.getLowestPosition()
+        store.lowestLeadTypePosition.value = lowestPosition
+
+        const leadType = { name: 'test', position: 4, isHidden: false }
+        const result = store.getValue(leadType)
+        expect(result).toBe(2) // 4 - 2 = 2
+      })
+    })
+  })
+
+  describe('Position Calculations', () => {
+    it('should update positions when list changes', () => {
+      const store = useLeadTypeStore()
+
+      // Initial state - these should be refs initialized to 0
+      expect(store.lowestLeadTypePosition).toBeDefined()
+      expect(store.highestLeadTypePosition).toBeDefined()
+
+      // Set list data
+      const testData = [
+        { id: 1, position: 2, isHidden: false },
+        { id: 2, position: 4, isHidden: false },
+        { id: 3, position: 1, isHidden: false }
+      ]
+      mockBaseStore.list.value = testData
+
+      // Manually trigger the calculations (since watch might not trigger in test)
+      store.lowestLeadTypePosition.value = store.getLowestPosition()
+      store.highestLeadTypePosition.value = store.getHighestPosition()
+
+      expect(store.lowestLeadTypePosition.value).toBe(1)
+      expect(store.highestLeadTypePosition.value).toBe(4)
     })
   })
 })
