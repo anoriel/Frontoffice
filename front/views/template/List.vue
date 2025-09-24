@@ -94,7 +94,7 @@
         <v-icon v-if="value === true" class="text-success" :key="key + 'Check'">
           mdi-check
         </v-icon>
-        <v-icon v-else-if="value === false" class="text-danger" :key="key + 'Close'">
+        <v-icon v-else-if="value === false" class="text-error" :key="key + 'Close'">
           mdi-close
         </v-icon>
         <v-icon v-else class="text-warning" :key="key + 'Help'">
