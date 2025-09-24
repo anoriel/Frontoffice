@@ -141,21 +141,13 @@ let axiosMaxRequests = ref(0)
 
 securityStore.onRefresh()
 
-function checkIsLogged()
-{
-  if (router.currentRoute.value.name != "login" && !securityStore.getIsAuthenticated())
-  {
-    router.push({ name: 'login' });
-    return false;
-  }
-  return true;
-}
 
 router.beforeEach(async (to, from) =>
 {
   if (!securityStore.getIsAuthenticated() && to.name !== 'login'
   )
   {
+    securityStore.returnUrl = to.fullPath;
     return { name: 'login' }
   }
 })
@@ -269,13 +261,12 @@ function interceptResponse(response)
 async function logout()
 {
   await securityStore.logout()
-
-  checkIsLogged()
+  router.push({ name: 'login' });
 }
 
 //load mandatory data
 
-if (checkIsLogged())
+if (securityStore.getIsAuthenticated())
 {
   if (!Object.keys(securityStore.roleHierarchy).length)
   {

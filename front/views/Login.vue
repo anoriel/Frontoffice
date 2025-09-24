@@ -49,13 +49,17 @@ const login = ref('')
 const password = ref('')
 const visible = ref(false)
 
-let redirect = route.query.redirect
-
 if (securityStore.getIsAuthenticated())
 {
-  if (typeof redirect !== 'undefined')
+  changeRoute()
+}
+
+function changeRoute()
+{
+  if (securityStore.returnUrl !== null)
   {
-    router.push({ path: redirect })
+    router.push({ path: securityStore.returnUrl })
+    securityStore.returnUrl = null;
   } else
   {
     router.push({ name: 'home' })
@@ -64,8 +68,7 @@ if (securityStore.getIsAuthenticated())
 
 async function performLogin()
 {
-  let payload = { login: login.value, password: password.value },
-    redirect = route.query.redirect
+  let payload = { login: login.value, password: password.value }
 
   await securityStore.login(payload)
   if (!securityStore.hasError)
@@ -80,13 +83,7 @@ async function performLogin()
     {
       sessionStorage.setItem('username', username)
     }
-    if (typeof this.redirect !== 'undefined')
-    {
-      router.push({ path: this.redirect })
-    } else
-    {
-      router.push({ name: 'home' })
-    }
+    changeRoute()
   }
 }
 </script>

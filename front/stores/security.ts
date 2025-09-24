@@ -140,6 +140,7 @@ export const useSecurityStore = defineStore('security', () =>
   const lastPoints = ref(0)
   const me = ref(null as Utilisateur | null)
   const points = ref(0)
+  const returnUrl = ref<string | null>(null)
   const roles = ref([] as string[])
   const roleHierarchy = ref({})
   const roleHierarchyMap = ref({})
@@ -376,8 +377,6 @@ export const useSecurityStore = defineStore('security', () =>
     JWTTokenInfo.value = null;
     currentUserRoles.value = [];
     roles.value = [];
-    roleHierarchy.value = {};
-    roleHierarchyMap.value = {};
   }
 
   async function logout()
@@ -461,6 +460,7 @@ export const useSecurityStore = defineStore('security', () =>
     lastPoints,
     me,
     points,
+    returnUrl,
     roles,
     roleHierarchy,
     roleHierarchyMap,
