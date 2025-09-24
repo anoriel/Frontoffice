@@ -211,8 +211,9 @@ export function useBaseStore()
     //check if context exists
     getContext()
 
-    //check if context.key iexists
-    if (key != null && (fromDefaultValue || typeof context.value[key] == 'undefined') && typeof defaultContext.value[key] != 'undefined') {
+    if (fromDefaultValue && key != null) {
+      return JSON.parse(JSON.stringify(defaultContext.value[key]));
+    } else if (key != null && typeof context.value[key] == 'undefined' && typeof defaultContext.value[key] != 'undefined') {
       context.value[key] = JSON.parse(JSON.stringify(defaultContext.value[key]));
       localStorage.setItem(localStorageName.value + ".context", JSON.stringify(context.value));
     } else if (key != null && typeof defaultContext.value[key] == 'undefined') {
@@ -346,7 +347,7 @@ export function useBaseStore()
     }
 
     localStorage.setItem(localStorageName.value + ".context", JSON.stringify(context.value));
-    console.log(JSON.stringify(context.value))
+
     return context.value;
   }
 
@@ -354,7 +355,7 @@ export function useBaseStore()
   {
     visibleFields.value = fields;
 
-    setContextKey('visibleFields', visibleFields.value)
+    return setContextKey('visibleFields', visibleFields.value)
   }
 
   return {
