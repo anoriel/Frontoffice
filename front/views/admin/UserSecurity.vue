@@ -27,7 +27,7 @@
 
             <template v-slot:[`item.stringValue`]="{ item, value }">
               <span :class="{ 'font-italic opacity-50': !item.actif }" class="d-flex align-center">
-                <img :src="$helpers.getGravatarURL(item.email, 24, $gravatarDefaultImage)" class="mr-1" />
+                <img :src="$helpers.getGravatarURL(item.email, 24, $gravatarDefaultImage)" class="mr-1 rounded-circle" />
                 {{ value }}
               </span>
             </template>
@@ -54,7 +54,7 @@
           <v-card v-if="activeItem">
             <v-card-item>
               <template v-slot:prepend>
-                <img :src="$helpers.getGravatarURL(activeItem.email, 50, $gravatarDefaultImage)" />
+                <img :src="$helpers.getGravatarURL(activeItem.email, 50, $gravatarDefaultImage)" class="rounded-circle"/>
               </template>
               <template v-slot:title>
                 {{ activeItem.stringValue }}
@@ -85,7 +85,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import UserCircle from '@/components/UserCircle.vue';
-import FlagIcon from 'vue3-flag-icons'
+import FlagIcon from '@/components/FlagIcon.vue';
 import { useGlobalStore } from '@/stores/global'
 const globalStore = useGlobalStore()
 import { useSecurityStore } from '@/stores/security'

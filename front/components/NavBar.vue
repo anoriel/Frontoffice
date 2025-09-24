@@ -53,7 +53,7 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSecurityStore } from '../stores/security'
-import FlagIcon from 'vue3-flag-icons'
+import FlagIcon from './FlagIcon.vue';
 const securityStore = useSecurityStore()
 
 const appTitle = import.meta.env.VITE_APP_TITLE

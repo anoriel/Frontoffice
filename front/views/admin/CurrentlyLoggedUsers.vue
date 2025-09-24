@@ -5,7 +5,7 @@
         :items-length="currentlyLoggedUsersList.length" density="compact" :loading-text="$t('loading')"
         :loading="userStore.isLoading" v-model:page="userStore.currentPage">
         <template v-slot:[`item.stringValue`]="{ item, value }">
-          <img :src="$helpers.getGravatarURL(item.email, 24, $gravatarDefaultImage)" />
+          <img :src="$helpers.getGravatarURL(item.email, 24, $gravatarDefaultImage)" class="rounded-circle" />
           {{ value }}
         </template>
         <template v-slot:[`item.lastActivityAt`]="{ value }">

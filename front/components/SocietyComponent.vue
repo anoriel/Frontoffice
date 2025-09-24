@@ -1,13 +1,14 @@
 <template>
   <span>
-    <FlagIcon :code="getIso3166()" size="18" class="mr-1" />
+    <FlagIcon :code="getIso3166()" size="18" class="mr-1" circle />
     <span class="d-inline-block">{{ society.nom }}</span>
   </span>
 </template>
 
 <script setup lang="ts">
 import { type PropType } from 'vue';
-import FlagIcon, { CountryCode } from 'vue3-flag-icons'
+import { CountryCode } from '@/types/CountryCode';
+import FlagIcon from './FlagIcon.vue';
 import { Societe } from '@/interfaces/societe';
 
 const props = defineProps({

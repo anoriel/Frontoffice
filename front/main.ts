@@ -6,7 +6,6 @@ import axios from './plugins/axios/axios'
 import i18n from './plugins/i18n'
 import vuetify from './plugins/vuetify'
 import router from './router'
-import 'vue3-flag-icons/styles'
 import vueDebounce from 'vue-debounce'
 import useCommonHelper from './helpers/commonHelper'
 

@@ -83,7 +83,7 @@
       </template>
       <template v-slot:[`item.user`]="{ value }">
         <span v-if="value?.email" :class="{ 'font-italic opacity-50': !value.actif }">
-          <img :src="$helpers.getGravatarURL(value.email, 24, $gravatarDefaultImage)" style="vertical-align: bottom;" />
+          <img :src="$helpers.getGravatarURL(value.email, 24, $gravatarDefaultImage)" style="vertical-align: bottom;" class="rounded-circle" />
           {{ value.stringValue }}
         </span>
       </template>

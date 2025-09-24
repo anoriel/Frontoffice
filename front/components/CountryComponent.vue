@@ -1,14 +1,15 @@
 <template>
   <span>
-    <FlagIcon :code="getIso3166()" size="18" class="mr-1" />
+    <FlagIcon :code="getIso3166()" size="18" class="mr-1" circle />
     <span class="d-inline-block">{{ $helpers.capitalizeFirstLetter(country.nom) }}</span>
   </span>
 </template>
 
 <script setup lang="ts">
 import { type PropType } from 'vue';
-import FlagIcon, { CountryCode } from 'vue3-flag-icons'
 import { Pays } from '@/interfaces/pays';
+import { CountryCode } from '@/types/CountryCode';
+import FlagIcon from './FlagIcon.vue';
 
 const props = defineProps({
   country: {

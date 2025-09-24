@@ -16,7 +16,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import FlagIcon from 'vue3-flag-icons'
+import FlagIcon from './FlagIcon.vue';
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
