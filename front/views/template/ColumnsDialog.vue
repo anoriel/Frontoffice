@@ -53,8 +53,7 @@
         <v-spacer></v-spacer>
 
         <v-btn :text="$helpers.capitalizeFirstLetter($t('save'))" color="success"
-          @click="$emit('saveSettings', clonedVisibleColumns)"
-          :disabled="!clonedVisibleColumns.length"></v-btn>
+          @click="$emit('saveSettings', clonedVisibleColumns)" :disabled="isSaveDisabled()"></v-btn>
       </v-card-actions>
     </v-card>
 
@@ -96,6 +95,11 @@ const props = defineProps({
 
 const clonedAvailableColumns = shallowRef<AvailableField[]>([])
 const clonedVisibleColumns = shallowRef<AvailableField[]>([])
+
+function isSaveDisabled()
+{
+  return !clonedVisibleColumns.value.length || JSON.stringify(clonedVisibleColumns.value) == JSON.stringify(props.visibleColumns);
+}
 
 function loadFields()
 {
