@@ -117,8 +117,8 @@
       <template v-for="object in store.fieldsByType.progressBar" v-slot:[`item.${object.name}`]="{ value }"
         :key="object">
         <v-progress-linear :model-value="object.store.getValue(value)" :color="object.store.getVariantByValue(value)"
-          height="25" :max="object.store.getHighestPosition() - object.store.getLowestPosition()" rounded
-          class="text-no-wrap" style="min-width: 7vmin;">
+          height="25" :max="object.store.getHighestPosition() - object.store.getLowestPosition()"
+          class="text-no-wrap rounded" style="min-width: 7vmin;">
           <template v-slot:default>
             <small :class="object.store.getColorByValue(value)">
               <span v-if="value">{{ $helpers.capitalizeFirstLetter($t(moduleName + "." + value.stringValue)) }}</span>
