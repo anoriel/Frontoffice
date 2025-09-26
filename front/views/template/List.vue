@@ -60,13 +60,18 @@
         <tr>
           <template v-for="column in columns" :key="column.key">
             <th>
-              <div class="d-flex align-center">
+              <div class="d-flex align-center" v-if="'property' in column && 'sortable' in column && column.sortable">
                 <b class="me-2 cursor-pointer" @click="toggleSort(column)">
                   {{ $helpers.capitalizeFirstLetter($t($te(moduleName + '.' + column.key) ? moduleName + '.' +
                     column.key : column.key)) }}
                 </b>
-
                 <v-icon v-if="isSorted(column)" :icon="getSortIcon(column)" color="medium-emphasis"></v-icon>
+              </div>
+              <div class="d-flex align-center" v-else>
+                <b class="me-2">
+                  {{ $helpers.capitalizeFirstLetter($t($te(moduleName + '.' + column.key) ? moduleName + '.' +
+                    column.key : column.key)) }}
+                </b>
               </div>
             </th>
           </template>
@@ -83,7 +88,8 @@
       </template>
       <template v-slot:[`item.user`]="{ value }">
         <span v-if="value?.email" :class="{ 'font-italic opacity-50': !value.actif }">
-          <img :src="$helpers.getGravatarURL(value.email, 24, $gravatarDefaultImage)" style="vertical-align: bottom;" class="rounded-circle" />
+          <img :src="$helpers.getGravatarURL(value.email, 24, $gravatarDefaultImage)" style="vertical-align: bottom;"
+            class="rounded-circle" />
           {{ value.stringValue }}
         </span>
       </template>
@@ -268,6 +274,13 @@ async function loadItems({ page, itemsPerPage, sortBy, groupBy, search })
   {
     sortByKey = sortBy[0].key
     sortByOrder = sortBy[0].order == 'desc'
+
+    let foundVisibleField = store.value.availableFields.find(function (el) { return el.key == sortByKey });
+    if (foundVisibleField)
+    {
+      sortByKey = foundVisibleField.property
+    }
+
   }
   await store.value.findPage(page, itemsPerPage, sortByKey, sortByOrder, [])
   serverItems.value = store.value.list

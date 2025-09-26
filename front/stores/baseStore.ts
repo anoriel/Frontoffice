@@ -6,7 +6,7 @@ import { DatatableSortBy } from "@/interfaces/datatableSortBy";
 import { Store } from "pinia";
 const helpers = useCommonHelper()
 
-interface AvailableField { 'key': string, 'sortable': boolean, 'title': string | null }
+interface AvailableField { 'key': string, 'sortable': boolean, 'property': string }
 
 interface FieldsByType
 {
@@ -149,8 +149,10 @@ export function useBaseStore()
       listLength.value = response.data["totalItems"];
 
 
-      if (typeof response.data != 'undefined' && "member" in response.data && list.value.length > 0) {
+      if (typeof response.data != 'undefined' && "search" in response.data && "mapping" in response.data['search'] && list.value.length > 0) {
         let keyToIgnore = ['id'];
+
+        //on récupère les entêtes de colonne de la 1ère ligne du résultat
         let fields = Object.keys(list.value[0]).filter(function (e)
         {
           if ((e && typeof e === "object" && "stringValue" in e) || (typeof e === "string" && e[0] !== "@")) {
@@ -158,7 +160,11 @@ export function useBaseStore()
           }
           return false;
         });
+
+        //on remet la liste des champs affichable à 0
         availableFields.value = [];
+
+        //on scan le mapping pour voir si les champs sont en plus sortables et/ou
         let mapping = response.data['search']['mapping'];
         try {
           for (let i in fields) {
@@ -166,8 +172,8 @@ export function useBaseStore()
             if (keyToIgnore.includes(field)) {
               continue;
             }
-            let found = mapping.find(function (el: { variable: string; property: string | null }) { return el.variable.startsWith('orderBy') && el.property != null && el.property.startsWith(field); });
-            availableFields.value.push({ 'key': field, 'sortable': found != null, 'title': null });
+            let foundSortableValue = mapping.find(function (el: { variable: string; property: string | null }) { return el.variable.startsWith('orderBy') && el.property != null && el.property.startsWith(field); });
+            availableFields.value.push({ 'key': field, 'sortable': foundSortableValue != null, 'property': foundSortableValue?.property });
           }
         } catch (error) {
           console.log(error);
@@ -336,7 +342,6 @@ export function useBaseStore()
   function setContextKey(key: string, value: any)
   {
     if (typeof context.value == 'undefined') {
-      console.log("typeof context.value == 'undefined'")
       context.value = getContext()
     }
     context.value[key] = value;

@@ -76,13 +76,13 @@ export const useLeadStore = defineStore('lead', () =>
     sortDirection: 'desc',
     version: "1.0",
     visibleFields: [
-      { "key": "createdAt", "sortable": true },
-      { "key": "customerName", "sortable": true },
-      { "key": "leadType", "sortable": true },
-      { "key": "countryOfEstablishment", "sortable": true },
-      { "key": "countryOfDestination", "sortable": true },
-      { "key": "society", "sortable": true },
-      { "key": "user", "sortable": true }
+      { "key": "createdAt" },
+      { "key": "customerName" },
+      { "key": "leadType" },
+      { "key": "countryOfEstablishment" },
+      { "key": "countryOfDestination" },
+      { "key": "society" },
+      { "key": "user" }
     ],
   }
 
