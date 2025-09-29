@@ -15,14 +15,17 @@ interface FieldsByType
   'country'?: string[],
   'date'?: string[],
   'datetime'?: string[],
-  'progressBar'?: ProgressBarFieldType[],
+  'object'?: FieldType[],
+  'objectsList'?: FieldType[],
+  'progressBar'?: FieldType[],
   'string'?: string[],
   'stringsList'?: string[],
 }
-interface ProgressBarFieldType
+interface FieldType
 {
-  name: string,
-  store: Store
+  name: string,//name of the field
+  store?: Store,//store to get info from
+  type: string,//object type to get info
 }
 
 export function useBaseStore()
@@ -38,15 +41,16 @@ export function useBaseStore()
 
 
   const availableFields = ref<AvailableField[]>([])
-  const fieldsByType = ref<FieldsByType>({
-    'boolean': [],
-    'count': [],
-    'country': [],
-    'date': [],
-    'datetime': [],
-    'progressBar': [],
-    'string': [],
-    'stringsList': [],
+  const fieldsByType = ref<FieldsByType>({//used to display value inside data table, or format input in forms for filters component
+    'boolean': [],//will display a switch for boolean value or a check/close/? icon
+    'count': [],//will display a number in data table, a list in forms
+    'date': [],//will display a date in data table, start/end date calendar in forms
+    'datetime': [],//will display a datetime in data table, start/end datetime calendar in forms
+    'object': [],//will display specific template for this object in data table, a specific multiple select box in forms (ex: agency, society, country, ...)
+    'objectsList': [],//will display specific template for this object(s) in data table, a specific multiple select box in forms (ex: agency, society, country, ...)
+    'progressBar': [],//will display progress bar in data table, a simple select box in forms
+    'string': [],//will display string value in data table, a multiple select box in forms
+    'stringsList': [],//will display string value(s) in data table, a multiple select box in forms
   })
   const context = ref<Record<string, any>>({})
   const defaultContext = ref<Record<string, any>>({})
@@ -251,6 +255,11 @@ export function useBaseStore()
     return filledProps;
   }
 
+  function getSearchFilters()
+  {
+    return getContextKey("filters");
+  }
+
   function getVisibleFields()
   {
     if (Object.keys(visibleFields.value).length == 0) {
@@ -387,6 +396,7 @@ export function useBaseStore()
     getById,
     getContextKey,
     getNumberOfFilters,
+    getSearchFilters,
     getVisibleFields,
     hasError,
     hasItems,

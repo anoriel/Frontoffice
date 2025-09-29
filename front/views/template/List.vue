@@ -13,11 +13,12 @@
       <v-icon>mdi-cloud-upload</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('save settings')) }}
     </v-btn>
     <v-btn size="x-small" :title="$helpers.capitalizeFirstLetter($t('filters'))"
-      class="bg-secondary position-relative p-0 pr-1 mb-1 mt-1 mr-1" @click="showFilters = !showFilters">
+      class="bg-secondary position-relative p-0 pr-1 mb-1 mt-1 mr-1"
+      @click="globalStore.showFiltersDialog = !globalStore.showFiltersDialog">
       <span v-if="store.getNumberOfFilters()"
         class="badge badge-pill badge-danger z-index999 position-absolute top-5 right-5">{{
           store.getNumberOfFilters() }}</span>
-      <v-icon v-if="showFilters">
+      <v-icon v-if="globalStore.showFiltersDialog">
         mdi-filter-off
       </v-icon>
       <v-icon v-else>
@@ -79,23 +80,22 @@
       </template>
       <!-- #endregion headers -->
 
-      <!-- #region raw keys -->
-      <template v-slot:[`item.agency`]="{ value }">
-        <agency-component v-if="value" :agency="value" />
-      </template>
-      <template v-slot:[`item.society`]="{ value }">
-        <society-component v-if="value" :society="value" />
-      </template>
-      <template v-slot:[`item.user`]="{ value }">
-        <span v-if="value?.email" :class="{ 'font-italic opacity-50': !value.actif }">
+      <!-- #region dynamic keys -->
+
+      <!-- #region specific object keys -->
+      <template v-for="object in store.fieldsByType.object" v-slot:[`item.${object.name}`]="{ value }" :key="object">
+        <agency-component v-if="object.type == 'agency' && value" :agency="value" />
+        <country-component v-else-if="object.type == 'country' && value" :country="value" />
+        <society-component v-else-if="object.type == 'society' && value" :society="value" />
+        <span v-if="object.type == 'user' && value?.email" :class="{ 'font-italic opacity-50': !value.actif }">
           <img :src="$helpers.getGravatarURL(value.email, 24, $gravatarDefaultImage)" style="vertical-align: bottom;"
             class="rounded-circle" />
           {{ value.stringValue }}
         </span>
       </template>
-      <!-- #endregion raw keys-->
+      <!-- #endregion specific object keys-->
 
-      <!-- #region dynamic keys -->
+      <!-- #region other keys -->
       <template v-for="key in store.fieldsByType.boolean" v-slot:[`item.${key}`]="{ value }">
         <v-icon v-if="value === true" class="text-success" :key="key + 'Check'">
           mdi-check
@@ -109,9 +109,6 @@
       </template>
       <template v-for="key in store.fieldsByType.count" v-slot:[`item.${key}`]="{ value }" :key="key">
         <div class="text-center w-100">Nb: {{ value.length }}</div>
-      </template>
-      <template v-for="key in store.fieldsByType.country" v-slot:[`item.${key}`]="{ value }">
-        <country-component v-if="value" :country="value" :key="key" />
       </template>
       <template v-for="key in store.fieldsByType.datetime" v-slot:[`item.${key}`]="{ value }" :key="key">
         <v-tooltip :text="$helpers.formatDateTime(value)" location="top">
@@ -141,6 +138,8 @@
         <v-chip v-for="element in value" :key="element" :style="$helpers.getCssForText(element.stringValue)">{{
           element.stringValue }}</v-chip>
       </template>
+      <!-- #endregion other keys-->
+
       <!-- #endregion dynamic keys-->
 
       <template v-slot:bottom>
@@ -173,6 +172,10 @@
 
   <columns-dialog v-if="store" :defaultColumns="defaultColumns" :moduleName="moduleName" :store="store"
     :visibleColumns="visibleFields" @saveSettings="saveSettings" />
+
+  <filters-dialog v-if="store != null && moduleName != null" :moduleName="moduleName" :store="store"
+    @saveFilters="saveFilters" />
+
 </template>
 
 <script setup>
@@ -194,6 +197,7 @@ import AgencyComponent from "@/components/AgencyComponent.vue";
 import CountryComponent from '@/components/CountryComponent.vue';
 import SocietyComponent from '@/components/SocietyComponent.vue';
 import ColumnsDialog from "./ColumnsDialog.vue";
+import FiltersDialog from "./FiltersDialog.vue";
 
 
 const props = defineProps({
@@ -224,7 +228,6 @@ const itemsPerPage = shallowRef(globalStore.perPage)
 const loading = shallowRef(true)
 const searchFilters = shallowRef([])
 const showColumns = shallowRef(false)
-const showFilters = shallowRef(false)
 const serverItems = shallowRef([])
 const sortBy = shallowRef([{ key: 'createdAt', order: 'desc' }])
 const totalItems = shallowRef(0)
@@ -286,6 +289,11 @@ async function loadItems({ page, itemsPerPage, sortBy, groupBy, search })
   serverItems.value = store.value.list
   totalItems.value = store.value.listLength
   loading.value = false;
+}
+
+function saveFilters(filters)
+{
+  console.log(filters);
 }
 
 function saveSettings(clonedVisibleColumns)

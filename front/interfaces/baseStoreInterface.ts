@@ -1,14 +1,17 @@
 import { AvailableField } from "./availableField"
 
-export interface BaseStoreInterface {
+export interface BaseStoreInterface
+{
   api: any,
   availableFields: AvailableField[],
   context: Record<string, any>,
   currentPage: number,
   defaultContext: Record<string, any>,
+  error: any,
+  exportList: any,
+  fieldsByType: any,
   isLoading: false,
   isLoadingWithLock: false,
-  error: any,
   item: any,
   list: any[],
   listLength: number,
@@ -19,9 +22,22 @@ export interface BaseStoreInterface {
   hasItems(): boolean,
 
   delete(id: number): boolean,
-  findAll(): any,
+  deleteItem: any,
   find(id: number): any,
+  findAll(): any,
+  findPage: any,
+  getById: any,
+  getContextKey: any,
+  getNumberOfFilters: any,
+  getSearchFilters: any,
+  getVisibleFields: any,
+  parseArrays: any,
+  parseItem: any,
+  parseSortBy: any,
   reset(): boolean,
-  save(id: number, item: any): any,
   resetError(): void,
+  save(id: number, item: any): any,
+  setContext: any,
+  setContextKey: any,
+  setVisibleFields: any,
 }

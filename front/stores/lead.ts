@@ -35,6 +35,7 @@ export const useLeadStore = defineStore('lead', () =>
     getById,
     getContextKey,
     getNumberOfFilters,
+    getSearchFilters,
     getVisibleFields,
     reset,
     save,
@@ -53,22 +54,22 @@ export const useLeadStore = defineStore('lead', () =>
   defaultContext.value = {
     currentPage: 1,
     filters: {
-      agencies: [],
-      businessSectors: [],
+      agency: [],
+      businessSector: [],
       countryOfDestination: null,
       countryOfEstablishment: null,
       customerName: null,
       email: null,
-      leadTypes: [],
+      leadType: [],
       onNewsletterList: null,
       reminderDateRange: {
         startDate: null, //moment().subtract(1, 'months').startOf('month').format("YYYY-MM-DD"),
         endDate: null, //moment().endOf('month').format("YYYY-MM-DD"),
       },
       rgpdAccepted: null,
-      serviceDomains: [],
-      serviceTypes: [],
-      societies: [],
+      serviceDomain: [],
+      serviceType: [],
+      society: [],
       user: null,
     },
     sortBy: 'createdAt',
@@ -88,9 +89,15 @@ export const useLeadStore = defineStore('lead', () =>
 
   fieldsByType.value.boolean = ['rgpdAccepted', 'onNewsletterList']
   fieldsByType.value.count = ['leadComments']
-  fieldsByType.value.country = ['countryOfDestination', 'countryOfEstablishment']
   fieldsByType.value.datetime = ['createdAt', 'lastUpdatedAt']
-  fieldsByType.value.progressBar = [{ name: 'leadType', store: leadTypeStore }]
+  fieldsByType.value.object = [
+    { name: 'agency', type: 'agency' },
+    { name: 'countryOfDestination', type: 'country' },
+    { name: 'countryOfEstablishment', type: 'country' },
+    { name: 'society', type: 'society' },
+    { name: 'user', type: 'user' },
+  ]
+  fieldsByType.value.progressBar = [{ name: 'leadType', store: leadTypeStore, type: 'leadType' }]
   fieldsByType.value.string = ['businessSector', 'origin', 'serviceDomain', 'serviceType']
   fieldsByType.value.stringsList = ['refusalReasons']
 
@@ -314,6 +321,7 @@ export const useLeadStore = defineStore('lead', () =>
     getById,
     getContextKey,
     getNumberOfFilters,
+    getSearchFilters,
     getVisibleFields,
     reset,
     save,
