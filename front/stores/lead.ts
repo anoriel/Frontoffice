@@ -94,12 +94,17 @@ export const useLeadStore = defineStore('lead', () =>
     { name: 'agency', type: 'agency' },
     { name: 'countryOfDestination', type: 'country' },
     { name: 'countryOfEstablishment', type: 'country' },
+    { name: 'businessSector', type: 'businessSector' },
+    { name: 'origin', type: 'origin' },
+    { name: 'serviceDomain', type: 'serviceDomain' },
+    { name: 'serviceType', type: 'serviceType' },
     { name: 'society', type: 'society' },
     { name: 'user', type: 'user' },
   ]
+  fieldsByType.value.objectsList = [
+    { name: 'refusalReasons', type: 'leadRefusalReason' },
+  ]
   fieldsByType.value.progressBar = [{ name: 'leadType', store: leadTypeStore, type: 'leadType' }]
-  fieldsByType.value.string = ['businessSector', 'origin', 'serviceDomain', 'serviceType']
-  fieldsByType.value.stringsList = ['refusalReasons']
 
   localStorageName.value = "CrmLead"
 

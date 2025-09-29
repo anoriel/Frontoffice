@@ -61,15 +61,29 @@
         <tr>
           <template v-for="column in columns" :key="column.key">
             <th>
-              <div class="d-flex align-center" v-if="'property' in column && 'sortable' in column && column.sortable">
-                <b class="me-2 cursor-pointer" @click="toggleSort(column)">
+              <div class="align-center" v-if="'property' in column && 'sortable' in column && column.sortable">
+                <b class="me-2 text-no-wrap cursor-pointer d-lg-none" @click="toggleSort(column)">
+                  {{ $helpers.capitalizeFirstLetter($t($te(moduleName + '.' + column.key + '_shortag') ? moduleName +
+                    '.' +
+                    column.key + '_shortag' : $te(moduleName + '.' + column.key) ? moduleName + '.' +
+                      column.key : column.key)) }}
+                </b>
+                <b class="me-2 text-no-wrap cursor-pointer d-none d-lg-block" @click="toggleSort(column)">
                   {{ $helpers.capitalizeFirstLetter($t($te(moduleName + '.' + column.key) ? moduleName + '.' +
                     column.key : column.key)) }}
                 </b>
                 <v-icon v-if="isSorted(column)" :icon="getSortIcon(column)" color="medium-emphasis"></v-icon>
               </div>
-              <div class="d-flex align-center" v-else>
-                <b class="me-2">
+              <div class="align-center" v-else>
+                <b class="me-2 text-no-wrap d-lg-none">
+                  <span v-if="store.fieldsByType.count.includes(column.key)">#</span>
+                  {{ $helpers.capitalizeFirstLetter($t($te(moduleName + '.' + column.key + '_shortag') ? moduleName +
+                    '.' +
+                    column.key + '_shortag' : $te(moduleName + '.' + column.key) ? moduleName + '.' +
+                      column.key : column.key)) }}
+                </b>
+                <b class="me-2 text-no-wrap d-none d-lg-block">
+                  <span v-if="store.fieldsByType.count.includes(column.key)">#</span>
                   {{ $helpers.capitalizeFirstLetter($t($te(moduleName + '.' + column.key) ? moduleName + '.' +
                     column.key : column.key)) }}
                 </b>
@@ -87,11 +101,13 @@
         <agency-component v-if="object.type == 'agency' && value" :agency="value" />
         <country-component v-else-if="object.type == 'country' && value" :country="value" />
         <society-component v-else-if="object.type == 'society' && value" :society="value" />
-        <span v-if="object.type == 'user' && value?.email" :class="{ 'font-italic opacity-50': !value.actif }">
+        <span v-else-if="object.type == 'user' && value?.email" :class="{ 'font-italic opacity-50': !value.actif }"
+          class="text-no-wrap">
           <img :src="$helpers.getGravatarURL(value.email, 24, $gravatarDefaultImage)" style="vertical-align: bottom;"
             class="rounded-circle" />
           {{ value.stringValue }}
         </span>
+        <v-chip v-else-if="value" :style="$helpers.getCssForText(value.stringValue)">{{ value.stringValue }}</v-chip>
       </template>
       <!-- #endregion specific object keys-->
 
@@ -108,12 +124,12 @@
         </v-icon>
       </template>
       <template v-for="key in store.fieldsByType.count" v-slot:[`item.${key}`]="{ value }" :key="key">
-        <div class="text-center w-100">Nb: {{ value.length }}</div>
+        <div class="text-center w-100">{{ value.length }}</div>
       </template>
       <template v-for="key in store.fieldsByType.datetime" v-slot:[`item.${key}`]="{ value }" :key="key">
         <v-tooltip :text="$helpers.formatDateTime(value)" location="top">
           <template v-slot:activator="{ props }">
-            <span v-bind="props">{{ $helpers.formatDate(value) }}</span>
+            <span v-bind="props" class="text-no-wrap">{{ $helpers.formatDate(value) }}</span>
           </template>
         </v-tooltip>
       </template>
@@ -123,7 +139,7 @@
           height="25" :max="object.store.getHighestPosition() - object.store.getLowestPosition()"
           class="text-no-wrap rounded" style="min-width: 7vmin;">
           <template v-slot:default>
-            <small :class="object.store.getColorByValue(value)">
+            <small :class="object.store.getColorByValue(value)" class="text-no-wrap">
               <span v-if="value">{{ $helpers.capitalizeFirstLetter($t(moduleName + "." + value.stringValue)) }}</span>
               <span v-else>{{ $helpers.capitalizeFirstLetter($t('undefined')) }}</span>
             </small>
@@ -132,11 +148,12 @@
         </v-progress-linear>
       </template>
       <template v-for="key in store.fieldsByType.string" v-slot:[`item.${key}`]="{ value }" :key="key">
-        <v-chip v-if="value" :style="$helpers.getCssForText(value.stringValue)">{{ value.stringValue }}</v-chip>
+        {{ value }}
       </template>
       <template v-for="key in store.fieldsByType.stringsList" v-slot:[`item.${key}`]="{ value }" :key="key">
-        <v-chip v-for="element in value" :key="element" :style="$helpers.getCssForText(element.stringValue)">{{
-          element.stringValue }}</v-chip>
+        <v-list>
+          <v-list-item v-for="element in value" :key="element">{{ element.stringValue }}</v-list-item>
+        </v-list>
       </template>
       <!-- #endregion other keys-->
 

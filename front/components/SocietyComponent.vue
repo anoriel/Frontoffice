@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <span class="text-no-wrap">
     <FlagIcon :code="getIso3166()" size="18" class="mr-1" circle />
     <span class="d-inline-block">{{ society.nom }}</span>
   </span>

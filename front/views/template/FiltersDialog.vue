@@ -1,12 +1,15 @@
 <template>
   <v-dialog v-model="globalStore.showFiltersDialog">
     <v-form v-model="formIsValid" validate-on="submit lazy" validated>
-      <v-card :title="$helpers.capitalizeFirstLetter($t('filters'))" prepend-icon="mdi-filter">
+      <v-card :title="$helpers.capitalizeFirstLetter($t('filters'))" prepend-icon="mdi-filter" class="flex-nowrap">
         <template v-slot:text>
-
-          <template v-for="(filter, key) in defaultFilters" :key="key">
-            <v-row><v-col>{{ key }}</v-col><v-col>{{ filter }}</v-col></v-row>
-          </template>
+          <v-sheet class="d-flex flex-wrap">
+            <template v-for="filterKey in Object.keys(defaultFilters)" :key="filterKey">
+              <v-sheet class="ma-2 pa-2">
+                {{ filterKey }}
+              </v-sheet>
+            </template>
+          </v-sheet>
         </template>
 
         <v-card-actions>

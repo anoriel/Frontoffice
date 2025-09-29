@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <span class="text-no-wrap">
     <FlagIcon :code="getIso3166()" size="18" class="mr-1" circle />
     {{ $helpers.capitalizeFirstLetter(agency.pays.iso3166) }}, {{ $helpers.capitalizeFirstLetter(agency.stringValue) }}
   </span>
