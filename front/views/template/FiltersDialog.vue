@@ -14,8 +14,8 @@
 
           <v-btn :text="$helpers.capitalizeFirstLetter($t('cancel'))" color="error"
             @click="globalStore.showFiltersDialog = false" prepend-icon="mdi-close-circle" />
-          <v-btn :text="$helpers.capitalizeFirstLetter($t('clear'))" color="primary" @click="clearFilter"
-            :disabled="isResetDisabled()" prepend-icon="mdi-filter-minus-outline" />
+          <v-btn :text="$helpers.capitalizeFirstLetter($t('reset'))" color="primary" @click="clearFilter"
+            :disabled="isResetDisabled()" prepend-icon="mdi-eraser" />
           <v-btn :text="$helpers.capitalizeFirstLetter($t('search'))" color="success"
             @click="$emit('saveFilters', searchFilters)" :disabled="isSaveDisabled()" prepend-icon="mdi-check-bold" />
         </v-card-actions>

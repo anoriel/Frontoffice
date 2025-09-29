@@ -5,7 +5,7 @@
         <v-container class="text-center">
           <v-row>
             <v-col>
-              {{ $helpers.capitalizeFirstLetter($t('select fields to show')) }} {{ moduleName }}
+              {{ $helpers.capitalizeFirstLetter($t('select fields to show')) }}
             </v-col>
           </v-row>
           <v-row>
@@ -15,9 +15,8 @@
               </h6>
               <draggable v-model="clonedAvailableColumns" item-key="key" @end="sortLeadColumns(clonedAvailableColumns)"
                 group="fields">
-                <template #header>
-                  <v-btn append-icon="mdi-eraser" color="primary" @click="reset()" size="x-small">{{
-                    $helpers.capitalizeFirstLetter($t('reset')) }}</v-btn>
+                <template #header v-if="!clonedAvailableColumns.length">
+                  <small><i>{{ $helpers.capitalizeFirstLetter($t('drop here')) }}</i></small>
                 </template>
 
                 <template #item="{ element }">
@@ -47,13 +46,15 @@
       </template>
 
       <v-card-actions class="bg-surface-light">
-        <v-btn :text="$helpers.capitalizeFirstLetter($t('cancel'))" color="error"
-          @click="globalStore.showColumnsDialog = false"></v-btn>
-
         <v-spacer></v-spacer>
 
+        <v-btn :text="$helpers.capitalizeFirstLetter($t('cancel'))" color="error"
+          @click="globalStore.showColumnsDialog = false" prepend-icon="mdi-close-circle" />
+        <v-btn :text="$helpers.capitalizeFirstLetter($t('reset'))" color="primary" @click="reset"
+          :disabled="isResetDisabled()" prepend-icon="mdi-eraser" />
         <v-btn :text="$helpers.capitalizeFirstLetter($t('save'))" color="success"
-          @click="$emit('saveSettings', clonedVisibleColumns)" :disabled="isSaveDisabled()"></v-btn>
+          @click="$emit('saveSettings', clonedVisibleColumns)" :disabled="isSaveDisabled()"
+          prepend-icon="mdi-content-save" />
       </v-card-actions>
     </v-card>
 
@@ -95,6 +96,11 @@ const props = defineProps({
 
 const clonedAvailableColumns = shallowRef<AvailableField[]>([])
 const clonedVisibleColumns = shallowRef<AvailableField[]>([])
+
+function isResetDisabled()
+{
+  return JSON.stringify(clonedVisibleColumns.value) == JSON.stringify(props.defaultColumns);
+}
 
 function isSaveDisabled()
 {
@@ -143,6 +149,3 @@ function sortLeadColumns(columnsList: AvailableField[])
   );
 }
 </script>
-
-<style scoped>
-</style>
