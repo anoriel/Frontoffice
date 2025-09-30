@@ -58,6 +58,23 @@ export const useUserStore = defineStore('user', () =>
     return true;
   }
 
+  async function findAllActive()
+  {
+    isLoading.value = true;
+    error.value = null;
+    try {
+      let response = await thisAPI.findAllActive();
+      isLoading.value = false;
+      list.value = response.data["member"];
+      listLength.value = response.data["totalItems"];
+      return response.list;
+    } catch (error: any) {
+      isLoading.value = false;
+      error.value = error;
+      return null;
+    }
+  }
+
   async function findByRole(role: string)
   {
     reset()
@@ -117,8 +134,9 @@ export const useUserStore = defineStore('user', () =>
     list,
     listLength,
     deleteItem,
-    findAll,
     find,
+    findAll,
+    findAllActive,
     hasError,
     hasItems,
     getById,

@@ -3,30 +3,12 @@ import api_base from '@/api/api_base';
 import { Item } from '@/interfaces/item';
 import useCommonHelper from '../helpers/commonHelper'
 import { DatatableSortBy } from "@/interfaces/datatableSortBy";
-import { Store } from "pinia";
+import { AvailableField } from "@/interfaces/availableField";
+import { FieldsByType } from "@/interfaces/fieldsByType";
 const helpers = useCommonHelper()
 
-interface AvailableField { 'key': string, 'sortable': boolean, 'property': string }
 
-interface FieldsByType
-{
-  'boolean'?: string[],
-  'count'?: string[],
-  'country'?: string[],
-  'date'?: string[],
-  'datetime'?: string[],
-  'object'?: FieldType[],
-  'objectsList'?: FieldType[],
-  'progressBar'?: FieldType[],
-  'string'?: string[],
-  'stringsList'?: string[],
-}
-interface FieldType
-{
-  name: string,//name of the field
-  store?: Store,//store to get info from
-  type: string,//object type to get info
-}
+
 
 export function useBaseStore()
 {
@@ -54,6 +36,7 @@ export function useBaseStore()
   })
   const context = ref<Record<string, any>>({})
   const defaultContext = ref<Record<string, any>>({})
+  const filters = ref<Record<string, any>>([])
   const localStorageName = ref("base")
   const visibleFields = ref<AvailableField[]>([])
 
@@ -381,6 +364,7 @@ export function useBaseStore()
     error,
     exportList,
     fieldsByType,
+    filters,
     isLoading,
     isLoadingWithLock,
     item,

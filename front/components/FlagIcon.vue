@@ -16,8 +16,8 @@ const computedTitle: string =
 </script>
 
 <template>
-  <span class="fi" :class="[square || circle ? 'fis' : '', `fi-${code.toLowerCase()}`, circle ? 'round' : '']"
-    :style="size ? `font-size:${size}px` : undefined" :title="computedTitle" />
+  <span class="fi" :class="[props.square || props.circle ? 'fis' : '', `fi-${props.code.toLowerCase()}`, props.circle ? 'round' : '']"
+    :style="props.size ? `font-size:${props.size}px` : undefined" :title="computedTitle" />
 </template>
 
 <style scoped>

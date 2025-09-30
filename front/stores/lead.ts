@@ -16,6 +16,7 @@ export const useLeadStore = defineStore('lead', () =>
     currentPage,
     defaultContext,
     fieldsByType,
+    filters,
     isLoading,
     isLoadingWithLock,
     error,
@@ -54,23 +55,23 @@ export const useLeadStore = defineStore('lead', () =>
   defaultContext.value = {
     currentPage: 1,
     filters: {
-      agency: [],
-      businessSector: [],
-      countryOfDestination: null,
-      countryOfEstablishment: null,
       customerName: null,
       email: null,
       leadType: [],
-      onNewsletterList: null,
+      agency: [],
+      society: [],
+      user: null,
+      countryOfDestination: null,
+      countryOfEstablishment: null,
+      serviceDomain: [],
+      serviceType: [],
+      businessSector: [],
       reminderDateRange: {
         startDate: null, //moment().subtract(1, 'months').startOf('month').format("YYYY-MM-DD"),
         endDate: null, //moment().endOf('month').format("YYYY-MM-DD"),
       },
+      onNewsletterList: null,
       rgpdAccepted: null,
-      serviceDomain: [],
-      serviceType: [],
-      society: [],
-      user: null,
     },
     sortBy: 'createdAt',
     sortDesc: true,
@@ -92,19 +93,20 @@ export const useLeadStore = defineStore('lead', () =>
   fieldsByType.value.datetime = ['createdAt', 'lastUpdatedAt']
   fieldsByType.value.object = [
     { name: 'agency', type: 'agency' },
-    { name: 'countryOfDestination', type: 'country' },
-    { name: 'countryOfEstablishment', type: 'country' },
-    { name: 'businessSector', type: 'businessSector' },
-    { name: 'origin', type: 'origin' },
-    { name: 'serviceDomain', type: 'serviceDomain' },
-    { name: 'serviceType', type: 'serviceType' },
     { name: 'society', type: 'society' },
     { name: 'user', type: 'user' },
+    { name: 'countryOfDestination', type: 'country' },
+    { name: 'countryOfEstablishment', type: 'country' },
+    { name: 'origin', type: 'origin' },
+    { name: 'businessSector', type: 'businessSector' },
+    { name: 'serviceDomain', type: 'serviceDomain' },
+    { name: 'serviceType', type: 'serviceType' },
   ]
   fieldsByType.value.objectsList = [
     { name: 'refusalReasons', type: 'leadRefusalReason' },
   ]
   fieldsByType.value.progressBar = [{ name: 'leadType', store: leadTypeStore, type: 'leadType' }]
+  fieldsByType.value.string = ['customerName', 'email']
 
   localStorageName.value = "CrmLead"
 
@@ -311,6 +313,7 @@ export const useLeadStore = defineStore('lead', () =>
     isLoading,
     isLoadingWithLock,
     error,
+    filters,
     item,
     list,
     listLength,

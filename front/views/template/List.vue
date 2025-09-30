@@ -16,8 +16,9 @@
       class="bg-secondary position-relative p-0 pr-1 mb-1 mt-1 mr-1"
       @click="globalStore.showFiltersDialog = !globalStore.showFiltersDialog">
       <span v-if="store.getNumberOfFilters()"
-        class="badge badge-pill badge-danger z-index999 position-absolute top-5 right-5">{{
-          store.getNumberOfFilters() }}</span>
+        class="badge badge-pill badge-danger z-index999 position-absolute top-5 right-5">
+        {{ store.getNumberOfFilters() }}
+      </span>
       <v-icon v-if="globalStore.showFiltersDialog">
         mdi-filter-off
       </v-icon>
@@ -101,12 +102,7 @@
         <agency-component v-if="object.type == 'agency' && value" :agency="value" />
         <country-component v-else-if="object.type == 'country' && value" :country="value" />
         <society-component v-else-if="object.type == 'society' && value" :society="value" />
-        <span v-else-if="object.type == 'user' && value?.email" :class="{ 'font-italic opacity-50': !value.actif }"
-          class="text-no-wrap">
-          <img :src="$helpers.getGravatarURL(value.email, 24, $gravatarDefaultImage)" style="vertical-align: bottom;"
-            class="rounded-circle" />
-          {{ value.stringValue }}
-        </span>
+        <UtilisateurComponent v-else-if="object.type == 'user' && value" :user="value" />
         <v-chip v-else-if="value" :style="$helpers.getCssForText(value.stringValue)">{{ value.stringValue }}</v-chip>
       </template>
       <!-- #endregion specific object keys-->
@@ -215,6 +211,7 @@ import CountryComponent from '@/components/CountryComponent.vue';
 import SocietyComponent from '@/components/SocietyComponent.vue';
 import ColumnsDialog from "./ColumnsDialog.vue";
 import FiltersDialog from "./FiltersDialog.vue";
+import UtilisateurComponent from "@/components/UtilisateurComponent.vue";
 
 
 const props = defineProps({
@@ -259,9 +256,13 @@ const visibleFields = computed(() =>
 })
 
 
-onMounted(() =>
+onMounted(async () =>
 {
   crmListStore.findItemsByType(store.value.localStorageName)
+  if (countryStore.list.length)
+  {
+    await countryStore.findAll()
+  }
 })
 
 function addAnItem()

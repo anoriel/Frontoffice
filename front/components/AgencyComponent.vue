@@ -7,9 +7,9 @@
 
 <script setup lang="ts">
 import { type PropType } from 'vue';
-import FlagIcon from './FlagIcon.vue';
 import { Agency } from '@/interfaces/agency';
 import { CountryCode } from '@/types/CountryCode';
+import FlagIcon from './FlagIcon.vue';
 
 const props = defineProps({
   agency: {
