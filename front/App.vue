@@ -49,8 +49,8 @@
         </template>
 
         <v-list>
-          <v-list-item append-icon="mdi-logout" link>
-            <v-list-item-title @click="logout()">{{
+          <v-list-item append-icon="mdi-logout" link @click="logout()">
+            <v-list-item-title>{{
               $helpers.capitalizeFirstLetter($t('logout'))
             }}</v-list-item-title>
             <template v-slot:append>
@@ -154,6 +154,10 @@ router.beforeEach(async (to, from) =>
 router.afterEach((to, from) =>
 {
   document.title = appTitle + (to?.meta?.title ? (' - ' + helpers.capitalizeFirstLetter(t(to.meta.title))) : '');
+  if (securityStore.getIsAuthenticated() && to.name !== 'login')
+  {
+    securityStore.lastUrl = to.fullPath;
+  }
 });
 
 

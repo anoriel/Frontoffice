@@ -60,6 +60,9 @@ function changeRoute()
   {
     router.push({ path: securityStore.returnUrl })
     securityStore.returnUrl = null;
+  } else if (securityStore.lastUrl !== null)
+  {
+    router.push({ path: securityStore.lastUrl })
   } else
   {
     router.push({ name: 'home' })

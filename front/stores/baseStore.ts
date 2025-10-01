@@ -142,6 +142,7 @@ export function useBaseStore()
         //on récupère les entêtes de colonne de la 1ère ligne du résultat
         let fields = Object.keys(list.value[0]).filter(function (e)
         {
+          //on ne prend que les champs qui sont de type (objet avec un champ stringValue) ou qui sont de type (string et dont le nom ne commence par par @, ex: @id, @type)
           if ((e && typeof e === "object" && "stringValue" in e) || (typeof e === "string" && e[0] !== "@")) {
             return true;
           }
@@ -151,7 +152,7 @@ export function useBaseStore()
         //on remet la liste des champs affichable à 0
         availableFields.value = [];
 
-        //on scan le mapping pour voir si les champs sont en plus sortables et/ou
+        //on scan le mapping pour voir si les champs sont sortables et récupérer le nom du champs filtrable (ex: businessSector.name)
         let mapping = response.data['search']['mapping'];
         try {
           for (let i in fields) {

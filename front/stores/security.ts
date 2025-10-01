@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import thisAPI from '@/api/security'
 import { useBaseStore } from './baseStore';
 import { Utilisateur } from '@/interfaces/utilisateur'
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 function parseJwt(JWTToken: string | null): JWTTokenInfo | null
 {
@@ -138,6 +138,7 @@ export const useSecurityStore = defineStore('security', () =>
   const JWTTokenInfo = ref(null as JWTTokenInfo | null)
   const currentUserRoles = ref([] as string[] | null)
   const lastPoints = ref(0)
+  const lastUrl = ref<string | null>(null)
   const me = ref(null as Utilisateur | null)
   const points = ref(0)
   const returnUrl = ref<string | null>(null)
@@ -145,6 +146,16 @@ export const useSecurityStore = defineStore('security', () =>
   const roleHierarchy = ref({})
   const roleHierarchyMap = ref({})
   const switch_user = ref(null as Utilisateur | null)
+
+  // Watch for changes to lastUrl
+  watch(lastUrl, () =>
+  {
+    if (lastUrl.value) {
+      localStorage.setItem("lastUrl", lastUrl.value);
+    } else {
+      localStorage.removeItem("lastUrl");
+    }
+  });
 
   function getJWTToken()
   {
@@ -458,6 +469,7 @@ export const useSecurityStore = defineStore('security', () =>
     JWTTokenInfo,
     currentUserRoles,
     lastPoints,
+    lastUrl,
     me,
     points,
     returnUrl,
