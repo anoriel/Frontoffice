@@ -1,12 +1,14 @@
 <template>
   <div v-if="store">
-    <v-autocomplete v-model="model" :items="list" :item-title="getObjectName" item-value="id" :label="computedLabel"
-      :placeholder="computedPlaceholder" auto-focus clearable auto-select-first min-width="150" density="compact">
+    <v-autocomplete v-model="model" :items="list" :item-title="getObjectName" item-value="id" :label="label"
+      :placeholder="label" auto-focus clearable auto-select-first min-width="150" density="compact"
+      @update:modelValue="(e) => $emit('saveObject', e)" :chips="chips" :closable-chips="closableChips"
+      :multiple="true">
       <template v-slot:selection="{ item }">
         <agency-component v-if="fieldname == 'agency'" :agency="item.raw" />
-        <country-component v-else-if="fieldtype == 'country'" :country="item.raw" />
-        <society-component v-else-if="fieldtype == 'society'" :society="item.raw" />
-        <utilisateur-component v-else-if="fieldtype == 'user'" :user="item.raw" />
+        <country-component v-else-if="fieldObjectType == 'country'" :country="item.raw" />
+        <society-component v-else-if="fieldObjectType == 'society'" :society="item.raw" />
+        <utilisateur-component v-else-if="fieldObjectType == 'user'" :user="item.raw" />
         <v-chip v-else-if="item.raw" :style="$helpers.getCssForText(item.raw.stringValue)">
           {{ item.raw.stringValue }}
         </v-chip>
@@ -15,9 +17,9 @@
         <v-list-item v-bind="props">
           <template v-slot:title>
             <agency-component v-if="fieldname == 'agency'" :agency="item.raw" />
-            <country-component v-else-if="fieldtype == 'country'" :country="item.raw" />
-            <society-component v-else-if="fieldtype == 'society'" :society="item.raw" />
-            <utilisateur-component v-else-if="fieldtype == 'user'" :user="item.raw" />
+            <country-component v-else-if="fieldObjectType == 'country'" :country="item.raw" />
+            <society-component v-else-if="fieldObjectType == 'society'" :society="item.raw" />
+            <utilisateur-component v-else-if="fieldObjectType == 'user'" :user="item.raw" />
             <v-chip v-else-if="item.raw" :style="$helpers.getCssForText(item.raw.stringValue)">
               {{ item.raw.stringValue }}
             </v-chip>
@@ -29,11 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef, computed, ref } from 'vue';
-import useCommonHelper from '@/helpers/commonHelper'
-const helpers = useCommonHelper()
-import { useI18n } from "vue-i18n";
-const { t, te } = useI18n({ useScope: "global" });
+import { shallowRef, ref } from 'vue';
 import { useAgencyStore } from '@/stores/agency';
 import { useBusinessSectorStore } from '@/stores/businessSector';
 import { useCountryStore } from '@/stores/country';
@@ -53,7 +51,11 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  fieldtype: {
+  fieldObjectType: {
+    type: String,
+    required: true,
+  },
+  label: {
     type: String,
     required: true,
   },
@@ -87,13 +89,14 @@ const props = defineProps({
 })
 
 const list = ref([]);
-const model = shallowRef(null);
+const model = ref(JSON.parse(JSON.stringify(props.initialValue)));
+
 
 const store = shallowRef<any>(null);
 
 async function fetchData()
 {
-  switch (props.fieldtype) {
+  switch (props.fieldObjectType) {
     case "agency":
       store.value = useAgencyStore()
       break;
@@ -120,7 +123,7 @@ async function fetchData()
       break;
   }
   if (store.value && !store.value.list.length) {
-    if (['agency', 'user'].includes(props.fieldtype)) {
+    if (['agency', 'user'].includes(props.fieldObjectType)) {
       await store.value.findAllActive();
     } else {
       await store.value.findAll();
@@ -132,18 +135,6 @@ async function fetchData()
     console.log(props.fieldname)
   }
 }
-
-const computedLabel = computed(() =>
-{
-  return helpers.capitalizeFirstLetter(t(te(props.moduleName + '.' + props.fieldname) ? props.moduleName + '.' +
-    props.fieldname : props.fieldname))
-});
-
-const computedPlaceholder = computed(() =>
-{
-  return helpers.capitalizeFirstLetter(t(te(props.moduleName + '.' + props.fieldname) ? props.moduleName + '.' +
-    props.fieldname : props.fieldname))
-});
 
 
 

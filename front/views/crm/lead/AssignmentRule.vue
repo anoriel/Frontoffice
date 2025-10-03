@@ -1,5 +1,5 @@
 <template>
-  <v-main>
+  <v-container fluid class="w-100 h-100 overflow-auto position-relative">
     <v-row class="flex-row-reverse position-fixed right-0 mt-0 mr-2" style="z-index: 9;">
       <v-badge location="top right" color="error" v-if="timeBeforeSave != null" :content="timeBeforeSave">
         <v-btn :disabled="!originItems.length || !assignmentRulesListAreValid()" color="success" @click="save()"
@@ -213,7 +213,7 @@
     </v-row>
 
 
-  </v-main>
+  </v-container>
 </template>
 
 <script setup>

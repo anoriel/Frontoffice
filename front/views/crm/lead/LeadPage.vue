@@ -1,7 +1,7 @@
 <template>
-  <v-main>
+  <v-container fluid class="w-100 h-100 overflow-auto position-relative">
     {{ router.currentRoute.value.name }}
-  </v-main>
+  </v-container>
 </template>
 
 <script setup>

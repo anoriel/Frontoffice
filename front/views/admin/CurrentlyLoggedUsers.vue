@@ -1,27 +1,25 @@
 <template>
-  <v-main>
-    <v-container>
-      <v-data-table-server :hover="true" :headers="visibleColumns" striped="even" :items="currentlyLoggedUsersList"
-        :items-length="currentlyLoggedUsersList.length" density="compact" :loading-text="$t('loading')"
-        :loading="userStore.isLoading" v-model:page="userStore.currentPage">
-        <template v-slot:[`item.stringValue`]="{ item, value }">
-          <img :src="$helpers.getGravatarURL(item.email, 24, $gravatarDefaultImage)" class="rounded-circle" />
-          {{ value }}
-        </template>
-        <template v-slot:[`item.lastActivityAt`]="{ value }">
-          {{ $helpers.formatDateTime(value) }}
-        </template>
+  <v-container fluid class="w-100 h-100 overflow-auto position-relative">
+    <v-data-table-server :hover="true" :headers="visibleColumns" striped="even" :items="currentlyLoggedUsersList"
+      :items-length="currentlyLoggedUsersList.length" density="compact" :loading-text="$t('loading')"
+      :loading="userStore.isLoading" v-model:page="userStore.currentPage">
+      <template v-slot:[`item.stringValue`]="{ item, value }">
+        <img :src="$helpers.getGravatarURL(item.email, 24, $gravatarDefaultImage)" class="rounded-circle" />
+        {{ value }}
+      </template>
+      <template v-slot:[`item.lastActivityAt`]="{ value }">
+        {{ $helpers.formatDateTime(value) }}
+      </template>
 
 
-        <template v-slot:bottom>
-          <div class="text-center pt-2">
-            <v-pagination v-model="userStore.currentPage" :length="pageCount" rounded="circle"
-              active-color="blue-darken-4" color="blue-darken-4"></v-pagination>
-          </div>
-        </template>
-      </v-data-table-server>
-    </v-container>
-  </v-main>
+      <template v-slot:bottom>
+        <div class="text-center pt-2">
+          <v-pagination v-model="userStore.currentPage" :length="pageCount" rounded="circle"
+            active-color="blue-darken-4" color="blue-darken-4"></v-pagination>
+        </div>
+      </template>
+    </v-data-table-server>
+  </v-container>
 </template>
 
 <script setup>

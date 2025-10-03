@@ -1,85 +1,83 @@
 <template>
-  <v-main>
-    <v-container>
-      <v-row>
-        <v-col>
-          <v-text-field v-model="userFilter" :label="$helpers.capitalizeFirstLetter($t('userFilter'))"
-            prepend-icon="mdi-magnify" clearable />
-        </v-col>
-        <v-col>
-          <v-checkbox v-model="showInactiveUsers" :label="$helpers.capitalizeFirstLetter($t('admin.showInactiveUsers'))"
-            class="d-inline-block" />
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="6">
-          <v-data-table :hover="true" :headers="visibleColumns" striped="even" density="compact"
-            :loading-text="$t('loading')" :loading="userStore.isLoading" :search="userFilter"
-            :custom-filter="customFilter" :items="filteredList" @click:row="selectUser"
-            v-model:page="userStore.currentPage" v-model:items-per-page="globalStore.perPage"
-            :filter-keys="['stringValue']">
+  <v-container fluid class="w-100 h-100 overflow-auto position-relative">
+    <v-row>
+      <v-col>
+        <v-text-field v-model="userFilter" :label="$helpers.capitalizeFirstLetter($t('userFilter'))"
+          prepend-icon="mdi-magnify" clearable />
+      </v-col>
+      <v-col>
+        <v-checkbox v-model="showInactiveUsers" :label="$helpers.capitalizeFirstLetter($t('admin.showInactiveUsers'))"
+          class="d-inline-block" />
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="6">
+        <v-data-table :hover="true" :headers="visibleColumns" striped="even" density="compact"
+          :loading-text="$t('loading')" :loading="userStore.isLoading" :search="userFilter"
+          :custom-filter="customFilter" :items="filteredList" @click:row="selectUser"
+          v-model:page="userStore.currentPage" v-model:items-per-page="globalStore.perPage"
+          :filter-keys="['stringValue']">
 
 
-            <template v-slot:top>
-              <small class="text-center" v-if="filteredList.length"><i>{{ filteredList.length }} {{ $t("record",
-                filteredList.length) }}</i></small>
-            </template>
+          <template v-slot:top>
+            <small class="text-center" v-if="filteredList.length"><i>{{ filteredList.length }} {{ $t("record",
+              filteredList.length) }}</i></small>
+          </template>
 
-            <template v-slot:[`item.stringValue`]="{ item, value }">
-              <span :class="{ 'font-italic opacity-50': !item.actif }" class="d-flex align-center">
-                <img :src="$helpers.getGravatarURL(item.email, 24, $gravatarDefaultImage)" class="mr-1 rounded-circle" />
-                {{ value }}
-              </span>
-            </template>
-            <template v-slot:[`item.lastActivityAt`]="{ item, value }">
-              {{ $helpers.formatDateTime(value) }}&nbsp;
-              <v-icon v-if="item.selected" class="position-absolute right-0">mdi-menu-right</v-icon>
-            </template>
+          <template v-slot:[`item.stringValue`]="{ item, value }">
+            <span :class="{ 'font-italic opacity-50': !item.actif }" class="d-flex align-center">
+              <img :src="$helpers.getGravatarURL(item.email, 24, $gravatarDefaultImage)" class="mr-1 rounded-circle" />
+              {{ value }}
+            </span>
+          </template>
+          <template v-slot:[`item.lastActivityAt`]="{ item, value }">
+            {{ $helpers.formatDateTime(value) }}&nbsp;
+            <v-icon v-if="item.selected" class="position-absolute right-0">mdi-menu-right</v-icon>
+          </template>
 
-            <template v-slot:bottom>
-              <v-row>
-                <v-col cols="3">
-                  <v-select v-model="globalStore.perPage" :items="globalStore.perPageOptions" density="compact"
-                    :label="$helpers.capitalizeFirstLetter($t('per page'))" />
-                </v-col>
-                <v-col cols="9" class="text-center pt-2">
-                  <v-pagination v-model="userStore.currentPage" :length="pageCount" rounded="circle"
-                    active-color="blue-darken-4" color="blue-darken-4"></v-pagination>
-                </v-col>
-              </v-row>
+          <template v-slot:bottom>
+            <v-row>
+              <v-col cols="3">
+                <v-select v-model="globalStore.perPage" :items="globalStore.perPageOptions" density="compact"
+                  :label="$helpers.capitalizeFirstLetter($t('per page'))" />
+              </v-col>
+              <v-col cols="9" class="text-center pt-2">
+                <v-pagination v-model="userStore.currentPage" :length="pageCount" rounded="circle"
+                  active-color="blue-darken-4" color="blue-darken-4"></v-pagination>
+              </v-col>
+            </v-row>
+          </template>
+        </v-data-table>
+      </v-col>
+      <v-col cols="6">
+        <v-card v-if="activeItem">
+          <v-card-item>
+            <template v-slot:prepend>
+              <img :src="$helpers.getGravatarURL(activeItem.email, 50, $gravatarDefaultImage)" class="rounded-circle" />
             </template>
-          </v-data-table>
-        </v-col>
-        <v-col cols="6">
-          <v-card v-if="activeItem">
-            <v-card-item>
-              <template v-slot:prepend>
-                <img :src="$helpers.getGravatarURL(activeItem.email, 50, $gravatarDefaultImage)" class="rounded-circle"/>
-              </template>
-              <template v-slot:title>
-                {{ activeItem.stringValue }}
-              </template>
-            </v-card-item>
-            <v-checkbox v-model="activeItem.actif" :label="$helpers.capitalizeFirstLetter($t('active'))"
-              class="d-inline-block" @change="updated" />
-            <v-autocomplete v-model="activeItem.roles" :items="securityStore.roles"
-              :label="$helpers.capitalizeFirstLetter($t('roles'))" return-object multiple chips closable-chips clearable
-              item-color="success" @update:modelValue="updated">
-              <template #selection="{ item }">
-                <v-chip color="green">
-                  {{ item }}
-                </v-chip>
-              </template>
-            </v-autocomplete>
-            <v-btn block color="primary" @click="impersonate()">
-              <v-icon>mdi-login</v-icon>
-              {{ $helpers.capitalizeFirstLetter($t('impersonate user')) }}
-            </v-btn>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-main>
+            <template v-slot:title>
+              {{ activeItem.stringValue }}
+            </template>
+          </v-card-item>
+          <v-checkbox v-model="activeItem.actif" :label="$helpers.capitalizeFirstLetter($t('active'))"
+            class="d-inline-block" @change="updated" />
+          <v-autocomplete v-model="activeItem.roles" :items="securityStore.roles"
+            :label="$helpers.capitalizeFirstLetter($t('roles'))" return-object multiple chips closable-chips clearable
+            item-color="success" @update:modelValue="updated">
+            <template #selection="{ item }">
+              <v-chip color="green">
+                {{ item }}
+              </v-chip>
+            </template>
+          </v-autocomplete>
+          <v-btn block color="primary" @click="impersonate()">
+            <v-icon>mdi-login</v-icon>
+            {{ $helpers.capitalizeFirstLetter($t('impersonate user')) }}
+          </v-btn>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup>

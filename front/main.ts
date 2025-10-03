@@ -17,12 +17,13 @@ i18n.global.te = (key: Parameters<typeof i18n.global.te>[0], locale: Parameters<
   return Object.hasOwn(messages[effectiveLocale] || {}, key)
 }
 
-//custom directive to make $helpers accessible from typescript component
+//custom directive to make $helpers and others accessible from typescript component
 declare module '@vue/runtime-core' {
   export interface ComponentCustomProperties
   {
     $helpers: typeof helpers,
     $t: typeof i18n.global.t,
+    $te: typeof i18n.global.te,
     $gravatarDefaultImage: string,
   }
 }

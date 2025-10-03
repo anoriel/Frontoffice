@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia'
 import thisAPI from '@/api/lead'
 import { useBaseStore } from './baseStore';
-import useCommonHelper from '../helpers/commonHelper'
-const helpers = useCommonHelper()
 import { Lead } from '@/interfaces/lead';
 import { LeadComment } from '@/interfaces/leadcomment';
 import { useLeadTypeStore } from '@/stores/leadType'
@@ -24,6 +22,7 @@ export const useLeadStore = defineStore('lead', () =>
     list,
     listLength,
     localStorageName,
+    mapping,
     visibleFields,
 
     deleteItem,
@@ -38,8 +37,10 @@ export const useLeadStore = defineStore('lead', () =>
     getNumberOfFilters,
     getSearchFilters,
     getVisibleFields,
+    parseArrays,
     reset,
     save,
+    setSearchFilters,
     setVisibleFields,
     resetError,
   } = useBaseStore();
@@ -54,25 +55,7 @@ export const useLeadStore = defineStore('lead', () =>
 
   defaultContext.value = {
     currentPage: 1,
-    filters: {
-      customerName: null,
-      email: null,
-      leadType: [],
-      agency: [],
-      society: [],
-      user: null,
-      countryOfDestination: null,
-      countryOfEstablishment: null,
-      serviceDomain: [],
-      serviceType: [],
-      businessSector: [],
-      reminderDateRange: {
-        startDate: null, //moment().subtract(1, 'months').startOf('month').format("YYYY-MM-DD"),
-        endDate: null, //moment().endOf('month').format("YYYY-MM-DD"),
-      },
-      onNewsletterList: null,
-      rgpdAccepted: null,
-    },
+    filters: {},
     sortBy: 'createdAt',
     sortDesc: true,
     sortDirection: 'desc',
@@ -90,6 +73,7 @@ export const useLeadStore = defineStore('lead', () =>
 
   fieldsByType.value.boolean = ['rgpdAccepted', 'onNewsletterList']
   fieldsByType.value.count = ['leadComments']
+  fieldsByType.value.date = ['reminderDate']
   fieldsByType.value.datetime = ['createdAt', 'lastUpdatedAt']
   fieldsByType.value.object = [
     { name: 'agency', type: 'agency' },
@@ -110,107 +94,6 @@ export const useLeadStore = defineStore('lead', () =>
 
   localStorageName.value = "CrmLead"
 
-  function parseArrays(filters: any)
-  {
-    let filtersArray = [];
-    let isNullArray = [];
-    let isNotNullArray = [];
-    for (let i in filters) {
-      let filter = filters[i];
-      if (filter != null) {
-        if (['countryOfDestination', 'countryOfEstablishment', 'leadType', 'onNewsletterList', 'rgpdAccepted', 'user'].includes(i)) {
-          if (filter.id == -1) {
-            isNullArray.push(i);
-          }
-          else if (filter.id === 0) {
-            isNotNullArray.push(i);
-          }
-          else if ([true, false].includes(filter.id)) {
-            filtersArray.push({
-              'key': i,
-              'value': filter.id ? 1 : 0
-            });
-          }
-          else {
-            filtersArray.push({
-              'key': i + '.id',
-              'value': filter.id
-            });
-          }
-        } else if ('customerName' == i) {
-          filtersArray.push({
-            'key': i,
-            'value': filter
-          });
-        } else if ('email' == i) {
-          filtersArray.push({
-            'key': i,
-            'value': filter
-          });
-        } else if ('reminderDateRange' == i) {
-          if ("startDate" in filter && "endDate" in filter && filter.startDate == filter.endDate && filter.startDate != null) {
-            filtersArray.push({
-              'key': "reminderDate",
-              'value': helpers.formatDate(filter.startDate)
-            });
-          } else {
-            if ("startDate" in filter && filter.startDate != null) {
-              filtersArray.push({
-                'key': 'reminderDate[after]',
-                'value': helpers.formatDate(filter.startDate)
-              });
-            }
-            if ("endDate" in filter && filter.endDate != null) {
-              filtersArray.push({
-                'key': 'reminderDate[before]',
-                'value': helpers.formatDate(filter.endDate)
-              });
-            }
-          }
-        } else if (['agencies', 'businessSectors', 'leadTypes', 'serviceDomains', 'serviceTypes', 'societies'].includes(i)) {
-          for (let j in filter) {
-            let subFilter = filter[j];
-            let key = null;
-            switch (i) {
-              case 'agencies':
-                key = 'agency';
-                break;
-              case 'businessSectors':
-                key = 'businessSector';
-                break;
-              case 'leadTypes':
-                key = 'leadType';
-                break;
-              case 'serviceDomains':
-                key = 'serviceDomain';
-                break;
-              case 'serviceTypes':
-                key = 'serviceType';
-                break;
-              case 'societies':
-                key = 'society';
-                break;
-              default:
-            }
-
-            if (subFilter.id == -1) {
-              isNullArray.push(key);
-            }
-            else if (subFilter.id == 0) {
-              isNotNullArray.push(key);
-            }
-            else {
-              filtersArray.push({
-                'key': key + '.id[]',
-                'value': subFilter.id
-              });
-            }
-          }
-        }
-      }
-    }
-    return [filtersArray, isNullArray, isNotNullArray];
-  }
 
   function parseItem(item: Lead)
   {
@@ -317,6 +200,7 @@ export const useLeadStore = defineStore('lead', () =>
     item,
     list,
     listLength,
+    mapping,
     visibleFields,
 
     deleteItem,
@@ -333,6 +217,7 @@ export const useLeadStore = defineStore('lead', () =>
     getVisibleFields,
     reset,
     save,
+    setSearchFilters,
     setVisibleFields,
     resetError,
 

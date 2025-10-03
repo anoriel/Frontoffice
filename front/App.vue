@@ -62,9 +62,9 @@
     </v-app-bar>
     <nav-bar />
     <page-title />
-    <v-container min-width="95%">
+    <v-main style="height: 100vh;">
       <router-view />
-    </v-container>
+    </v-main>
     <div class="copyright">
       &copy; 2007-{{ getCopyrightEndDate() }} ASD international - {{ releaseVersion }}{{ getEnvironment() }}
     </div>

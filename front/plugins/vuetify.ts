@@ -5,9 +5,14 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import '@mdi/font/css/materialdesignicons.css'
+import { bg, cs, de, en, es, fr, it, nl, pl, pt, ro } from 'vuetify/locale'
+import { VDateInput } from 'vuetify/labs/VDateInput'
 
 const vuetify = createVuetify({
-  components,
+  components: {
+    ...components,
+    VDateInput,
+  },
   directives,
   icons: {
     defaultSet: 'mdi',
@@ -15,6 +20,11 @@ const vuetify = createVuetify({
     sets: {
       mdi,
     },
+  },
+  locale: {
+    locale: import.meta.env.VITE_APP_I18N_LOCALE || 'fr',
+    fallback: import.meta.env.VITE_APP_I18N_FALLBACK_LOCALE || 'fr',
+    messages: { bg, cs, de, en, es, fr, it, nl, pl, pt, ro },
   },
   theme: {
     themes: {

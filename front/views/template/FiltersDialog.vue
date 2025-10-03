@@ -1,29 +1,36 @@
 <template>
-  <v-dialog v-model="globalStore.showFiltersDialog">
+  <v-dialog v-model="globalStore.showFiltersDialog" @afterEnter="loadFilters()">
     <v-form v-model="formIsValid" validate-on="submit lazy" validated>
       <v-card :title="$helpers.capitalizeFirstLetter($t('filters'))" prepend-icon="mdi-filter" class="flex-nowrap">
         <template v-slot:text>
           <v-row>
-            <template v-for="filterKey in Object.keys(defaultFilters)" :key="filterKey">
+            <template v-for="filterKey in Object.keys(store.mapping)" :key="filterKey">
               <v-col cols="4">
 
-                <template v-if="getFieldFilterCategory(filterKey) == 'string'">
+                <template v-if="getFieldType(filterKey) == 'string'">
                   <v-text-field v-model="searchFilters[filterKey]" :label="getFieldLabel(filterKey)" clearable
                     density="compact" min-width="150" />
                 </template>
 
-                <template v-else-if="['object', 'progressBar'].includes(getFieldFilterCategory(filterKey))">
-                  <select-object :fieldname="filterKey" :fieldtype="getFieldType(filterKey)" :moduleName="moduleName" />
+                <template v-else-if="getFieldType(filterKey) == 'object'">
+                  <select-object :fieldname="filterKey" :fieldObjectType="getFieldObjectType(filterKey) as string"
+                    :label="getFieldLabel(filterKey)" :moduleName="moduleName"
+                    @saveObject="(e: any) => searchFilters[filterKey] = e" />
                 </template>
 
-                <template v-else-if="getFieldFilterCategory(filterKey) == 'boolean'">
+                <template v-else-if="getFieldType(filterKey) == 'boolean'">
                   <v-checkbox v-model="searchFilters[filterKey]" :label="getFieldLabel(filterKey)" density="compact" />
                 </template>
 
+                <template v-else-if="getFieldType(filterKey) == 'date'">
+                  <v-date-input v-model="searchFilters[filterKey]" :label="getFieldLabel(filterKey)" multiple="range"
+                    clearable density="compact" mode-icon="mdi-calendar-edit" />
+                </template>
+
                 <v-sheet v-else class="ma-2 pa-2 bg-error">
-                  {{ filterKey }}<br>
-                  {{ getFieldFilterCategory(filterKey) }}<br>
-                  {{ getFieldType(filterKey) }}
+                  filterKey={{ filterKey }}<br>
+                  getFieldType={{ getFieldType(filterKey) }}<br>
+                  getFieldObjectType={{ getFieldObjectType(filterKey) }}
                 </v-sheet>
 
               </v-col>
@@ -74,37 +81,19 @@ const defaultFilters = ref(JSON.parse(JSON.stringify(props.store.getContextKey("
 const formIsValid = shallowRef(false)
 const searchFilters = ref(JSON.parse(JSON.stringify(props.store.getSearchFilters())))
 
-function getFieldFilterCategory(field: string)
-{
-  let category = '';
-  if (props.store.fieldsByType.boolean.includes(field)) {
-    category = 'boolean'
-  } else if (props.store.fieldsByType.object.find((e: any) => e.name == field)) {
-    category = 'object'
-  } else if (props.store.fieldsByType.objectsList.find((e: any) => e.name == field)) {
-    category = 'objectsList'
-  } else if (props.store.fieldsByType.progressBar.find((e: any) => e.name == field)) {
-    category = 'progressBar'
-  } else if (props.store.fieldsByType.string.includes(field)) {
-    category = 'string'
-  } else if (props.store.fieldsByType.stringsList.includes(field)) {
-    category = 'stringsList'
-  }
-  return category
-}
 function getFieldType(field: string)
 {
-  let category = getFieldFilterCategory(field);
-  if (category in props.store.fieldsByType) {
-    let foundField = props.store.fieldsByType[category].find((e: any) => e.name == field)
-    if (foundField) return foundField.type
-  }
-  return ""
+  return props.store.mapping[field].type
+}
+function getFieldObjectType(field: string)
+{
+  return props.store.mapping[field].object
 }
 
 function getFieldLabel(field: string)
 {
-  return helpers.capitalizeFirstLetter(t(te(props.moduleName + '.' + field) ? props.moduleName + '.' + field : field))
+  let label = props.store.mapping[field].object ?? field;
+  return helpers.capitalizeFirstLetter(t(te(props.moduleName + '.' + label) ? props.moduleName + '.' + label : label))
 }
 
 function isSaveDisabled()
@@ -114,6 +103,11 @@ function isSaveDisabled()
 function isResetDisabled()
 {
   return JSON.stringify(searchFilters.value) == JSON.stringify(defaultFilters.value);
+}
+
+function loadFilters()
+{
+  searchFilters.value = JSON.parse(JSON.stringify(props.store.getSearchFilters()));
 }
 
 function clearFilter()

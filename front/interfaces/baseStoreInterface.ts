@@ -1,4 +1,5 @@
 import { AvailableField } from "./availableField"
+import { MappingType } from "./mappingType";
 
 export interface BaseStoreInterface
 {
@@ -17,6 +18,7 @@ export interface BaseStoreInterface
   list: any[],
   listLength: number,
   localStorageName: string,
+  mapping: Record<string, MappingType>,
   visibleFields: AvailableField[],
 
   hasError(): boolean,

@@ -138,7 +138,7 @@ export const useSecurityStore = defineStore('security', () =>
   const JWTTokenInfo = ref(null as JWTTokenInfo | null)
   const currentUserRoles = ref([] as string[] | null)
   const lastPoints = ref(0)
-  const lastUrl = ref<string | null>(null)
+  const lastUrl = ref<string | null>(localStorage.getItem("lastUrl"))
   const me = ref(null as Utilisateur | null)
   const points = ref(0)
   const returnUrl = ref<string | null>(null)

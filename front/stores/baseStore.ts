@@ -5,6 +5,11 @@ import useCommonHelper from '../helpers/commonHelper'
 import { DatatableSortBy } from "@/interfaces/datatableSortBy";
 import { AvailableField } from "@/interfaces/availableField";
 import { FieldsByType } from "@/interfaces/fieldsByType";
+import { IriTemplateMapping } from "@/interfaces/iriTemplateMapping";
+import { isArray } from "lodash";
+import { DefaultContext } from "@/interfaces/defaultContext";
+import { MappingType } from "@/interfaces/mappingType";
+import moment from "moment";
 const helpers = useCommonHelper()
 
 
@@ -35,8 +40,17 @@ export function useBaseStore()
     'stringsList': [],//will display string value(s) in data table, a multiple select box in forms
   })
   const context = ref<Record<string, any>>({})
-  const defaultContext = ref<Record<string, any>>({})
+  const defaultContext = ref<DefaultContext>({
+    currentPage: 1,
+    filters: {},
+    sortBy: '',
+    sortDesc: false,
+    sortDirection: 'ASC',
+    version: '0.0',
+    visibleFields: [],
+  })
   const filters = ref<Record<string, any>>([])
+  const mapping = ref<Record<string, MappingType>>({})
   const localStorageName = ref("base")
   const visibleFields = ref<AvailableField[]>([])
 
@@ -123,7 +137,7 @@ export function useBaseStore()
     let filtersArray = parsed[0];
     let isNullArray = parsed[1];
     let isNotNullArray = parsed[2];
-
+    console.log(filters, "Filters to apply: ", filtersArray, isNullArray, isNotNullArray);
 
     isLoading.value = true;
     error.value = null;
@@ -139,32 +153,78 @@ export function useBaseStore()
       if (typeof response.data != 'undefined' && "search" in response.data && "mapping" in response.data['search'] && list.value.length > 0) {
         let keyToIgnore = ['id'];
 
-        //on récupère les entêtes de colonne de la 1ère ligne du résultat
+        //we get the list of fields from the first item of the list
         let fields = Object.keys(list.value[0]).filter(function (e)
         {
-          //on ne prend que les champs qui sont de type (objet avec un champ stringValue) ou qui sont de type (string et dont le nom ne commence par par @, ex: @id, @type)
+          //we only take fields that are arrays or objects with a stringValue field or that are strings and do not start with @ (ex: @id, @type)
           if ((e && typeof e === "object" && "stringValue" in e) || (typeof e === "string" && e[0] !== "@")) {
             return true;
           }
           return false;
         });
 
-        //on remet la liste des champs affichable à 0
+        //we reset the list of available fields
         availableFields.value = [];
 
-        //on scan le mapping pour voir si les champs sont sortables et récupérer le nom du champs filtrable (ex: businessSector.name)
-        let mapping = response.data['search']['mapping'];
-        try {
-          for (let i in fields) {
-            let field = fields[i];
-            if (keyToIgnore.includes(field)) {
-              continue;
-            }
-            let foundSortableValue = mapping.find(function (el: { variable: string; property: string | null }) { return el.variable.startsWith('orderBy') && el.property != null && el.property.startsWith(field); });
-            availableFields.value.push({ 'key': field, 'sortable': foundSortableValue != null, 'property': foundSortableValue?.property });
+        //we scan the mapping to see if the fields are sortable and get the name of the filterable field (ex: businessSector.name)
+        let responseMapping = response.data['search']['mapping'];
+
+        //we add fields of type "type:xxx" in the mapping
+        //ex: type:customerName -> mapping['customerName'] = {type: 'string'}
+        //ex: type:object:agency -> mapping['agency'] = {type: 'object', object: 'agency'}
+        //we also initialize the default filters to null (or [] for objects) and add them to the default context
+        const typeRegexList = [/type:.*/];
+        const isObjectRegexList = [/object:.*/];
+        responseMapping.filter(function (element: IriTemplateMapping)
+        {
+          return typeRegexList.some(rx => rx.test(element.variable));
+        }).forEach((element: IriTemplateMapping) =>
+        {
+          let variable = element.variable.replace('type:', '');
+
+          //if the mapping already exists, we ignore
+          if (variable in mapping.value) {
+            return;
           }
-        } catch (error) {
-          console.log(error);
+
+          let mappingType = { type: element.property } as MappingType;
+          let searchValue = null;
+          if (isObjectRegexList.some(rx => rx.test(element.property))) {
+            mappingType = { type: 'object', object: element.property.replace('object:', '') } as MappingType;
+            searchValue = [];
+          }
+
+          mapping.value[variable] = mappingType;
+
+          defaultContext.value.filters[variable] = searchValue;
+        });
+
+        //we scan the field headers of the response
+        for (let i in fields) {
+          let field = fields[i];
+          if (keyToIgnore.includes(field)) {//we ignore fields that are not in the mapping
+            continue;
+          }
+          //we look in the mapping if the field is sortable and get the name of the property to sort on
+          let foundSortableValue = responseMapping.find(function (el: IriTemplateMapping) { return el.variable.startsWith('orderBy') && el.property.startsWith(field); });
+          //we look in the mapping if the field is filterable on its existance
+          let foundFilterableOnExistance = responseMapping.find((el: IriTemplateMapping) => el.variable == "exists[${field}]" && el.property == field);
+          //we determine the type of the field
+          let fieldType = 'string';
+          if (fieldsByType.value.boolean?.includes(field)) {
+            fieldType = "boolean";
+          } else if (fieldsByType.value.date?.includes(field) || fieldsByType.value.date?.includes(field)) {
+            fieldType = "date";
+          } else if (fieldsByType.value.object?.find((e: any) => e.name == field) || fieldsByType.value.objectsList?.find((e: any) => e.name == field) || fieldsByType.value.progressBar?.find((e: any) => e.name == field)) {
+            fieldType = "object";
+          }
+          availableFields.value.push({
+            'key': field,
+            'sortable': foundSortableValue != undefined,
+            'sortProperty': foundSortableValue?.property,
+            'fieldType': fieldType,
+            'filterableOnExistance': foundFilterableOnExistance != undefined
+          });
         }
       }
 
@@ -200,21 +260,21 @@ export function useBaseStore()
     return context.value;
   }
 
-  function getContextKey(key: string | null = null, fromDefaultValue = false)
+  function getContextKey(key: string, fromDefaultValue = false)
   {
     //check if context exists
     getContext()
 
     if (fromDefaultValue && key != null) {
-      return JSON.parse(JSON.stringify(defaultContext.value[key]));
-    } else if (key != null && typeof context.value[key] == 'undefined' && typeof defaultContext.value[key] != 'undefined') {
-      context.value[key] = JSON.parse(JSON.stringify(defaultContext.value[key]));
+      return JSON.parse(JSON.stringify((defaultContext.value as any)[key]));
+    } else if (key != null && typeof context.value[key] == 'undefined' && typeof (defaultContext.value as any)[key] != 'undefined') {
+      context.value[key] = JSON.parse(JSON.stringify((defaultContext.value as any)[key]));
       localStorage.setItem(localStorageName.value + ".context", JSON.stringify(context.value));
-    } else if (key != null && typeof defaultContext.value[key] == 'undefined') {
+    } else if (key != null && typeof (defaultContext.value as any)[key] == 'undefined') {
       console.log(key);
     }
 
-    return key != null ? context.value[key] : context.value;
+    return context.value[key];
   }
 
   function getFiltersDiff()
@@ -241,7 +301,10 @@ export function useBaseStore()
 
   function getSearchFilters()
   {
-    return getContextKey("filters");
+    if (Object.keys(filters.value).length == 0) {
+      filters.value = getContextKey("filters");
+    }
+    return filters.value;
   }
 
   function getVisibleFields()
@@ -257,9 +320,72 @@ export function useBaseStore()
     return Object.keys(getFiltersDiff()).length;
   }
 
-  function parseArrays(filters: any)
+  interface FilterArrayItem
   {
-    return [filters, [], []];
+    key: string;
+    value: any;
+  }
+
+  let filtersArray: FilterArrayItem[] = [];
+  let isNullArray: string[] = [];
+  let isNotNullArray: string[] = [];
+  function parseArrays(filters: any): [FilterArrayItem[], string[], string[]]
+  {
+    filtersArray = [];
+    isNullArray = [];
+    isNotNullArray = [];
+    Object.entries(filters).forEach(([key, value]) =>
+    {
+      console.log("Parsing filter: ", key, value);
+      let filter = filters[key];
+      if (filter != null) {
+        if (!isArray(filter)) {//single value
+          parseData(key, filter);
+        } else {//array of values
+          if (moment.isDate(filter)) {//date or datetime range
+            if (filter.length == 1) {
+              filtersArray.push({
+                'key': key,
+                'value': helpers.formatDate(filter[0])
+              });
+            } else if (filter.length >= 2) {
+              filtersArray.push({
+                'key': key + '[after]',
+                'value': helpers.formatDate(filter[0])
+              });
+              filtersArray.push({
+                'key': key + '[before]',
+                'value': helpers.formatDate(filter.pop())
+              });
+            }
+          } else {//list of values
+            for (let j in filter) {
+              let subFilter = filter[j];
+              parseData(key, subFilter);
+            }
+          }
+        }
+      } else {
+        console.log("Unknown mapping for filter " + key + " with value ", filter);
+      }
+    });
+    return [filtersArray, isNullArray, isNotNullArray];
+  }
+
+  function parseData(key: string, value: any)
+  {
+    if (value == -1) {
+      isNullArray.push(key);
+    }
+    else if (value == 0) {
+      isNotNullArray.push(key);
+    }
+    else {
+      filtersArray.push({
+        'key': key + '[]',
+        'value': value
+      });
+    }
   }
 
   function parseItem(item: any)
@@ -349,6 +475,12 @@ export function useBaseStore()
     return context.value;
   }
 
+  function setSearchFilters(searchFilters: Record<string, any>)
+  {
+    filters.value = searchFilters;
+    return setContextKey("filters", filters.value);
+  }
+
   function setVisibleFields(fields: AvailableField[])
   {
     visibleFields.value = fields;
@@ -372,6 +504,7 @@ export function useBaseStore()
     list,
     listLength,
     localStorageName,
+    mapping,
     visibleFields,
 
     deleteItem,
@@ -393,6 +526,7 @@ export function useBaseStore()
     save,
     setContext,
     setContextKey,
+    setSearchFilters,
     setVisibleFields,
   }
 }

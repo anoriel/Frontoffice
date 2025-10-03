@@ -12,31 +12,30 @@
     <v-btn class="p-0 pr-1 mr-1 bg-secondary" size="x-small" @click="displaySaveCRMListSettingsModal()">
       <v-icon>mdi-cloud-upload</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('save settings')) }}
     </v-btn>
-    <v-btn size="x-small" :title="$helpers.capitalizeFirstLetter($t('filters'))"
-      class="bg-secondary position-relative p-0 pr-1 mb-1 mt-1 mr-1"
-      @click="globalStore.showFiltersDialog = !globalStore.showFiltersDialog">
-      <span v-if="store.getNumberOfFilters()"
-        class="badge badge-pill badge-danger z-index999 position-absolute top-5 right-5">
-        {{ store.getNumberOfFilters() }}
-      </span>
-      <v-icon v-if="globalStore.showFiltersDialog">
-        mdi-filter-off
-      </v-icon>
-      <v-icon v-else>
-        mdi-filter
-      </v-icon>
-      &nbsp;{{ $helpers.capitalizeFirstLetter($t('filters')) }}
-    </v-btn>
+    <v-badge location="top right" color="warning" :model-value="store.getNumberOfFilters() > 0"
+      :content="store.getNumberOfFilters()" class="mb-1 mt-1 mr-1" :class="{ 'mr-3': store.getNumberOfFilters() > 0 }">
+      <v-btn size="x-small" :title="$helpers.capitalizeFirstLetter($t('filters'))"
+        class="bg-secondary position-relative p-0 pr-1"
+        @click="globalStore.showFiltersDialog = !globalStore.showFiltersDialog">
+        <v-icon v-if="globalStore.showFiltersDialog">
+          mdi-filter-off
+        </v-icon>
+        <v-icon v-else>
+          mdi-filter
+        </v-icon>
+        &nbsp;{{ $helpers.capitalizeFirstLetter($t('filters')) }}
+      </v-btn>
+    </v-badge>
     <v-btn class="p-0 pr-1 bg-secondary mr-1" size="x-small" :title="$helpers.capitalizeFirstLetter($t('columns'))"
       @click="globalStore.showColumnsDialog = true">
       <v-icon>mdi-table-column-plus-after</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('columns')) }}
     </v-btn>
   </v-app-bar>
 
-  <v-main class="w-100">
+  <v-container fluid class="w-100 h-100 overflow-auto">
     <v-data-table-server :hover="true" v-model:items-per-page="itemsPerPage" :headers="visibleFields" striped="even"
       :items="serverItems" :items-length="totalItems" :loading="loading" @update:options="loadItems"
-      v-model:page="store.currentPage" density="compact" v-model:sort-by="sortBy">
+      v-model:page="store.currentPage" density="compact" v-model:sort-by="sortBy" fixed-header style="max-height: 99%;">
 
       <!-- #region top -->
       <template v-slot:top>
@@ -62,7 +61,7 @@
         <tr>
           <template v-for="column in columns" :key="column.key">
             <th>
-              <div class="align-center" v-if="'property' in column && 'sortable' in column && column.sortable">
+              <div class="align-center" v-if="'sortProperty' in column && 'sortable' in column && column.sortable">
                 <b class="me-2 text-no-wrap cursor-pointer d-lg-none" @click="toggleSort(column)">
                   {{ $helpers.capitalizeFirstLetter($t($te(moduleName + '.' + column.key + '_shortag') ? moduleName +
                     '.' +
@@ -122,6 +121,9 @@
       <template v-for="key in store.fieldsByType.count" v-slot:[`item.${key}`]="{ value }" :key="key">
         <div class="text-center w-100">{{ value.length }}</div>
       </template>
+      <template v-for="key in store.fieldsByType.date" v-slot:[`item.${key}`]="{ value }" :key="key">
+        {{ $helpers.formatDate(value) }}
+      </template>
       <template v-for="key in store.fieldsByType.datetime" v-slot:[`item.${key}`]="{ value }" :key="key">
         <v-tooltip :text="$helpers.formatDateTime(value)" location="top">
           <template v-slot:activator="{ props }">
@@ -164,7 +166,7 @@
         </v-row>
       </template>
     </v-data-table-server>
-  </v-main>
+  </v-container>
 
   <v-dialog v-model="store.isLoadingWithLock" max-width="320" persistent>
     <v-list class="py-2 bg-blue-darken-4" elevation="12" rounded="lg">
@@ -192,7 +194,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, shallowRef } from "vue";
+import { computed, onMounted, ref, shallowRef } from "vue";
 import { useRoute, useRouter } from 'vue-router'
 const router = useRouter()
 const route = useRoute()
@@ -240,7 +242,7 @@ switch (props.moduleName)
 
 const itemsPerPage = shallowRef(globalStore.perPage)
 const loading = shallowRef(true)
-const searchFilters = shallowRef([])
+const searchFilters = ref(JSON.parse(JSON.stringify(store.value.getSearchFilters())))
 const showColumns = shallowRef(false)
 const serverItems = shallowRef([])
 const sortBy = shallowRef([{ key: 'createdAt', order: 'desc' }])
@@ -299,11 +301,11 @@ async function loadItems({ page, itemsPerPage, sortBy, groupBy, search })
     let foundVisibleField = store.value.availableFields.find(function (el) { return el.key == sortByKey });
     if (foundVisibleField)
     {
-      sortByKey = foundVisibleField.property
+      sortByKey = foundVisibleField.sortProperty
     }
 
   }
-  await store.value.findPage(page, itemsPerPage, sortByKey, sortByOrder, [])
+  await store.value.findPage(page, itemsPerPage, sortByKey, sortByOrder, searchFilters.value)
   serverItems.value = store.value.list
   totalItems.value = store.value.listLength
   loading.value = false;
@@ -311,7 +313,11 @@ async function loadItems({ page, itemsPerPage, sortBy, groupBy, search })
 
 function saveFilters(filters)
 {
-  console.log(filters);
+  globalStore.showFiltersDialog = false
+  store.currentPage = 1
+  searchFilters.value = filters
+  store.value.setSearchFilters(JSON.parse(JSON.stringify(searchFilters.value)))
+  loadItems({ page: store.currentPage, itemsPerPage: itemsPerPage.value, sortBy: sortBy.value, groupBy: [], search: searchFilters.value })
 }
 
 function saveSettings(clonedVisibleColumns)

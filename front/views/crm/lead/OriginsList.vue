@@ -1,7 +1,7 @@
 <template>
-  <v-main>
+  <v-container fluid class="w-100 h-100 overflow-auto position-relative">
     <simple-list-template currentItemDescription="lead.origin" :currentItemsStore="leadOriginStore" />
-  </v-main>
+  </v-container>
 </template>
 
 <script setup>
