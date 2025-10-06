@@ -10,7 +10,7 @@
 import { type PropType } from 'vue';
 import { Utilisateur } from '@/interfaces/utilisateur';
 
-const props = defineProps({
+defineProps({
   user: {
     type: Object as PropType<Utilisateur>,
     required: true,

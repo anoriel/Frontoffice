@@ -37,9 +37,8 @@
       <v-menu transition="scale-transition" v-if="securityStore.getIsAuthenticated() && !securityStore.isLoggedAs()">
         <template v-slot:activator="{ props }">
           <v-btn v-bind="props" color="white" append-icon="mdi-dots-vertical" variant="flat" rounded="0">
-            <template v-slot:prepend>
-              <img :src="$helpers.getGravatarURL(securityStore.getEmail(), 24, $gravatarDefaultImage)" />
-            </template>
+            <img :src="$helpers.getGravatarURL(securityStore.getEmail(), 24, $gravatarDefaultImage)"
+              style="vertical-align: bottom;" class="rounded-circle me-1" />
             {{ securityStore.getFirstname() }} {{ securityStore.getLastname() }}
 
             <template v-slot:append>
@@ -111,7 +110,6 @@
 <script setup>
 import PageTitle from '@/components/PageTitle.vue';
 import NavBar from './components/NavBar.vue'
-import UserCircle from './components/UserCircle.vue'
 import axios from './plugins/axios/axios'
 import { useSecurityStore } from './stores/security'
 const securityStore = useSecurityStore()

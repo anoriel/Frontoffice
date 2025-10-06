@@ -53,7 +53,6 @@ export function useBaseStore()
   const orderByList = ref<Record<string, string>>({})
   const mapping = ref<Record<string, MappingType>>({})//list of sortable properties with their key name (ex: leadType.name))
   const localStorageName = ref("base")
-  const parsedSortBy = {}//list of parsed sortBy to map on field name (ex: leadType -> leadType.name)
   const visibleFields = ref<AvailableField[]>([])
 
   const hasError = computed(() => { return error.value !== null })
