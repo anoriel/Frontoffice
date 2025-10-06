@@ -6,7 +6,7 @@ import { DatatableSortBy } from "@/interfaces/datatableSortBy";
 import { AvailableField } from "@/interfaces/availableField";
 import { FieldsByType } from "@/interfaces/fieldsByType";
 import { IriTemplateMapping } from "@/interfaces/iriTemplateMapping";
-import { isArray } from "lodash";
+import { isArray, isObject } from "lodash";
 import { DefaultContext } from "@/interfaces/defaultContext";
 import { MappingType } from "@/interfaces/mappingType";
 import moment from "moment";
@@ -53,6 +53,7 @@ export function useBaseStore()
   const orderByList = ref<Record<string, string>>({})
   const mapping = ref<Record<string, MappingType>>({})//list of sortable properties with their key name (ex: leadType.name))
   const localStorageName = ref("base")
+  const parsedSortBy = {}//list of parsed sortBy to map on field name (ex: leadType -> leadType.name)
   const visibleFields = ref<AvailableField[]>([])
 
   const hasError = computed(() => { return error.value !== null })
@@ -76,19 +77,18 @@ export function useBaseStore()
     }
   }
 
-  async function exportList(sortBy: DatatableSortBy, filters: Record<string, MappingType>, properties: string)
+  async function exportList(sortBy: DatatableSortBy, filters: Record<string, MappingType>, properties: AvailableField[])
   {
     let parsed = parseArrays(filters);
     let filtersArray = parsed[0];
     let isNullArray = parsed[1];
     let isNotNullArray = parsed[2];
 
-    let sort = parseSortBy(sortBy.key, sortBy.order == 'asc');
-
+    let sort = parseSortBy(sortBy.key, sortBy.order == 'desc');
     isLoadingWithLock.value = true;
     error.value = null;
     try {
-      let response = await api.value.export(parsed[0], parsed[1] ? 'desc' : 'asc', filtersArray, isNullArray, isNotNullArray, properties);
+      let response = await api.value.export(sort[0], sort[1] ? 'desc' : 'asc', filtersArray, isNullArray, isNotNullArray, properties);
       isLoadingWithLock.value = false;
       return response.data;
     } catch (error: any) {
@@ -97,14 +97,14 @@ export function useBaseStore()
     }
   }
 
-  async function findAll()
+  async function findAll(showFullData: boolean = false)
   {
     isLoading.value = true;
     error.value = null;
     list.value = [];
     listLength.value = 0;
     try {
-      let response = await api.value.findAll();
+      let response = await api.value.findAll(showFullData);
       list.value = response.data["member"];
       listLength.value = response.data["totalItems"];
       isLoading.value = false;
@@ -138,6 +138,14 @@ export function useBaseStore()
     let filtersArray = parsed[0];
     let isNullArray = parsed[1];
     let isNotNullArray = parsed[2];
+
+    let sort = parseSortBy(sortBy, sortDesc);
+    sortBy = sort[0];
+    sortDesc = sort[1];
+
+    setContextKey('currentPage', page);
+    setContextKey('sortBy', sortBy);
+    setContextKey('sortDesc', sortDesc);
 
     isLoading.value = true;
     error.value = null;
@@ -222,13 +230,20 @@ export function useBaseStore()
             } else if (fieldsByType.value.object?.find((e: any) => e.name == field) || fieldsByType.value.objectsList?.find((e: any) => e.name == field) || fieldsByType.value.progressBar?.find((e: any) => e.name == field)) {
               fieldType = "object";
             }
-            availableFields.value.push({
+            let availableField: AvailableField = {
               'key': field,
               'sortable': foundSortableValue != undefined,
               'sortProperty': foundSortableValue?.property,
               'fieldType': fieldType,
               'filterableOnExistance': foundFilterableOnExistance != undefined
-            });
+            };
+            availableFields.value.push(availableField);
+
+            //if visibleFields exists for this field, we update it with the new properties (sortable, sortProperty, filterableOnExistance)
+            let visibleFieldIndex = visibleFields.value.findIndex(vf => vf.key == field);
+            if (visibleFieldIndex > -1) {
+              visibleFields.value[visibleFieldIndex] = availableField;
+            }
           }
         }
       }
@@ -306,10 +321,10 @@ export function useBaseStore()
     return filledProps;
   }
 
-  function getSearchFilters()
+  function getSearchFilters(reset: boolean = false)
   {
-    if (Object.keys(filters.value).length == 0) {
-      filters.value = getContextKey("filters");
+    if (Object.keys(filters.value).length == 0 || reset) {
+      filters.value = getContextKey("filters", reset);
     }
     return filters.value;
   }
@@ -348,12 +363,15 @@ export function useBaseStore()
           parseData(key, value);
         } else {//array of values
           if (moment.isDate(value)) {//date or datetime range
-            if (value.length == 1) {
+            if (value.length == 1) {//only one date
               filtersArray.push({
                 'key': key,
                 'value': helpers.formatDate(value[0])
               });
-            } else if (value.length >= 2) {
+            } else if (value.length >= 2) {//date range
+              //we take the first and last value of the array
+              value.sort((a: Date, b: Date) => a.getTime() - b.getTime());
+              //we push the after and before filters
               filtersArray.push({
                 'key': key + '[after]',
                 'value': helpers.formatDate(value[0])
@@ -379,16 +397,21 @@ export function useBaseStore()
 
   function parseData(key: string, value: any)
   {
-    if (value == -1) {
+    let stringValue = value;
+    if (isObject(value) && 'id' in value) {
+      stringValue = value['id'];
+    }
+
+    if (stringValue == -1) {
       isNullArray.push(key);
     }
-    else if (value == 0) {
+    else if (stringValue == 0) {
       isNotNullArray.push(key);
     }
     else {
       filtersArray.push({
         'key': key + '[]',
-        'value': value
+        'value': stringValue
       });
     }
   }
@@ -398,9 +421,16 @@ export function useBaseStore()
     return item;
   }
 
-  function parseSortBy(sortBy: string, sortDesc: boolean)
+  function parseSortBy(sortBy: string, sortDesc: boolean): [string, boolean]
   {
-    return [sortBy, sortDesc];
+    let sortProperty = defaultContext.value.sortBy,
+      sortDirection = defaultContext.value.sortDesc;
+    let field = availableFields.value.find((field) => field.key == sortBy && field.sortable && field.sortProperty);
+    if (field && field.sortProperty != undefined) {
+      sortProperty = field.sortProperty;
+      sortDirection = sortDesc;
+    }
+    return [sortProperty, sortDirection];
   }
 
   function reset()

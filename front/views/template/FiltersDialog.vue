@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="globalStore.showFiltersDialog" @afterEnter="loadFilters()">
-    <v-form v-model="formIsValid" validate-on="submit lazy" validated>
+    <v-form>
       <v-card :title="$helpers.capitalizeFirstLetter($t('filters'))" prepend-icon="mdi-filter" class="flex-nowrap">
         <template v-slot:text>
           <v-row>
@@ -14,8 +14,7 @@
 
                 <template v-else-if="getFieldType(filterKey) == 'object'">
                   <select-object :fieldname="filterKey" :fieldObjectType="getFieldObjectType(filterKey)"
-                    :label="getFieldLabel(filterKey)" :moduleName="moduleName" :initialValue="searchFilters[filterKey]"
-                    @saveObject="(e: any) => searchFilters[filterKey] = e" />
+                    :label="getFieldLabel(filterKey)" :moduleName="moduleName" v-model="searchFilters[filterKey]" />
                 </template>
 
                 <template v-else-if="getFieldType(filterKey) == 'boolean'">
@@ -54,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef } from 'vue';
+import { ref } from 'vue';
 import { useGlobalStore } from '@/stores/global';
 import { PropType } from 'vue';
 import { BaseStoreInterface } from '@/interfaces/baseStoreInterface';
@@ -78,7 +77,6 @@ const props = defineProps({
 })
 
 const defaultFilters = ref(JSON.parse(JSON.stringify(props.store.getContextKey("filters", true))))
-const formIsValid = shallowRef(false)
 const searchFilters = ref(JSON.parse(JSON.stringify(props.store.getSearchFilters())))
 
 function getFieldType(field: string)
@@ -112,7 +110,13 @@ function loadFilters()
 
 function clearFilter()
 {
-  searchFilters.value = defaultFilters.value;
+  searchFilters.value = JSON.parse(JSON.stringify(defaultFilters.value));
+  Object.keys(searchFilters.value).forEach((key) =>
+  {
+    if (searchFilters.value[key] == null || searchFilters.value[key].length === 0) {
+      delete searchFilters.value[key]
+    }
+  })
 }
 
 </script>

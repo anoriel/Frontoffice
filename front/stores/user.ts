@@ -58,12 +58,12 @@ export const useUserStore = defineStore('user', () =>
     return true;
   }
 
-  async function findAllActive()
+  async function findAllActive(showFullData: boolean = false)
   {
     isLoading.value = true;
     error.value = null;
     try {
-      let response = await thisAPI.findAllActive();
+      let response = await thisAPI.findAllActive(showFullData);
       isLoading.value = false;
       list.value = response.data["member"];
       listLength.value = response.data["totalItems"];

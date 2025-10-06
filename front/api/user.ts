@@ -9,15 +9,15 @@ const thisApi = {
   {
     return axios.get(`${this.baseUrl}?type=${type}`);
   },
-  findAll()
+  findAll(showFullData: boolean = false)
   {
-    return this.findBy();
+    return this.findBy(false, null, showFullData);
   },
-  findAllActive()
+  findAllActive(showFullData: boolean = false)
   {
-    return this.findBy(true);
+    return this.findBy(true, null, showFullData);
   },
-  findBy(active: boolean = false, role: string | null = null)
+  findBy(active: boolean = false, role: string | null = null, showFullData: boolean = false)
   {
     let url = `${this.baseUrl}?orderBy[nom]=asc&orderBy[prenom]=asc&pagination=false`;
     if (role && role.length) {
@@ -25,6 +25,9 @@ const thisApi = {
     }
     if (active) {
       url += `&actif=true`
+    }
+    if (showFullData) {
+      url += `&showFullData=true`
     }
     return axios.get(url);
   },

@@ -1,16 +1,15 @@
 <template>
   <div v-if="store">
     <v-autocomplete v-model="model" :items="list" :item-title="getObjectName" item-value="id" :label="label"
-      :placeholder="label" auto-focus clearable auto-select-first min-width="150" density="compact"
-      @update:modelValue="(e) => $emit('saveObject', e)" :chips="chips" :closable-chips="closableChips"
-      :multiple="true">
+      :placeholder="label" auto-focus clearable auto-select-first min-width="150" density="compact" :chips="chips"
+      :closable-chips="closableChips" return-object :multiple="true">
       <template v-slot:selection="{ item }">
         <agency-component v-if="fieldObjectType == 'agency'" :agency="item.raw" />
         <country-component v-else-if="fieldObjectType == 'country'" :country="item.raw" />
         <society-component v-else-if="fieldObjectType == 'society'" :society="item.raw" />
         <utilisateur-component v-else-if="fieldObjectType == 'user'" :user="item.raw" />
-        <v-chip v-else-if="item.raw" :style="$helpers.getCssForText(item.raw.stringValue)">
-          {{ item.raw.stringValue }}
+        <v-chip v-else-if="item.raw" :style="getCssForText(item.raw)">
+          {{ getStringValue(item.raw) }}
         </v-chip>
       </template>
       <template v-slot:item="{ props, item }">
@@ -20,8 +19,8 @@
             <country-component v-else-if="fieldObjectType == 'country'" :country="item.raw" />
             <society-component v-else-if="fieldObjectType == 'society'" :society="item.raw" />
             <utilisateur-component v-else-if="fieldObjectType == 'user'" :user="item.raw" />
-            <v-chip v-else-if="item.raw" :style="$helpers.getCssForText(item.raw.stringValue)">
-              {{ item.raw.stringValue }}
+            <v-chip v-else-if="item.raw" :style="getCssForText(item.raw)">
+              {{ getStringValue(item.raw) }}
             </v-chip>
           </template>
         </v-list-item>
@@ -32,6 +31,8 @@
 
 <script setup lang="ts">
 import { shallowRef, ref } from 'vue';
+import useCommonHelper from '@/helpers/commonHelper'
+const helpers = useCommonHelper()
 import { useAgencyStore } from '@/stores/agency';
 import { useBusinessSectorStore } from '@/stores/businessSector';
 import { useCountryStore } from '@/stores/country';
@@ -45,6 +46,7 @@ import AgencyComponent from "@/components/AgencyComponent.vue";
 import CountryComponent from '@/components/CountryComponent.vue';
 import SocietyComponent from '@/components/SocietyComponent.vue';
 import UtilisateurComponent from '@/components/UtilisateurComponent.vue'
+import { Item } from '@/interfaces/item';
 
 const props = defineProps({
   fieldname: {
@@ -89,7 +91,7 @@ const props = defineProps({
 })
 
 const list = ref([]);
-const model = ref(JSON.parse(JSON.stringify(props.initialValue)));
+const model = defineModel<any>()
 
 
 const store = shallowRef<any>(null);
@@ -123,7 +125,7 @@ async function fetchData()
       break;
   }
   if (store.value && !store.value.list.length) {
-    if (['agency', 'user'].includes(props.fieldObjectType)) {
+    if (['agency', 'society', 'user'].includes(props.fieldObjectType)) {
       await store.value.findAllActive();
     } else {
       await store.value.findAll();
@@ -140,8 +142,18 @@ async function fetchData()
 
 function getObjectName(e: any)
 {
-  if (!('iso3166' in e) && (!('pays' in e) || typeof e.pays !== 'object' || !('iso3166' in e.pays))) return e.stringValue;
+  if (typeof e.pays !== 'object' || !('iso3166' in e) && (!('pays' in e) || typeof e.pays !== 'object' || !('iso3166' in e.pays))) return e.stringValue;
   return (e.iso3166 ?? e.pays.iso3166) + e.stringValue;
+}
+
+function getCssForText(item: Item)
+{
+  return helpers.getCssForText(item.stringValue ?? '<unknown>');
+}
+
+function getStringValue(item: Item)
+{
+  return helpers.getCssForText(item.stringValue ?? '<unknown>');
 }
 
 fetchData()

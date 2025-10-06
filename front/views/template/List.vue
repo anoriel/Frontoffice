@@ -63,7 +63,7 @@
                     column.key + '_shortag' : $te(moduleName + '.' + column.key) ? moduleName + '.' +
                       column.key : column.key)) }}
                 </b>
-                <b class="me-2 text-no-wrap cursor-pointer d-none d-lg-block" @click="toggleSort(column)">
+                <b class="me-2 text-no-wrap cursor-pointer d-none d-lg-inline" @click="toggleSort(column)">
                   {{ $helpers.capitalizeFirstLetter($t($te(moduleName + '.' + column.key) ? moduleName + '.' +
                     column.key : column.key)) }}
                 </b>
@@ -273,7 +273,7 @@ async function exportList()
   let fields = JSON.parse(JSON.stringify(store.value.visibleFields)).map(e => e.key);
 
   let exportList = await store.value.exportList(
-    sortBy.value,
+    sortBy.value[0],
     searchFilters.value,
     fields
   );

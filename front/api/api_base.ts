@@ -49,8 +49,12 @@ export default {
   {
     return axios.get(`${this.baseUrl}/${id}`);
   },
-  findAll()
+  findAll(showFullData: boolean = false)
   {
+    let url = `${this.baseUrl}?pagination=false`;
+    if (showFullData) {
+      url += `&showFullData=true`
+    }
     return axios.get(`${this.baseUrl}?pagination=false`);
   },
   findPage(page: number, perPage: number, orderBy: string, orderSort: string, filtersArray: any, isNullArray: any, isNotNullArray: any)

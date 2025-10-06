@@ -133,25 +133,6 @@ export const useLeadStore = defineStore('lead', () =>
     return item;
   }
 
-  function parseSortBy(sortBy: string, sortDesc: boolean)
-  {
-    if (typeof sortBy == 'undefined') {
-      sortBy = 'createdAt';
-      sortDesc = true;
-    } else if (typeof sortDesc == 'undefined') {
-      sortDesc = false;
-    }
-    if (['serviceDomain', 'serviceType', 'businessSector'].includes(sortBy)) {
-      sortBy = `${sortBy}.name`;
-    } else if (['countryOfDestination', 'countryOfEstablishment', 'society', 'user'].includes(sortBy)) {
-      sortBy = `${sortBy}.nom`;
-    } else if (['leadType'].includes(sortBy)) {
-      sortBy = `${sortBy}.position`;
-    }
-
-    return [sortBy, sortDesc];
-  }
-
 
   async function addLeadComment(leadComment: LeadComment)
   {
@@ -227,7 +208,6 @@ export const useLeadStore = defineStore('lead', () =>
     addLeadComment,
     parseArrays,
     parseItem,
-    parseSortBy,
     transformIntoProspect,
   }
 })
