@@ -153,6 +153,39 @@ export function useBaseStore()
       if (typeof response.data != 'undefined' && "search" in response.data && "mapping" in response.data['search']) {
         let keyToIgnore = ['id'];
 
+        //we scan the mapping to see if the fields are sortable and get the name of the filterable field (ex: businessSector.name)
+        let responseMapping: IriTemplateMapping[] = response.data['search']['mapping'];
+
+        //we add fields of type "type:xxx" in the mapping
+        //ex: type:customerName -> mapping['customerName'] = {type: 'string'}
+        //ex: type:object:agency -> mapping['agency'] = {type: 'object', object: 'agency'}
+        //we also initialize the default filters to null (or [] for objects) and add them to the default context
+        const typeRegexList = [/type:.*/];
+        const isObjectRegexList = [/object:.*/];
+        responseMapping.filter(function (element: IriTemplateMapping)
+        {
+          return typeRegexList.some(rx => rx.test(element.variable));
+        }).forEach((element: IriTemplateMapping) =>
+        {
+          let variable = element.variable.replace('type:', '');
+
+          //if the mapping already exists, we ignore
+          if (variable in mapping.value) {
+            return;
+          }
+
+          let mappingType = { type: element.property } as MappingType;
+          let searchValue = null;
+          if (isObjectRegexList.some(rx => rx.test(element.property))) {
+            mappingType = { type: 'object', object: element.property.replace('object:', '') } as MappingType;
+            searchValue = [];
+          }
+
+          mapping.value[variable] = mappingType;
+
+          defaultContext.value.filters[variable] = searchValue;
+        });
+
         //we get the list of fields from the first item of the list
         let fields = Object.keys(list.value[0]).filter(function (e)
         {
@@ -166,38 +199,6 @@ export function useBaseStore()
         //if availableFields or mapping are empty, we fill them
         if (availableFields.value.length == 0 || Object.keys(mapping.value).length == 0) {
 
-          //we scan the mapping to see if the fields are sortable and get the name of the filterable field (ex: businessSector.name)
-          let responseMapping: IriTemplateMapping[] = response.data['search']['mapping'];
-
-          //we add fields of type "type:xxx" in the mapping
-          //ex: type:customerName -> mapping['customerName'] = {type: 'string'}
-          //ex: type:object:agency -> mapping['agency'] = {type: 'object', object: 'agency'}
-          //we also initialize the default filters to null (or [] for objects) and add them to the default context
-          const typeRegexList = [/type:.*/];
-          const isObjectRegexList = [/object:.*/];
-          responseMapping.filter(function (element: IriTemplateMapping)
-          {
-            return typeRegexList.some(rx => rx.test(element.variable));
-          }).forEach((element: IriTemplateMapping) =>
-          {
-            let variable = element.variable.replace('type:', '');
-
-            //if the mapping already exists, we ignore
-            if (variable in mapping.value) {
-              return;
-            }
-
-            let mappingType = { type: element.property } as MappingType;
-            let searchValue = null;
-            if (isObjectRegexList.some(rx => rx.test(element.property))) {
-              mappingType = { type: 'object', object: element.property.replace('object:', '') } as MappingType;
-              searchValue = [];
-            }
-
-            mapping.value[variable] = mappingType;
-
-            defaultContext.value.filters[variable] = searchValue;
-          });
 
           //we scan the field headers of the response
           for (let i in fields) {
