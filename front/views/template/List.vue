@@ -17,12 +17,7 @@
       <v-btn size="x-small" :title="$helpers.capitalizeFirstLetter($t('filters'))"
         class="bg-secondary position-relative p-0 pr-1"
         @click="globalStore.showFiltersDialog = !globalStore.showFiltersDialog">
-        <v-icon v-if="globalStore.showFiltersDialog">
-          mdi-filter-off
-        </v-icon>
-        <v-icon v-else>
-          mdi-filter
-        </v-icon>
+        <v-icon>mdi-filter</v-icon>
         &nbsp;{{ $helpers.capitalizeFirstLetter($t('filters')) }}
       </v-btn>
     </v-badge>

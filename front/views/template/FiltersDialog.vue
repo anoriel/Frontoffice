@@ -13,8 +13,8 @@
                 </template>
 
                 <template v-else-if="getFieldType(filterKey) == 'object'">
-                  <select-object :fieldname="filterKey" :fieldObjectType="getFieldObjectType(filterKey) as string"
-                    :label="getFieldLabel(filterKey)" :moduleName="moduleName"
+                  <select-object :fieldname="filterKey" :fieldObjectType="getFieldObjectType(filterKey)"
+                    :label="getFieldLabel(filterKey)" :moduleName="moduleName" :initialValue="searchFilters[filterKey]"
                     @saveObject="(e: any) => searchFilters[filterKey] = e" />
                 </template>
 
@@ -87,7 +87,7 @@ function getFieldType(field: string)
 }
 function getFieldObjectType(field: string)
 {
-  return props.store.mapping[field].object
+  return props.store.mapping[field]?.object ?? ''
 }
 
 function getFieldLabel(field: string)

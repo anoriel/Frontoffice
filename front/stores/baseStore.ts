@@ -50,7 +50,8 @@ export function useBaseStore()
     visibleFields: [],
   })
   const filters = ref<Record<string, any>>([])
-  const mapping = ref<Record<string, MappingType>>({})
+  const orderByList = ref<Record<string, string>>({})
+  const mapping = ref<Record<string, MappingType>>({})//list of sortable properties with their key name (ex: leadType.name))
   const localStorageName = ref("base")
   const visibleFields = ref<AvailableField[]>([])
 
@@ -75,14 +76,14 @@ export function useBaseStore()
     }
   }
 
-  async function exportList(sortBy: DatatableSortBy, filters: any, properties: any)
+  async function exportList(sortBy: DatatableSortBy, filters: Record<string, MappingType>, properties: string)
   {
     let parsed = parseArrays(filters);
     let filtersArray = parsed[0];
     let isNullArray = parsed[1];
     let isNotNullArray = parsed[2];
 
-    parsed = parseSortBy(sortBy.key, sortBy.order == 'asc');
+    let sort = parseSortBy(sortBy.key, sortBy.order == 'asc');
 
     isLoadingWithLock.value = true;
     error.value = null;
@@ -137,7 +138,6 @@ export function useBaseStore()
     let filtersArray = parsed[0];
     let isNullArray = parsed[1];
     let isNotNullArray = parsed[2];
-    console.log(filters, "Filters to apply: ", filtersArray, isNullArray, isNotNullArray);
 
     isLoading.value = true;
     error.value = null;
@@ -150,7 +150,7 @@ export function useBaseStore()
       listLength.value = response.data["totalItems"];
 
 
-      if (typeof response.data != 'undefined' && "search" in response.data && "mapping" in response.data['search'] && list.value.length > 0) {
+      if (typeof response.data != 'undefined' && "search" in response.data && "mapping" in response.data['search']) {
         let keyToIgnore = ['id'];
 
         //we get the list of fields from the first item of the list
@@ -163,70 +163,75 @@ export function useBaseStore()
           return false;
         });
 
-        //we reset the list of available fields
-        availableFields.value = [];
+        //if availableFields or mapping are empty, we fill them
+        if (availableFields.value.length == 0 || Object.keys(mapping.value).length == 0) {
 
-        //we scan the mapping to see if the fields are sortable and get the name of the filterable field (ex: businessSector.name)
-        let responseMapping = response.data['search']['mapping'];
+          //we scan the mapping to see if the fields are sortable and get the name of the filterable field (ex: businessSector.name)
+          let responseMapping: IriTemplateMapping[] = response.data['search']['mapping'];
 
-        //we add fields of type "type:xxx" in the mapping
-        //ex: type:customerName -> mapping['customerName'] = {type: 'string'}
-        //ex: type:object:agency -> mapping['agency'] = {type: 'object', object: 'agency'}
-        //we also initialize the default filters to null (or [] for objects) and add them to the default context
-        const typeRegexList = [/type:.*/];
-        const isObjectRegexList = [/object:.*/];
-        responseMapping.filter(function (element: IriTemplateMapping)
-        {
-          return typeRegexList.some(rx => rx.test(element.variable));
-        }).forEach((element: IriTemplateMapping) =>
-        {
-          let variable = element.variable.replace('type:', '');
+          //we add fields of type "type:xxx" in the mapping
+          //ex: type:customerName -> mapping['customerName'] = {type: 'string'}
+          //ex: type:object:agency -> mapping['agency'] = {type: 'object', object: 'agency'}
+          //we also initialize the default filters to null (or [] for objects) and add them to the default context
+          const typeRegexList = [/type:.*/];
+          const isObjectRegexList = [/object:.*/];
+          responseMapping.filter(function (element: IriTemplateMapping)
+          {
+            return typeRegexList.some(rx => rx.test(element.variable));
+          }).forEach((element: IriTemplateMapping) =>
+          {
+            let variable = element.variable.replace('type:', '');
 
-          //if the mapping already exists, we ignore
-          if (variable in mapping.value) {
-            return;
-          }
+            //if the mapping already exists, we ignore
+            if (variable in mapping.value) {
+              return;
+            }
 
-          let mappingType = { type: element.property } as MappingType;
-          let searchValue = null;
-          if (isObjectRegexList.some(rx => rx.test(element.property))) {
-            mappingType = { type: 'object', object: element.property.replace('object:', '') } as MappingType;
-            searchValue = [];
-          }
+            let mappingType = { type: element.property } as MappingType;
+            let searchValue = null;
+            if (isObjectRegexList.some(rx => rx.test(element.property))) {
+              mappingType = { type: 'object', object: element.property.replace('object:', '') } as MappingType;
+              searchValue = [];
+            }
 
-          mapping.value[variable] = mappingType;
+            mapping.value[variable] = mappingType;
 
-          defaultContext.value.filters[variable] = searchValue;
-        });
-
-        //we scan the field headers of the response
-        for (let i in fields) {
-          let field = fields[i];
-          if (keyToIgnore.includes(field)) {//we ignore fields that are not in the mapping
-            continue;
-          }
-          //we look in the mapping if the field is sortable and get the name of the property to sort on
-          let foundSortableValue = responseMapping.find(function (el: IriTemplateMapping) { return el.variable.startsWith('orderBy') && el.property.startsWith(field); });
-          //we look in the mapping if the field is filterable on its existance
-          let foundFilterableOnExistance = responseMapping.find((el: IriTemplateMapping) => el.variable == "exists[${field}]" && el.property == field);
-          //we determine the type of the field
-          let fieldType = 'string';
-          if (fieldsByType.value.boolean?.includes(field)) {
-            fieldType = "boolean";
-          } else if (fieldsByType.value.date?.includes(field) || fieldsByType.value.date?.includes(field)) {
-            fieldType = "date";
-          } else if (fieldsByType.value.object?.find((e: any) => e.name == field) || fieldsByType.value.objectsList?.find((e: any) => e.name == field) || fieldsByType.value.progressBar?.find((e: any) => e.name == field)) {
-            fieldType = "object";
-          }
-          availableFields.value.push({
-            'key': field,
-            'sortable': foundSortableValue != undefined,
-            'sortProperty': foundSortableValue?.property,
-            'fieldType': fieldType,
-            'filterableOnExistance': foundFilterableOnExistance != undefined
+            defaultContext.value.filters[variable] = searchValue;
           });
+
+          //we scan the field headers of the response
+          for (let i in fields) {
+            let field = fields[i];
+            if (keyToIgnore.includes(field)) {//we ignore fields that are not in the mapping
+              continue;
+            }
+            //we look in the mapping if the field is sortable and get the name of the property to sort on
+            let foundSortableValue = responseMapping.find(function (el: IriTemplateMapping) { return el.variable.startsWith('orderBy') && el.property.startsWith(field); });
+            if (foundSortableValue != undefined) {
+              orderByList.value[field] = foundSortableValue.property;
+            }
+            //we look in the mapping if the field is filterable on its existance
+            let foundFilterableOnExistance = responseMapping.find((el: IriTemplateMapping) => el.variable == "exists[${field}]" && el.property == field);
+            //we determine the type of the field
+            let fieldType = 'string';
+            if (fieldsByType.value.boolean?.includes(field)) {
+              fieldType = "boolean";
+            } else if (fieldsByType.value.date?.includes(field) || fieldsByType.value.date?.includes(field)) {
+              fieldType = "date";
+            } else if (fieldsByType.value.object?.find((e: any) => e.name == field) || fieldsByType.value.objectsList?.find((e: any) => e.name == field) || fieldsByType.value.progressBar?.find((e: any) => e.name == field)) {
+              fieldType = "object";
+            }
+            availableFields.value.push({
+              'key': field,
+              'sortable': foundSortableValue != undefined,
+              'sortProperty': foundSortableValue?.property,
+              'fieldType': fieldType,
+              'filterableOnExistance': foundFilterableOnExistance != undefined
+            });
+          }
         }
       }
+
 
       return list.value;
     } catch (err: any) {
@@ -280,6 +285,7 @@ export function useBaseStore()
   function getFiltersDiff()
   {
     if (typeof context.value == 'undefined' || typeof context.value.filters == 'undefined') {
+      console.log("No filters in context");
       return {};
     }
     let filledProps = Object.keys(context.value.filters).reduce((newObj, key) =>
@@ -336,37 +342,35 @@ export function useBaseStore()
     isNotNullArray = [];
     Object.entries(filters).forEach(([key, value]) =>
     {
-      console.log("Parsing filter: ", key, value);
-      let filter = filters[key];
-      if (filter != null) {
-        if (!isArray(filter)) {//single value
-          parseData(key, filter);
+      if (value != null) {
+        if (!isArray(value)) {//single value
+          parseData(key, value);
         } else {//array of values
-          if (moment.isDate(filter)) {//date or datetime range
-            if (filter.length == 1) {
+          if (moment.isDate(value)) {//date or datetime range
+            if (value.length == 1) {
               filtersArray.push({
                 'key': key,
-                'value': helpers.formatDate(filter[0])
+                'value': helpers.formatDate(value[0])
               });
-            } else if (filter.length >= 2) {
+            } else if (value.length >= 2) {
               filtersArray.push({
                 'key': key + '[after]',
-                'value': helpers.formatDate(filter[0])
+                'value': helpers.formatDate(value[0])
               });
               filtersArray.push({
                 'key': key + '[before]',
-                'value': helpers.formatDate(filter.pop())
+                'value': helpers.formatDate(value.pop())
               });
             }
           } else {//list of values
-            for (let j in filter) {
-              let subFilter = filter[j];
+            for (let j in value) {
+              let subFilter = value[j];
               parseData(key, subFilter);
             }
           }
         }
       } else {
-        console.log("Unknown mapping for filter " + key + " with value ", filter);
+        console.log("Unknown mapping for filter " + key + " with value ", value);
       }
     });
     return [filtersArray, isNullArray, isNotNullArray];

@@ -5,7 +5,7 @@
       @update:modelValue="(e) => $emit('saveObject', e)" :chips="chips" :closable-chips="closableChips"
       :multiple="true">
       <template v-slot:selection="{ item }">
-        <agency-component v-if="fieldname == 'agency'" :agency="item.raw" />
+        <agency-component v-if="fieldObjectType == 'agency'" :agency="item.raw" />
         <country-component v-else-if="fieldObjectType == 'country'" :country="item.raw" />
         <society-component v-else-if="fieldObjectType == 'society'" :society="item.raw" />
         <utilisateur-component v-else-if="fieldObjectType == 'user'" :user="item.raw" />
@@ -16,7 +16,7 @@
       <template v-slot:item="{ props, item }">
         <v-list-item v-bind="props">
           <template v-slot:title>
-            <agency-component v-if="fieldname == 'agency'" :agency="item.raw" />
+            <agency-component v-if="fieldObjectType == 'agency'" :agency="item.raw" />
             <country-component v-else-if="fieldObjectType == 'country'" :country="item.raw" />
             <society-component v-else-if="fieldObjectType == 'society'" :society="item.raw" />
             <utilisateur-component v-else-if="fieldObjectType == 'user'" :user="item.raw" />
