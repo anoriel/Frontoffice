@@ -56,8 +56,8 @@
         <tr>
           <template v-for="column in columns" :key="column.key">
             <th>
-              <div class="align-center" v-if="'sortProperty' in column && 'sortable' in column && column.sortable">
-                <b class="me-2 text-no-wrap cursor-pointer d-lg-none" @click="toggleSort(column)">
+              <div class="align-center text-no-wrap" v-if="'sortProperty' in column && 'sortable' in column && column.sortable">
+                <b class="me-2 text-no-wrap cursor-pointer d-lg-none d-inline" @click="toggleSort(column)">
                   {{ $helpers.capitalizeFirstLetter($t($te(moduleName + '.' + column.key + '_shortag') ? moduleName +
                     '.' +
                     column.key + '_shortag' : $te(moduleName + '.' + column.key) ? moduleName + '.' +
@@ -77,7 +77,7 @@
                     column.key + '_shortag' : $te(moduleName + '.' + column.key) ? moduleName + '.' +
                       column.key : column.key)) }}
                 </b>
-                <b class="me-2 text-no-wrap d-none d-lg-block">
+                <b class="me-2 text-no-wrap d-none d-lg-inline">
                   <span v-if="store.fieldsByType.count.includes(column.key)">#</span>
                   {{ $helpers.capitalizeFirstLetter($t($te(moduleName + '.' + column.key) ? moduleName + '.' +
                     column.key : column.key)) }}
@@ -309,10 +309,9 @@ async function loadItems({ page, itemsPerPage, sortBy, groupBy, search })
 function saveFilters(filters)
 {
   globalStore.showFiltersDialog = false
-  store.currentPage = 1
   searchFilters.value = filters
   store.value.setSearchFilters(JSON.parse(JSON.stringify(searchFilters.value)))
-  loadItems({ page: store.currentPage, itemsPerPage: itemsPerPage.value, sortBy: sortBy.value, groupBy: [], search: searchFilters.value })
+  store.value.currentPage = 1
 }
 
 function saveSettings(clonedVisibleColumns)
