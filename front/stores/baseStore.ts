@@ -43,9 +43,7 @@ export function useBaseStore()
   const defaultContext = ref<DefaultContext>({
     currentPage: 1,
     filters: {},
-    sortBy: '',
-    sortDesc: false,
-    sortDirection: 'ASC',
+    sortBy: { key: 'id', order: 'asc' } as DatatableSortBy,
     version: '0.0',
     visibleFields: [],
   })
@@ -86,7 +84,7 @@ export function useBaseStore()
     isLoadingWithLock.value = true;
     error.value = null;
     try {
-      let response = await api.value.export(sortBy.key, sortBy.order ? 'desc' : 'asc', filtersArray, isNullArray, isNotNullArray, properties);
+      let response = await api.value.export(sortBy.key, sortBy.order, filtersArray, isNullArray, isNotNullArray, properties);
       isLoadingWithLock.value = false;
       return response.data;
     } catch (error: any) {
@@ -130,7 +128,7 @@ export function useBaseStore()
     }
   }
 
-  async function findPage(page: number, perPage: number, sortBy: string, sortDesc: boolean, filters: any)
+  async function findPage(page: number, perPage: number, sortBy: DatatableSortBy, filters: any)
   {
     let parsed = parseArrays(filters);
     let filtersArray = parsed[0];
@@ -138,19 +136,16 @@ export function useBaseStore()
     let isNotNullArray = parsed[2];
 
     setContextKey('currentPage', page);
-    setContextKey('sortBy', sortBy);
-    setContextKey('sortDesc', sortDesc);
 
     isLoading.value = true;
     error.value = null;
     list.value = [];
     listLength.value = 0;
     try {
-      let response = await api.value.findPage(page, perPage, sortBy, sortDesc ? 'desc' : 'asc', filtersArray, isNullArray, isNotNullArray);
+      let response = await api.value.findPage(page, perPage, sortBy.property ?? sortBy.key, sortBy.order, filtersArray, isNullArray, isNotNullArray);
       isLoading.value = false;
       list.value = response.data["member"];
       listLength.value = response.data["totalItems"];
-
 
       if (typeof response.data != 'undefined' && "search" in response.data && "mapping" in response.data['search']) {
         let keyToIgnore = ['id'];
@@ -242,7 +237,14 @@ export function useBaseStore()
         }
       }
 
+      if (!('property' in sortBy) || sortBy.property == null) {//we set the property if not set
+        let foundVisibleField = availableFields.value.find(function (el) { return el.key == sortBy.key });
+        if (foundVisibleField) {
+          sortBy.property = foundVisibleField.sortProperty
+        }
 
+      }
+      setContextKey('sortBy', sortBy);
       return list.value;
     } catch (err: any) {
       isLoading.value = false;
@@ -313,6 +315,18 @@ export function useBaseStore()
       return newObj;
     }, {} as Record<string, any>);
     return filledProps;
+  }
+
+  function getOrderBy(reset: boolean = false): DatatableSortBy[]
+  {
+    let sortBy = getContextKey("sortBy", reset)
+    //we check the sortBy field by its property, as the DataTable component needs the sortBy key, not the sortProperty
+    let foundVisibleField = availableFields.value.find(function (el) { return el.sortProperty == sortBy.key });
+    if (foundVisibleField) {
+      sortBy.property = foundVisibleField.key
+    }
+
+    return [sortBy as DatatableSortBy];
   }
 
   function getSearchFilters(reset: boolean = false)
@@ -413,18 +427,6 @@ export function useBaseStore()
   function parseItem(item: any)
   {
     return item;
-  }
-
-  function parseSortBy(sortBy: string, sortDesc: boolean): [string, boolean]
-  {
-    let sortProperty = defaultContext.value.sortBy,
-      sortDirection = defaultContext.value.sortDesc;
-    let fieldValue = orderByList.value[sortBy];
-    if (fieldValue) {
-      sortProperty = fieldValue;
-      sortDirection = sortDesc;
-    }
-    return [sortProperty, sortDirection];
   }
 
   function reset()
@@ -543,13 +545,13 @@ export function useBaseStore()
     getById,
     getContextKey,
     getNumberOfFilters,
+    getOrderBy,
     getSearchFilters,
     getVisibleFields,
     hasError,
     hasItems,
     parseArrays,
     parseItem,
-    parseSortBy,
     reset,
     resetError,
     save,

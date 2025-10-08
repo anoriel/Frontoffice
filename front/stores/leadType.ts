@@ -45,7 +45,7 @@ export const useLeadTypeStore = defineStore('leadType', () =>
     arr = arr.filter(function (e: LeadType) { return !e.isHidden; });
     if (!arr.length) { return 0; }
     arr = arr.sort(function (a: LeadType, b: LeadType) { return a.position < b.position ? -1 : (a.position > b.position ? 1 : 0); });
-    return arr[arr.length - 1].position; // Return the highest position
+    return arr.pop().position; // Return the highest position
   }
 
   function getLowestPosition()

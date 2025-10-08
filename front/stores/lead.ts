@@ -4,6 +4,7 @@ import { useBaseStore } from './baseStore';
 import { Lead } from '@/interfaces/lead';
 import { LeadComment } from '@/interfaces/leadcomment';
 import { useLeadTypeStore } from '@/stores/leadType'
+import { DatatableSortBy } from '@/interfaces/datatableSortBy';
 
 
 export const useLeadStore = defineStore('lead', () =>
@@ -11,6 +12,7 @@ export const useLeadStore = defineStore('lead', () =>
   const {
     api,
     availableFields,
+    context,
     currentPage,
     defaultContext,
     fieldsByType,
@@ -35,6 +37,7 @@ export const useLeadStore = defineStore('lead', () =>
     getById,
     getContextKey,
     getNumberOfFilters,
+    getOrderBy,
     getSearchFilters,
     getVisibleFields,
     parseArrays,
@@ -56,9 +59,7 @@ export const useLeadStore = defineStore('lead', () =>
   defaultContext.value = {
     currentPage: 1,
     filters: {},
-    sortBy: 'createdAt',
-    sortDesc: true,
-    sortDirection: 'desc',
+    sortBy: { key: 'createdAt', order: 'desc' } as DatatableSortBy,
     version: "1.0",
     visibleFields: [
       { "key": "createdAt" },
@@ -172,6 +173,7 @@ export const useLeadStore = defineStore('lead', () =>
 
   return {
     availableFields,
+    context,
     currentPage,
     fieldsByType,
     isLoading,
@@ -194,6 +196,7 @@ export const useLeadStore = defineStore('lead', () =>
     getById,
     getContextKey,
     getNumberOfFilters,
+    getOrderBy,
     getSearchFilters,
     getVisibleFields,
     reset,

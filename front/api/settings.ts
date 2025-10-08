@@ -4,7 +4,7 @@ import merge from 'deepmerge-json';
 
 
 const thisApi = {
-  baseUrl: "/crm_list_settings",
+  baseUrl: "/settings",
   findItemsByType(type: string)
   {
     return axios.get(`${this.baseUrl}?type=${type}`);

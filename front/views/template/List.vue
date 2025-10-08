@@ -9,14 +9,13 @@
     <v-btn class="p-0 pr-1 mr-3 bg-primary" size="x-small" @click="exportList">
       <v-icon>mdi-file-excel</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('export')) }}
     </v-btn>
-    <v-btn class="p-0 pr-1 mr-1 bg-secondary" size="x-small" @click="displaySaveCRMListSettingsModal()">
+    <v-btn class="p-0 pr-1 mr-1 bg-secondary" size="x-small" @click="displaySaveSettingsDialog()">
       <v-icon>mdi-cloud-upload</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('save settings')) }}
     </v-btn>
     <v-badge location="top right" color="warning" :model-value="store.getNumberOfFilters() > 0"
       :content="store.getNumberOfFilters()" class="mb-1 mt-1 mr-1" :class="{ 'mr-3': store.getNumberOfFilters() > 0 }">
       <v-btn size="x-small" :title="$helpers.capitalizeFirstLetter($t('filters'))"
-        class="bg-secondary position-relative p-0 pr-1"
-        @click="globalStore.showFiltersDialog = true">
+        class="bg-secondary position-relative p-0 pr-1" @click="globalStore.showFiltersDialog = true">
         <v-icon>mdi-filter</v-icon>
         &nbsp;{{ $helpers.capitalizeFirstLetter($t('filters')) }}
       </v-btn>
@@ -56,7 +55,8 @@
         <tr>
           <template v-for="column in columns" :key="column.key">
             <th>
-              <div class="align-center text-no-wrap" v-if="'sortProperty' in column && 'sortable' in column && column.sortable">
+              <div class="align-center text-no-wrap"
+                v-if="'sortProperty' in column && 'sortable' in column && column.sortable">
                 <b class="me-2 text-no-wrap cursor-pointer d-lg-none d-inline" @click="toggleSort(column)">
                   {{ $helpers.capitalizeFirstLetter($t($te(moduleName + '.' + column.key + '_shortag') ? moduleName +
                     '.' +
@@ -200,8 +200,8 @@ const helpers = useCommonHelper()
 import { useLeadStore } from '@/stores/lead'
 import { useCountryStore } from '@/stores/country'
 const countryStore = useCountryStore()
-import { useCrmListSettings } from '@/stores/crmListSettings'
-const crmListStore = useCrmListSettings()
+import { useSettings } from '@/stores/settings'
+const settingsStore = useSettings()
 
 import AgencyComponent from "@/components/AgencyComponent.vue";
 import CountryComponent from '@/components/CountryComponent.vue';
@@ -209,6 +209,7 @@ import SocietyComponent from '@/components/SocietyComponent.vue';
 import ColumnsDialog from "./ColumnsDialog.vue";
 import FiltersDialog from "./FiltersDialog.vue";
 import UtilisateurComponent from "@/components/UtilisateurComponent.vue";
+import { isArray } from "lodash";
 
 
 const props = defineProps({
@@ -240,7 +241,7 @@ const loading = shallowRef(true)
 const searchFilters = ref(JSON.parse(JSON.stringify(store.value.getSearchFilters())))
 const showColumns = shallowRef(false)
 const serverItems = shallowRef([])
-const sortBy = shallowRef([{ key: 'createdAt', order: 'desc' }])
+const sortBy = ref(JSON.parse(JSON.stringify(store.value.getOrderBy())))
 const totalItems = shallowRef(0)
 
 const defaultColumns = computed(() =>
@@ -255,7 +256,7 @@ const visibleFields = computed(() =>
 
 onMounted(async () =>
 {
-  crmListStore.findItemsByType(store.value.localStorageName)
+  settingsStore.findItemsByType(store.value.localStorageName)
   if (countryStore.list.length)
   {
     await countryStore.findAll()
@@ -286,21 +287,11 @@ async function exportList()
 async function loadItems({ page, itemsPerPage, sortBy, groupBy, search })
 {
   loading.value = true;
-  let sortByKey = "id"
-  let sortByOrder = true
-  if (sortBy.length)
+  if (isArray(sortBy))
   {
-    sortByKey = sortBy[0].key
-    sortByOrder = sortBy[0].order == 'desc'
-
-    let foundVisibleField = store.value.availableFields.find(function (el) { return el.key == sortByKey });
-    if (foundVisibleField)
-    {
-      sortByKey = foundVisibleField.sortProperty
-    }
-
+    sortBy = sortBy[0] ?? store.value.getOrderBy(true)[0]
   }
-  await store.value.findPage(page, itemsPerPage, sortByKey, sortByOrder, searchFilters.value)
+  await store.value.findPage(page, itemsPerPage, sortBy, searchFilters.value)
   serverItems.value = store.value.list
   totalItems.value = store.value.listLength
   loading.value = false;
