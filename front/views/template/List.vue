@@ -16,7 +16,7 @@
       :content="store.getNumberOfFilters()" class="mb-1 mt-1 mr-1" :class="{ 'mr-3': store.getNumberOfFilters() > 0 }">
       <v-btn size="x-small" :title="$helpers.capitalizeFirstLetter($t('filters'))"
         class="bg-secondary position-relative p-0 pr-1"
-        @click="globalStore.showFiltersDialog = !globalStore.showFiltersDialog">
+        @click="globalStore.showFiltersDialog = true">
         <v-icon>mdi-filter</v-icon>
         &nbsp;{{ $helpers.capitalizeFirstLetter($t('filters')) }}
       </v-btn>
@@ -312,6 +312,7 @@ function saveFilters(filters)
   searchFilters.value = filters
   store.value.setSearchFilters(JSON.parse(JSON.stringify(searchFilters.value)))
   store.value.currentPage = 1
+  loadItems({ page: store.value.currentPage, itemsPerPage: itemsPerPage.value, sortBy: sortBy.value, groupBy: [], search: searchFilters.value })
 }
 
 function saveSettings(clonedVisibleColumns)

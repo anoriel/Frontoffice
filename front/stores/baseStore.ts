@@ -83,11 +83,10 @@ export function useBaseStore()
     let isNullArray = parsed[1];
     let isNotNullArray = parsed[2];
 
-    let sort = parseSortBy(sortBy.key, sortBy.order == 'desc');
     isLoadingWithLock.value = true;
     error.value = null;
     try {
-      let response = await api.value.export(sort[0], sort[1] ? 'desc' : 'asc', filtersArray, isNullArray, isNotNullArray, properties);
+      let response = await api.value.export(sortBy.key, sortBy.order ? 'desc' : 'asc', filtersArray, isNullArray, isNotNullArray, properties);
       isLoadingWithLock.value = false;
       return response.data;
     } catch (error: any) {
@@ -137,10 +136,6 @@ export function useBaseStore()
     let filtersArray = parsed[0];
     let isNullArray = parsed[1];
     let isNotNullArray = parsed[2];
-
-    let sort = parseSortBy(sortBy, sortDesc);
-    sortBy = sort[0];
-    sortDesc = sort[1];
 
     setContextKey('currentPage', page);
     setContextKey('sortBy', sortBy);
@@ -424,9 +419,9 @@ export function useBaseStore()
   {
     let sortProperty = defaultContext.value.sortBy,
       sortDirection = defaultContext.value.sortDesc;
-    let field = availableFields.value.find((field) => field.key == sortBy && field.sortable && field.sortProperty);
-    if (field && field.sortProperty != undefined) {
-      sortProperty = field.sortProperty;
+    let fieldValue = orderByList.value[sortBy];
+    if (fieldValue) {
+      sortProperty = fieldValue;
       sortDirection = sortDesc;
     }
     return [sortProperty, sortDirection];
