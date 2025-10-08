@@ -153,7 +153,7 @@ function getCssForText(item: Item)
 
 function getStringValue(item: Item)
 {
-  return helpers.getCssForText(item.stringValue ?? '<unknown>');
+  return item.stringValue ?? '<unknown>';
 }
 
 fetchData()
