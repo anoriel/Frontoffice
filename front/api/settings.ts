@@ -5,9 +5,9 @@ import merge from 'deepmerge-json';
 
 const thisApi = {
   baseUrl: "/settings",
-  findItemsByType(type: string)
+  findItemsByStorageName(storageName: string)
   {
-    return axios.get(`${this.baseUrl}?type=${type}`);
+    return axios.get(`${this.baseUrl}?storageName=${storageName}`);
   },
 }
 

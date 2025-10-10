@@ -9,6 +9,40 @@
     <v-btn class="p-0 pr-1 mr-3 bg-primary" size="x-small" @click="exportList" :disabled="loading">
       <v-icon>mdi-file-excel</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('export')) }}
     </v-btn>
+
+
+
+    <v-menu open-delay="10" close-delay="10"
+      v-if="settingsStore.settingsByStorageName[store.localStorageName] && settingsStore.settingsByStorageName[store.localStorageName].length > 0">
+      <template v-slot:activator="{ props }" :disabled="loading">
+        <v-btn v-bind="props" class="p-0 pr-1 mr-1 bg-secondary" size="x-small" :disabled="loading">
+          <v-icon>mdi-cloud-download</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('load settings')) }}
+        </v-btn>
+      </template>
+
+      <v-list v-if="getFilteredSettingsByStorageName().length" density="compact">
+        <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('personal parameters'))
+        }}</v-list-subheader>
+        <v-list-item v-for="item in getFilteredSettingsByStorageName()" :key="item.id" :value="item.id"
+          @click="loadFilters(item)">
+          <v-list-item-title>
+            {{ item.name }}
+          </v-list-item-title>
+        </v-list-item>
+      </v-list>
+      <v-divider></v-divider>
+      <v-list v-if="getPublicSettingsByStorageName().length" density="compact">
+        <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('public parameters'))
+        }}</v-list-subheader>
+        <v-list-item v-for="item in getPublicSettingsByStorageName()" :key="item.id" :value="item.id"
+          @click="loadFilters(item)">
+          <v-list-item-title>
+            {{ item.name }}
+          </v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-menu>
+
     <v-btn class="p-0 pr-1 mr-1 bg-secondary" size="x-small" @click="globalStore.showSettingsDialog = true"
       :disabled="loading">
       <v-icon>mdi-cloud-upload</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('save settings')) }}
@@ -296,8 +330,20 @@ async function exportList()
   helpers.saveToExcel(props.moduleName, exportList);
 }
 
+function getFilteredSettingsByStorageName()
+{
+  return settingsStore.settingsByStorageName[store.value.localStorageName].filter(e => e.user?.id == useSecurityStore().getId());
+}
 
+function getPublicSettingsByStorageName()
+{
+  return settingsStore.settingsByStorageName[store.value.localStorageName].filter(e => e.user?.id !== useSecurityStore().getId() && e.isPublic);
+}
 
+function loadFilters(item)
+{
+  saveFilters(item.context);
+}
 
 async function loadItems({ page, itemsPerPage, sortBy, groupBy, search })
 {

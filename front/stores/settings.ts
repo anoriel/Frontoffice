@@ -41,7 +41,7 @@ export const useSettingsStore = defineStore('settings', () =>
     settingsByStorageName.value[storageName] = [];
     settingsByStorageNameLength.value[storageName] = 0;
     try {
-      let response = await thisAPI.findItemsByType(storageName);
+      let response = await thisAPI.findItemsByStorageName(storageName);
       isLoading.value = false;
       settingsByStorageName.value[storageName] = response.data["member"];
       settingsByStorageNameLength.value[storageName] = response.data["totalItems"];
