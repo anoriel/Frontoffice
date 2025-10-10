@@ -2,26 +2,28 @@
   <v-app-bar density="compact" variant="flat">
     <v-spacer></v-spacer>
 
-    <v-btn v-if="addItem" class="p-0 pr-1 bg-primary mr-1" size="x-small" @click="addAnItem">
+    <v-btn v-if="addItem" class="p-0 pr-1 bg-primary mr-1" size="x-small" @click="addAnItem" :disabled="loading">
       <v-icon>mdi-plus-circle-outline</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('add' +
         $helpers.capitalizeFirstLetter(moduleName))) }}
     </v-btn>
-    <v-btn class="p-0 pr-1 mr-3 bg-primary" size="x-small" @click="exportList">
+    <v-btn class="p-0 pr-1 mr-3 bg-primary" size="x-small" @click="exportList" :disabled="loading">
       <v-icon>mdi-file-excel</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('export')) }}
     </v-btn>
-    <v-btn class="p-0 pr-1 mr-1 bg-secondary" size="x-small" @click="displaySaveSettingsDialog()">
+    <v-btn class="p-0 pr-1 mr-1 bg-secondary" size="x-small" @click="globalStore.showSettingsDialog = true"
+      :disabled="loading">
       <v-icon>mdi-cloud-upload</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('save settings')) }}
     </v-btn>
     <v-badge location="top right" color="warning" :model-value="store.getNumberOfFilters() > 0"
       :content="store.getNumberOfFilters()" class="mb-1 mt-1 mr-1" :class="{ 'mr-3': store.getNumberOfFilters() > 0 }">
       <v-btn size="x-small" :title="$helpers.capitalizeFirstLetter($t('filters'))"
-        class="bg-secondary position-relative p-0 pr-1" @click="globalStore.showFiltersDialog = true">
+        class="bg-secondary position-relative p-0 pr-1" @click="globalStore.showFiltersDialog = true"
+        :disabled="loading">
         <v-icon>mdi-filter</v-icon>
         &nbsp;{{ $helpers.capitalizeFirstLetter($t('filters')) }}
       </v-btn>
     </v-badge>
     <v-btn class="p-0 pr-1 bg-secondary mr-1" size="x-small" :title="$helpers.capitalizeFirstLetter($t('columns'))"
-      @click="globalStore.showColumnsDialog = true">
+      @click="globalStore.showColumnsDialog = true" :disabled="loading">
       <v-icon>mdi-table-column-plus-after</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('columns')) }}
     </v-btn>
   </v-app-bar>
@@ -181,10 +183,13 @@
   </v-dialog>
 
   <columns-dialog v-if="store" :defaultColumns="defaultColumns" :moduleName="moduleName" :store="store"
-    :visibleColumns="visibleFields" @saveSettings="saveSettings" />
+    :visibleColumns="visibleFields" @saveColumns="saveColumns" />
 
   <filters-dialog v-if="store != null && moduleName != null" :moduleName="moduleName" :store="store"
     @saveFilters="saveFilters" />
+
+  <SaveSettingsDialog v-if="store != null && moduleName != null" :localStorageName="store.localStorageName"
+    @saveListSettingsToCloud="saveListSettingsToCloud" />
 
 </template>
 
@@ -200,8 +205,8 @@ const helpers = useCommonHelper()
 import { useLeadStore } from '@/stores/lead'
 import { useCountryStore } from '@/stores/country'
 const countryStore = useCountryStore()
-import { useSettings } from '@/stores/settings'
-const settingsStore = useSettings()
+import { useSettingsStore } from '@/stores/settings'
+const settingsStore = useSettingsStore()
 
 import AgencyComponent from "@/components/AgencyComponent.vue";
 import CountryComponent from '@/components/CountryComponent.vue';
@@ -210,6 +215,8 @@ import ColumnsDialog from "./ColumnsDialog.vue";
 import FiltersDialog from "./FiltersDialog.vue";
 import UtilisateurComponent from "@/components/UtilisateurComponent.vue";
 import { isArray } from "lodash";
+import SaveSettingsDialog from "./SaveSettingsDialog.vue";
+import { useSecurityStore } from "@/stores/security";
 
 
 const props = defineProps({
@@ -256,7 +263,7 @@ const visibleFields = computed(() =>
 
 onMounted(async () =>
 {
-  settingsStore.findItemsByType(store.value.localStorageName)
+  settingsStore.findSettingsByStorageName(store.value.localStorageName)
   if (countryStore.list.length)
   {
     await countryStore.findAll()
@@ -265,12 +272,20 @@ onMounted(async () =>
 
 function addAnItem()
 {
+  if (loading.value)
+  {
+    return;
+  }
   router.push({ name: props.moduleName + ".page", params: { id: "new" } });
 }
 
 
 async function exportList()
 {
+  if (loading.value)
+  {
+    return;
+  }
   let fields = JSON.parse(JSON.stringify(store.value.visibleFields)).map(e => e.key);
 
   let exportList = await store.value.exportList(
@@ -300,19 +315,49 @@ async function loadItems({ page, itemsPerPage, sortBy, groupBy, search })
 function saveFilters(filters)
 {
   globalStore.showFiltersDialog = false
+  Object.keys(filters).forEach((key) =>
+  {
+    if (isArray(filters[key]) && filters[key].length === 0)
+    {
+      delete filters[key]
+    }
+  })
   searchFilters.value = filters
   store.value.setSearchFilters(JSON.parse(JSON.stringify(searchFilters.value)))
   store.value.currentPage = 1
   loadItems({ page: store.value.currentPage, itemsPerPage: itemsPerPage.value, sortBy: sortBy.value, groupBy: [], search: searchFilters.value })
 }
 
-function saveSettings(clonedVisibleColumns)
+function saveColumns(clonedVisibleColumns)
 {
   if (Object.keys(clonedVisibleColumns).length)
   {
     store.value.setVisibleFields(JSON.parse(JSON.stringify(clonedVisibleColumns)));
   }
   globalStore.showColumnsDialog = false
+}
+
+async function saveListSettingsToCloud(selectedListSetting, selectedIsPublic)
+{
+  let setting = {
+    context: searchFilters.value,
+    id: null,
+    isPublic: selectedIsPublic,
+    name: null,
+    storageName: store.value.localStorageName,
+    user: useSecurityStore().me,
+  }
+  if (typeof selectedListSetting === 'string')
+  {
+    setting.name = selectedListSetting.trim();
+  } else if (selectedListSetting && 'id' in selectedListSetting)
+  {
+    setting.id = selectedListSetting.id;
+    setting.name = selectedListSetting.name;
+  }
+  await settingsStore.saveSettingsByStorageName(store.value.localStorageName, setting)
+
+  globalStore.showSettingsDialog = false
 }
 
 </script>

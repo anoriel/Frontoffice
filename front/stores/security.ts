@@ -4,36 +4,6 @@ import { useBaseStore } from './baseStore';
 import { Utilisateur } from '@/interfaces/utilisateur'
 import { ref, watch } from 'vue';
 
-function parseJwt(JWTToken: string | null): JWTTokenInfo | null
-{
-  if (!JWTToken) return null
-
-  let base64Url = JWTToken.split(".")[1]
-  if (base64Url) {
-    let base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/")
-    let jsonPayload = decodeURIComponent(
-      window
-        .atob(base64)
-        .split("")
-        .map(function (c)
-        {
-          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)
-        })
-        .join("")
-    )
-
-    let jsonParsed = JSON.parse(jsonPayload)
-
-    let me = jsonParsed?.me as string | null;
-    if (me != null && jsonParsed != null) {
-      let meObj = JSON.parse(me);
-      jsonParsed.email = meObj.email;
-    }
-
-    return jsonParsed
-  }
-  return null
-}
 
 interface RolesArray
 {
@@ -432,6 +402,38 @@ export const useSecurityStore = defineStore('security', () =>
       error = error
     }
     isLoading.value = false
+  }
+
+  function parseJwt(JWTToken: string | null): JWTTokenInfo | null
+  {
+    if (!JWTToken) return null
+
+    let base64Url = JWTToken.split(".")[1]
+    if (base64Url) {
+      let base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/")
+      let jsonPayload = decodeURIComponent(
+        window
+          .atob(base64)
+          .split("")
+          .map(function (c)
+          {
+            return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)
+          })
+          .join("")
+      )
+
+      let jsonParsed = JSON.parse(jsonPayload)
+
+      let meFromJson = jsonParsed?.me as string | null;
+      if (meFromJson != null && jsonParsed != null) {
+        let meObj = JSON.parse(meFromJson);
+        jsonParsed.email = meObj.email;
+        me.value = meObj
+      }
+
+      return jsonParsed
+    }
+    return null
   }
 
   function switchUser(user: Utilisateur)
