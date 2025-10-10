@@ -8,6 +8,8 @@
 import { useLeadOriginStore } from '@/stores/leadOrigin'
 const leadOriginStore = useLeadOriginStore()
 import SimpleListTemplate from '@/components/SimpleListTemplate.vue';
+import { useGlobalStore } from '@/stores/global';
+useGlobalStore().isLoadingWithLock = false
 </script>
 
 

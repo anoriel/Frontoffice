@@ -304,6 +304,7 @@ onMounted(async () =>
   }
 
   await fetchData();
+  globalStore.isLoadingWithLock = false
 })
 
 

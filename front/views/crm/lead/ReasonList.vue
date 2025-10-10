@@ -8,6 +8,8 @@
 import { useLeadRefusalReasonStore } from '@/stores/leadRefusalReason'
 const leadRefusalReasonStore = useLeadRefusalReasonStore()
 import SimpleListTemplate from '@/components/SimpleListTemplate.vue';
+import { useGlobalStore } from '@/stores/global';
+useGlobalStore().isLoadingWithLock = false
 </script>
 
 

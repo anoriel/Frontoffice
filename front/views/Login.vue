@@ -39,6 +39,8 @@ import ErrorMessage from '../components/ErrorMessage.vue'
 import { useSecurityStore } from '@/stores/security'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useGlobalStore } from '@/stores/global';
+useGlobalStore().isLoadingWithLock = false
 
 const router = useRouter()
 const route = useRoute()

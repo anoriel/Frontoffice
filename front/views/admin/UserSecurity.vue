@@ -81,7 +81,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import UserCircle from '@/components/UserCircle.vue';
 import FlagIcon from '@/components/FlagIcon.vue';
 import { useGlobalStore } from '@/stores/global'
@@ -135,7 +135,7 @@ function customFilter(value, query, item)
 }
 
 
-async function getUsersList()
+onMounted(async () =>
 {
   await userStore.findAll()
   let list = JSON.parse(JSON.stringify(userStore.list));
@@ -148,8 +148,8 @@ async function getUsersList()
     list = list.filter(e => `${e.nom} ${e.prenom}`.toLowerCase().indexOf(userFilter.value.toLowerCase()) >= 0);
   }
   filteredList.value = list
-}
-getUsersList()
+  globalStore.isLoadingWithLock = false
+})
 
 function getUserName(e)
 {

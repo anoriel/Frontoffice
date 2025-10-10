@@ -14,7 +14,7 @@
         </v-btn>
       </v-app-bar-title>
 
-      <v-btn v-if="globalStore.isBackgroundLoading" size="x-small" variant="flat" rounded="0">
+      <v-btn v-if="axiosIsLoading" size="x-small" variant="text" rounded="0">
         <v-progress-circular color="white" indeterminate :size="20" :width="2"></v-progress-circular>&nbsp;{{
           $t('loading') }}...
       </v-btn>
@@ -68,6 +68,23 @@
       &copy; 2007-{{ getCopyrightEndDate() }} ASD international - {{ releaseVersion }}{{ getEnvironment() }}
     </div>
   </v-app>
+
+  <v-dialog v-model="globalStore.isLoadingWithLock" max-width="320" persistent>
+    <v-list class="py-2 bg-blue-darken-4" elevation="12" rounded="lg">
+      <v-list-item :title="$helpers.capitalizeFirstLetter($t('loading'))">
+        <template v-slot:prepend>
+          <div class="pe-4">
+            <img src="/images/asd-group-logo-couleur-transparent-white.png" alt="ASD GROUP" title="ASD GROUP"
+              height="48" />
+          </div>
+        </template>
+
+        <template v-slot:append>
+          <v-progress-circular indeterminate="disable-shrink" size="16" width="2"></v-progress-circular>
+        </template>
+      </v-list-item>
+    </v-list>
+  </v-dialog>
 </template>
 
 <style>
@@ -151,6 +168,7 @@ router.beforeEach(async (to, from) =>
 })
 router.afterEach((to, from) =>
 {
+  globalStore.isLoadingWithLock = true
   document.title = appTitle + (to?.meta?.title ? (' - ' + helpers.capitalizeFirstLetter(t(to.meta.title))) : '');
   if (securityStore.getIsAuthenticated() && to.name !== 'login')
   {

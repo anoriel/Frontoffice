@@ -20,7 +20,6 @@ export function useBaseStore()
   const api = ref(api_base)
   const currentPage = ref(1)
   const isLoading = ref(false)
-  const isLoadingWithLock = ref(false)
   const error = ref(null)
   const item = ref(null as Item | null)
   const list = ref([] as Item[])
@@ -81,11 +80,9 @@ export function useBaseStore()
     let isNullArray = parsed[1];
     let isNotNullArray = parsed[2];
 
-    isLoadingWithLock.value = true;
     error.value = null;
     try {
       let response = await api.value.export(sortBy.key, sortBy.order, filtersArray, isNullArray, isNotNullArray, properties);
-      isLoadingWithLock.value = false;
       return response.data;
     } catch (error: any) {
       error.value = error.data
@@ -530,7 +527,6 @@ export function useBaseStore()
     fieldsByType,
     filters,
     isLoading,
-    isLoadingWithLock,
     item,
     list,
     listLength,

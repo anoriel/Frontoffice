@@ -199,23 +199,6 @@
     </v-data-table-server>
   </v-container>
 
-  <v-dialog v-model="store.isLoadingWithLock" max-width="320" persistent>
-    <v-list class="py-2 bg-blue-darken-4" elevation="12" rounded="lg">
-      <v-list-item :title="$helpers.capitalizeFirstLetter($t('loading'))">
-        <template v-slot:prepend>
-          <div class="pe-4">
-            <img src="/images/asd-group-logo-couleur-transparent-white.png" alt="ASD GROUP" title="ASD GROUP"
-              height="48" />
-          </div>
-        </template>
-
-        <template v-slot:append>
-          <v-progress-circular indeterminate="disable-shrink" size="16" width="2"></v-progress-circular>
-        </template>
-      </v-list-item>
-    </v-list>
-  </v-dialog>
-
   <columns-dialog v-if="store" :defaultColumns="defaultColumns" :moduleName="moduleName" :store="store"
     :visibleColumns="visibleFields" @saveColumns="saveColumns" />
 
@@ -294,14 +277,14 @@ const visibleFields = computed(() =>
   return store.value.getVisibleFields()
 })
 
-
 onMounted(async () =>
 {
-  settingsStore.findSettingsByStorageName(store.value.localStorageName)
+  await settingsStore.findSettingsByStorageName(store.value.localStorageName)
   if (countryStore.list.length)
   {
     await countryStore.findAll()
   }
+  globalStore.isLoadingWithLock = false
 })
 
 function addAnItem()

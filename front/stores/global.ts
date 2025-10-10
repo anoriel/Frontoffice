@@ -5,6 +5,7 @@ export const useGlobalStore = defineStore('global', () =>
 {
   const backgroundLoadingRequestsCount = ref(0)
   const isBackgroundLoading = ref(false)
+  const isLoadingWithLock = ref(false)
   const perPage = ref(parseInt(sessionStorage.getItem("perPage") ?? '20'))
   const perPageOptions = ref([1, 3, 5, 10, 20, 50, 100, 200])
   const showColumnsDialog = shallowRef(false)
@@ -36,6 +37,7 @@ export const useGlobalStore = defineStore('global', () =>
   return {
     backgroundLoadingRequestsCount,
     isBackgroundLoading,
+    isLoadingWithLock,
     perPage,
     perPageOptions,
     showColumnsDialog,

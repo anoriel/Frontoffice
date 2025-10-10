@@ -13,7 +13,6 @@ export interface BaseStoreInterface
   filters: Record<string, any>,
   fieldsByType: any,
   isLoading: false,
-  isLoadingWithLock: false,
   item: any,
   list: any[],
   listLength: number,
