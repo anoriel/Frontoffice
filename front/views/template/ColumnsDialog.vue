@@ -21,7 +21,7 @@
 
                 <template #item="{ element }">
                   <div class="border cursor-pointer">
-                    {{ $helpers.capitalizeFirstLetter($t(moduleName + '.' + element.key)) }}
+                    {{ getColumnName(element) }}
                   </div>
                 </template>
               </draggable>
@@ -36,7 +36,7 @@
                 </template>
                 <template #item="{ element }">
                   <div class="border cursor-pointer">
-                    {{ $helpers.capitalizeFirstLetter($t(moduleName + '.' + element.key)) }}
+                    {{ getColumnName(element) }}
                   </div>
                 </template>
               </draggable>
@@ -53,7 +53,7 @@
         <v-btn :text="$helpers.capitalizeFirstLetter($t('reset'))" color="primary" @click="reset"
           :disabled="isResetDisabled()" prepend-icon="mdi-eraser" />
         <v-btn :text="$helpers.capitalizeFirstLetter($t('save'))" color="success"
-          @click="$emit('saveSettings', clonedVisibleColumns)" :disabled="isSaveDisabled()"
+          @click="$emit('saveColumns', clonedVisibleColumns)" :disabled="isSaveDisabled()"
           prepend-icon="mdi-content-save" />
       </v-card-actions>
     </v-card>
@@ -72,7 +72,7 @@ const globalStore = useGlobalStore()
 import useCommonHelper from '@/helpers/commonHelper'
 const helpers = useCommonHelper()
 import { useI18n } from "vue-i18n";
-const { t } = useI18n({ useScope: "global" });
+const { t, te } = useI18n({ useScope: "global" });
 
 
 const props = defineProps({
@@ -96,6 +96,11 @@ const props = defineProps({
 
 const clonedAvailableColumns = shallowRef<AvailableField[]>([])
 const clonedVisibleColumns = shallowRef<AvailableField[]>([])
+
+function getColumnName(column: AvailableField)
+{
+  return helpers.capitalizeFirstLetter(t(te(props.moduleName + '.' + column.key) ? props.moduleName + '.' + column.key : column.key));
+}
 
 function isResetDisabled()
 {
@@ -136,8 +141,8 @@ function sortLeadColumns(columnsList: AvailableField[])
 {
   columnsList.sort(function (a, b)
   {
-    let aName = helpers.capitalizeFirstLetter(t(props.moduleName + '.' + a.key));
-    let bName = helpers.capitalizeFirstLetter(t(props.moduleName + '.' + b.key));
+    let aName = getColumnName(a);
+    let bName = getColumnName(b);
     if (aName < bName) {
       return -1;
     }
@@ -145,7 +150,6 @@ function sortLeadColumns(columnsList: AvailableField[])
       return 1;
     }
     return 0;
-  }
-  );
+  });
 }
 </script>

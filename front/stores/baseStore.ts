@@ -6,7 +6,7 @@ import { DatatableSortBy } from "@/interfaces/datatableSortBy";
 import { AvailableField } from "@/interfaces/availableField";
 import { FieldsByType } from "@/interfaces/fieldsByType";
 import { IriTemplateMapping } from "@/interfaces/iriTemplateMapping";
-import { isArray, isObject } from "lodash";
+import { isArray, isBoolean, isObject } from "lodash";
 import { DefaultContext } from "@/interfaces/defaultContext";
 import { MappingType } from "@/interfaces/mappingType";
 import moment from "moment";
@@ -48,7 +48,8 @@ export function useBaseStore()
   })
   const filters = ref<Record<string, any>>([])
   const orderByList = ref<Record<string, string>>({})
-  const mapping = ref<Record<string, MappingType>>({})//list of sortable properties with their key name (ex: leadType.name))
+  const mapping = ref<Record<string, MappingType>>({})//list of properties with their key name (ex: leadType.name)) to generate filter form and parse items
+  const customMapping = ref<Record<string, MappingType>>({})//custom mapping that will override or be added to the automatic mapping
   const localStorageName = ref("base")
   const visibleFields = ref<AvailableField[]>([])
 
@@ -169,16 +170,33 @@ export function useBaseStore()
           }
 
           let mappingType = { type: element.property } as MappingType;
-          let searchValue = null;
+          let searchValue = defaultContext.value.filters[variable] ?? null;
           if (isObjectRegexList.some(rx => rx.test(element.property))) {
             mappingType = { type: 'object', object: element.property.replace('object:', '') } as MappingType;
-            searchValue = [];
+            searchValue = defaultContext.value.filters[variable] ?? [];
           }
 
           mapping.value[variable] = mappingType;
 
           defaultContext.value.filters[variable] = searchValue;
         });
+
+        let newMapping: Record<string, MappingType> = {};
+        //sorting by custom mapping if provided
+        Object.keys(customMapping.value).forEach(function (key)
+        {
+          if (!customMapping.value[key].hidden) {//we ignore hidden fields
+            newMapping[key] = { ...mapping.value[key], ...customMapping.value[key] };
+          }
+        });
+        //adding eventually missing mapping
+        Object.keys(mapping.value).forEach(function (key)
+        {
+          if (!(key in customMapping.value)) {
+            newMapping[key] = mapping.value[key];
+          }
+        });
+        mapping.value = newMapping;
 
         //we get the list of fields from the first item of the list
         let fields = Object.keys(list.value[0]).filter(function (e)
@@ -190,14 +208,14 @@ export function useBaseStore()
           return false;
         });
 
-        //if availableFields or mapping are empty, we fill them
-        if (availableFields.value.length == 0 || Object.keys(mapping.value).length == 0) {
+        //if availableFields are empty, we fill them
+        if (availableFields.value.length == 0) {
 
 
           //we scan the field headers of the response
           for (let i in fields) {
             let field = fields[i];
-            if (keyToIgnore.includes(field)) {//we ignore fields that are not in the mapping
+            if (keyToIgnore.includes(field)) {//we ignore some fields
               continue;
             }
             //we look in the mapping if the field is sortable and get the name of the property to sort on
@@ -403,8 +421,20 @@ export function useBaseStore()
   function parseData(key: string, value: any)
   {
     let stringValue = value;
+    let canBeBoolan = true;
     if (isObject(value) && 'id' in value) {
       stringValue = value['id'];
+      canBeBoolan = false;
+    }
+
+    if (key in customMapping.value && 'queryPrefix' in customMapping.value[key]) {//it's a sub-property of an object, we need to prefix it
+      key = customMapping.value[key].queryPrefix + '.' + value.id;
+      stringValue = true;
+      canBeBoolan = true;
+    }
+
+    if (canBeBoolan && isBoolean(value)) {
+      stringValue = value ? true : false;
     }
 
     if (stringValue == -1) {
@@ -415,7 +445,7 @@ export function useBaseStore()
     }
     else {
       filtersArray.push({
-        'key': key + '[]',
+        'key': key + (canBeBoolan ? '' : '[]'),
         'value': stringValue
       });
     }
@@ -521,6 +551,7 @@ export function useBaseStore()
     availableFields,
     context,
     currentPage,
+    customMapping,
     defaultContext,
     error,
     exportList,
@@ -540,6 +571,7 @@ export function useBaseStore()
     findPage,
     getById,
     getContextKey,
+    getFiltersDiff,
     getNumberOfFilters,
     getOrderBy,
     getSearchFilters,

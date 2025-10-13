@@ -22,7 +22,7 @@
 
       <v-list v-if="getFilteredSettingsByStorageName().length" density="compact">
         <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('personal parameters'))
-        }}</v-list-subheader>
+          }}</v-list-subheader>
         <v-list-item v-for="item in getFilteredSettingsByStorageName()" :key="item.id" :value="item.id"
           @click="loadFilters(item)">
           <v-list-item-title>
@@ -33,7 +33,7 @@
       <v-divider></v-divider>
       <v-list v-if="getPublicSettingsByStorageName().length" density="compact">
         <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('public parameters'))
-        }}</v-list-subheader>
+          }}</v-list-subheader>
         <v-list-item v-for="item in getPublicSettingsByStorageName()" :key="item.id" :value="item.id"
           @click="loadFilters(item)">
           <v-list-item-title>
@@ -130,10 +130,26 @@
       <!-- #region specific object keys -->
       <template v-for="object in store.fieldsByType.object" v-slot:[`item.${object.name}`]="{ value }" :key="object">
         <agency-component v-if="object.type == 'agency' && value" :agency="value" />
+        <contact-component v-else-if="object.type == 'contact' && value" :contact="value" />
         <country-component v-else-if="object.type == 'country' && value" :country="value" />
         <society-component v-else-if="object.type == 'society' && value" :society="value" />
         <UtilisateurComponent v-else-if="object.type == 'user' && value" :user="value" />
         <v-chip v-else-if="value" :style="$helpers.getCssForText(value.stringValue)">{{ value.stringValue }}</v-chip>
+      </template>
+      <!-- #endregion specific object keys-->
+
+      <!-- #region specific object keys -->
+      <template v-for="list in store.fieldsByType.objectsList" v-slot:[`item.${list.name}`]="{ value }" :key="list">
+        <template v-for="object in value" :key="object">
+          <agency-component v-if="list.type == 'agency' && object" :agency="object" />
+          <contact-component v-else-if="list.type == 'contact' && object" :contact="object" />
+          <country-component v-else-if="list.type == 'country' && object" :country="object" />
+          <society-component v-else-if="list.type == 'society' && object" :society="object" />
+          <UtilisateurComponent v-else-if="list.type == 'user' && object" :user="object" />
+          <v-chip v-else-if="object" :style="$helpers.getCssForText(object.stringValue)">
+            {{ object.stringValue }}
+          </v-chip>
+        </template>
       </template>
       <!-- #endregion specific object keys-->
 
@@ -219,6 +235,7 @@ import { useGlobalStore } from '@/stores/global';
 const globalStore = useGlobalStore()
 import useCommonHelper from '@/helpers/commonHelper'
 const helpers = useCommonHelper()
+import { useCustomerStore } from "@/stores/customer";
 import { useLeadStore } from '@/stores/lead'
 import { useCountryStore } from '@/stores/country'
 const countryStore = useCountryStore()
@@ -226,6 +243,7 @@ import { useSettingsStore } from '@/stores/settings'
 const settingsStore = useSettingsStore()
 
 import AgencyComponent from "@/components/AgencyComponent.vue";
+import ContactComponent from "@/components/ContactComponent.vue";
 import CountryComponent from '@/components/CountryComponent.vue';
 import SocietyComponent from '@/components/SocietyComponent.vue';
 import ColumnsDialog from "./ColumnsDialog.vue";
@@ -254,6 +272,9 @@ const props = defineProps({
 const store = shallowRef(null);
 switch (props.moduleName)
 {
+  case "customer":
+    store.value = useCustomerStore()
+    break;
   case "lead":
     store.value = useLeadStore()
     break;

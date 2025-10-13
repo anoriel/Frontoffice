@@ -1,5 +1,5 @@
 <template>
-  <div v-if="store">
+  <div v-if="list && list.length">
     <v-autocomplete v-model="model" :items="list" :item-title="getObjectName" item-value="id" :label="label"
       :placeholder="label" auto-focus clearable auto-select-first min-width="150" density="compact" :chips="chips"
       :closable-chips="closableChips" return-object :multiple="true">
@@ -8,7 +8,7 @@
         <country-component v-else-if="fieldObjectType == 'country'" :country="item.raw" />
         <society-component v-else-if="fieldObjectType == 'society'" :society="item.raw" />
         <utilisateur-component v-else-if="fieldObjectType == 'user'" :user="item.raw" />
-        <v-chip v-else-if="item.raw" :style="getCssForText(item.raw)">
+        <v-chip v-else-if="item.raw" :style="getCssForText(item.raw)" density="compact">
           {{ getStringValue(item.raw) }}
         </v-chip>
       </template>
@@ -19,7 +19,7 @@
             <country-component v-else-if="fieldObjectType == 'country'" :country="item.raw" />
             <society-component v-else-if="fieldObjectType == 'society'" :society="item.raw" />
             <utilisateur-component v-else-if="fieldObjectType == 'user'" :user="item.raw" />
-            <v-chip v-else-if="item.raw" :style="getCssForText(item.raw)">
+            <v-chip v-else-if="item.raw" :style="getCssForText(item.raw)" density="compact">
               {{ getStringValue(item.raw) }}
             </v-chip>
           </template>
@@ -30,9 +30,11 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef, ref } from 'vue';
+import { shallowRef, ref, onMounted } from 'vue';
 import useCommonHelper from '@/helpers/commonHelper'
 const helpers = useCommonHelper()
+import { useI18n } from "vue-i18n";
+const { t, te } = useI18n({ useScope: "global" });
 import { useAgencyStore } from '@/stores/agency';
 import { useBusinessSectorStore } from '@/stores/businessSector';
 import { useCountryStore } from '@/stores/country';
@@ -47,6 +49,7 @@ import CountryComponent from '@/components/CountryComponent.vue';
 import SocietyComponent from '@/components/SocietyComponent.vue';
 import UtilisateurComponent from '@/components/UtilisateurComponent.vue'
 import { Item } from '@/interfaces/item';
+import { useCustomerTypeStore } from '@/stores/customerType';
 
 const props = defineProps({
   fieldname: {
@@ -56,6 +59,10 @@ const props = defineProps({
   fieldObjectType: {
     type: String,
     required: true,
+  },
+  fieldObjectEnum: {
+    type: Array,
+    required: false,
   },
   label: {
     type: String,
@@ -90,13 +97,13 @@ const props = defineProps({
   },
 })
 
-const list = ref([]);
+const list = ref<Array<any>>([]);
 const model = defineModel<any>()
 
 
 const store = shallowRef<any>(null);
 
-async function fetchData()
+onMounted(async () =>
 {
   switch (props.fieldObjectType) {
     case "agency":
@@ -107,6 +114,9 @@ async function fetchData()
       break;
     case "country":
       store.value = useCountryStore()
+      break;
+    case "customerType":
+      store.value = useCustomerTypeStore()
       break;
     case "leadType":
       store.value = useLeadTypeStore()
@@ -123,6 +133,11 @@ async function fetchData()
     case "user":
       store.value = useUserStore()
       break;
+    default:
+      if (props.fieldObjectEnum && props.fieldObjectEnum.length) {
+        list.value = props.fieldObjectEnum;
+      }
+      break;
   }
   if (store.value && !store.value.list.length) {
     if (['agency', 'society', 'user'].includes(props.fieldObjectType)) {
@@ -136,7 +151,7 @@ async function fetchData()
   } else {
     console.log(props.fieldname)
   }
-}
+})
 
 
 
@@ -148,13 +163,12 @@ function getObjectName(e: any)
 
 function getCssForText(item: Item)
 {
-  return helpers.getCssForText(item.stringValue ?? '<unknown>');
+  return helpers.getCssForText(getStringValue(item));
 }
 
 function getStringValue(item: Item)
 {
-  return item.stringValue ?? '<unknown>';
+  let text = item.stringValue ?? '<unknown>'
+  return helpers.capitalizeFirstLetter(te(text) ? t(text) : text);
 }
-
-fetchData()
 </script>

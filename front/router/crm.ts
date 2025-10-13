@@ -4,13 +4,14 @@ import LeadDashboard from "../views/crm/lead/Dashboard.vue";
 import LeadPage from "../views/crm/lead/LeadPage.vue";
 import OriginsList from "../views/crm/lead/OriginsList.vue";
 import ReasonList from "../views/crm/lead/ReasonList.vue";
-import TemplateList from "../views/template/List.vue";
+import CustomersList from "@/views/crm/customer/List.vue";
+import LeadsList from "@/views/crm/lead/List.vue";
 
 const moduleRoutes: RouteRecordRaw[] = [
   {
     name: "menu.crm",
     path: "/#",
-    component: LeadDashboard,
+    component: {},
     meta: {
       icon: "mdi-face-agent",
       isDropdown: true,
@@ -18,18 +19,17 @@ const moduleRoutes: RouteRecordRaw[] = [
     }
   },
   {
-    name: "customers.list",
+    name: "customer.list",
     path: "/crm/customer/list",
-    component: TemplateList,
+    component: CustomersList,
     meta: {
       icon: "mdi-account-file-text",
       isDisabled: false,
-      title: "customers.listTitle",
+      title: "customer.listTitle",
       list: "customer",
       parent: "menu.crm",
       hasRole: "ROLE_CRM"
     },
-    props: () => ({ componentPath: "crm", moduleName: "customers" }),
   },
   {
     name: "lead.dashboard",
@@ -46,7 +46,7 @@ const moduleRoutes: RouteRecordRaw[] = [
   {
     name: "lead.list",
     path: "/crm/lead/list",
-    component: TemplateList,
+    component: LeadsList,
     meta: {
       icon: "mdi-account-file-text",
       isDisabled: false,
@@ -54,7 +54,6 @@ const moduleRoutes: RouteRecordRaw[] = [
       parent: "menu.crm",
       hasRole: "ROLE_CRM"
     },
-    props: () => ({ componentPath: "crm", moduleName: "lead", addItem: true }),
   },
   {
     name: "crm.settings",

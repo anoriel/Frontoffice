@@ -14,7 +14,8 @@
 
                 <template v-else-if="getFieldType(filterKey) == 'object'">
                   <select-object :fieldname="filterKey" :fieldObjectType="getFieldObjectType(filterKey)"
-                    :label="getFieldLabel(filterKey)" :moduleName="moduleName" v-model="searchFilters[filterKey]" />
+                    :label="getFieldLabel(filterKey)" :moduleName="moduleName" v-model="searchFilters[filterKey]"
+                    :fieldObjectEnum="store.mapping[filterKey].enum" />
                 </template>
 
                 <template v-else-if="getFieldType(filterKey) == 'boolean'">
@@ -90,7 +91,7 @@ function getFieldObjectType(field: string)
 
 function getFieldLabel(field: string)
 {
-  let label = props.store.mapping[field].object ?? field;
+  let label = props.store.mapping[field].stringValue ?? (props.store.mapping[field].object ?? field);
   return helpers.capitalizeFirstLetter(t(te(props.moduleName + '.' + label) ? props.moduleName + '.' + label : label))
 }
 

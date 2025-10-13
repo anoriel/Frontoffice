@@ -1,14 +1,14 @@
+
 import axios from "@/plugins/axios/axios";
 import api_base from './api_base'
 import merge from 'deepmerge-json'
 
 const thisApi = {
-  baseUrl: '/lead_types',
-  findAll()
+  baseUrl: '/customers',
+
+  findItemsByType(customerTypeId: number)
   {
-    return axios.get(
-      "/lead_types?pagination=false"
-    );
+    return axios.get(`${this.baseUrl}?customerType.id=${customerTypeId}`);
   },
 }
 
