@@ -13,7 +13,7 @@ export const useSettingsStore = defineStore('settings', () =>
     error,
     item,
     list,
-    listLength,
+    totalItems,
     deleteItem,
     findAll,
     find,
@@ -73,7 +73,7 @@ export const useSettingsStore = defineStore('settings', () =>
     isLoading.value = false;
     error.value = null;
     list.value = [];
-    listLength.value = 0;
+    totalItems.value = 0;
     settingsByStorageName.value = {};
     settingsByStorageNameLength.value = {};
     return true;
@@ -85,7 +85,7 @@ export const useSettingsStore = defineStore('settings', () =>
     error,
     item,
     list,
-    listLength,
+    totalItems,
     deleteItem,
     findAll,
     find,

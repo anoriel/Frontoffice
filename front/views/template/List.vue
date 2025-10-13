@@ -358,7 +358,7 @@ async function loadItems({ page, itemsPerPage, sortBy, groupBy, search })
   }
   await store.value.findPage(page, itemsPerPage, sortBy, searchFilters.value)
   serverItems.value = store.value.list
-  totalItems.value = store.value.listLength
+  totalItems.value = store.value.totalItems
   loading.value = false;
 }
 

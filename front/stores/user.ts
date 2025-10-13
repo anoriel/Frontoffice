@@ -12,13 +12,15 @@ export const useUserStore = defineStore('user', () =>
     error,
     item,
     list,
-    listLength,
+    totalItems,
     deleteItem,
     findAll,
     find,
     hasError,
     hasItems,
     getById,
+    parseResponse,
+    reset,
     save,
     resetError,
   } = useBaseStore();
@@ -36,8 +38,7 @@ export const useUserStore = defineStore('user', () =>
     error.value = null;
     try {
       let response = await api.value.findAll();
-      list.value = response.data["member"];
-      listLength.value = response.data["totalItems"];
+      parseResponse(response);
       return response.data;
     } catch (err: any) {
       isLoading.value = false;
@@ -46,13 +47,10 @@ export const useUserStore = defineStore('user', () =>
     }
   }
 
-  function reset()
+  function customReset()
   {
-    isLoading.value = false;
+    reset();
     item.value = null;
-    error.value = null;
-    list.value = [];
-    listLength.value = 0;
     filteredList.value = [];
     filteredListLength.value = 0;
     return true;
@@ -64,9 +62,7 @@ export const useUserStore = defineStore('user', () =>
     error.value = null;
     try {
       let response = await thisAPI.findAllActive(showFullData);
-      isLoading.value = false;
-      list.value = response.data["member"];
-      listLength.value = response.data["totalItems"];
+      parseResponse(response);
       return response.list;
     } catch (error: any) {
       isLoading.value = false;
@@ -77,7 +73,7 @@ export const useUserStore = defineStore('user', () =>
 
   async function findByRole(role: string)
   {
-    reset()
+    customReset()
     try {
       let response = await thisAPI.findBy(false, role);
       isLoading.value = false;
@@ -93,7 +89,7 @@ export const useUserStore = defineStore('user', () =>
 
   async function getCurrentlyLoggedUsers()
   {
-    reset()
+    customReset()
     try {
       let response = await thisAPI.getCurrentlyLoggedUsers();
       isLoading.value = false;
@@ -132,7 +128,7 @@ export const useUserStore = defineStore('user', () =>
     error,
     item,
     list,
-    listLength,
+    totalItems,
     deleteItem,
     find,
     findAll,
@@ -140,7 +136,7 @@ export const useUserStore = defineStore('user', () =>
     hasError,
     hasItems,
     getById,
-    reset,
+    reset: customReset,
     save,
 
     currentlyLoggedUsersCount,

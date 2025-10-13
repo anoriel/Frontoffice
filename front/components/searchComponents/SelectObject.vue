@@ -27,6 +27,7 @@
       </template>
     </v-autocomplete>
   </div>
+  <v-skeleton-loader v-else type="list-item-avatar" />
 </template>
 
 <script setup lang="ts">

@@ -29,8 +29,7 @@
 
                 <v-sheet v-else class="ma-2 pa-2 bg-error">
                   filterKey={{ filterKey }}<br>
-                  getFieldType={{ getFieldType(filterKey) }}<br>
-                  getFieldObjectType={{ getFieldObjectType(filterKey) }}
+                  Please contact IT, field parameter is not set.
                 </v-sheet>
 
               </v-col>

@@ -21,7 +21,7 @@ export const useCustomerStore = defineStore('customer', () =>
     error,
     item,
     list,
-    listLength,
+    totalItems,
     localStorageName,
     mapping,
     visibleFields,
@@ -52,7 +52,7 @@ export const useCustomerStore = defineStore('customer', () =>
 
   //load all customerType children object
   const customerTypeStore = useCustomerTypeStore()
-  if (customerTypeStore.listLength == 0) {
+  if (customerTypeStore.totalItems == 0) {
     customerTypeStore.findAll()
   }
 
@@ -124,7 +124,7 @@ export const useCustomerStore = defineStore('customer', () =>
     filters,
     item,
     list,
-    listLength,
+    totalItems,
     mapping,
     visibleFields,
 

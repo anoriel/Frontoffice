@@ -282,15 +282,15 @@ onMounted(async () =>
     visibleColumns.value.unshift({ "key": "id", "title": "id" });
   }
 
-  if (!businessSectorStore.listLength)
+  if (!businessSectorStore.totalItems)
   {
     await businessSectorStore.findAll();
   }
-  if (!countryStore.listLength)
+  if (!countryStore.totalItems)
   {
     await countryStore.findAll();
   }
-  if (!serviceTypeStore.listLength)
+  if (!serviceTypeStore.totalItems)
   {
     await serviceTypeStore.findAll();
   }
@@ -298,7 +298,7 @@ onMounted(async () =>
   {
     await userStore.findByRole('CRM');
   }
-  if (!serviceDomainStore.listLength)
+  if (!serviceDomainStore.totalItems)
   {
     await serviceDomainStore.findAll();
   }

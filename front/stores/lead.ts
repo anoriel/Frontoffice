@@ -22,7 +22,7 @@ export const useLeadStore = defineStore('lead', () =>
     error,
     item,
     list,
-    listLength,
+    totalItems,
     localStorageName,
     mapping,
     visibleFields,
@@ -52,7 +52,7 @@ export const useLeadStore = defineStore('lead', () =>
 
   //load all leadType children object
   const leadTypeStore = useLeadTypeStore()
-  if (leadTypeStore.listLength == 0) {
+  if (leadTypeStore.totalItems == 0) {
     leadTypeStore.findAll()
   }
 
@@ -182,7 +182,7 @@ export const useLeadStore = defineStore('lead', () =>
     filters,
     item,
     list,
-    listLength,
+    totalItems,
     mapping,
     visibleFields,
 

@@ -10,6 +10,7 @@ import { isArray, isBoolean, isObject } from "lodash";
 import { DefaultContext } from "@/interfaces/defaultContext";
 import { MappingType } from "@/interfaces/mappingType";
 import moment from "moment";
+import { AxiosResponse } from "axios";
 const helpers = useCommonHelper()
 
 
@@ -23,7 +24,7 @@ export function useBaseStore()
   const error = ref(null)
   const item = ref(null as Item | null)
   const list = ref([] as Item[])
-  const listLength = ref(0)
+  const totalItems = ref(0)
 
 
   const availableFields = ref<AvailableField[]>([])
@@ -96,12 +97,10 @@ export function useBaseStore()
     isLoading.value = true;
     error.value = null;
     list.value = [];
-    listLength.value = 0;
+    totalItems.value = 0;
     try {
       let response = await api.value.findAll(showFullData);
-      list.value = response.data["member"];
-      listLength.value = response.data["totalItems"];
-      isLoading.value = false;
+      parseResponse(response);
       return response.data;
     } catch (err: any) {
       isLoading.value = false;
@@ -109,6 +108,7 @@ export function useBaseStore()
       return null;
     }
   }
+
   async function find(id: number)
   {
     isLoading.value = true;
@@ -138,12 +138,10 @@ export function useBaseStore()
     isLoading.value = true;
     error.value = null;
     list.value = [];
-    listLength.value = 0;
+    totalItems.value = 0;
     try {
       let response = await api.value.findPage(page, perPage, sortBy.property ?? sortBy.key, sortBy.order, filtersArray, isNullArray, isNotNullArray);
-      isLoading.value = false;
-      list.value = response.data["member"];
-      listLength.value = response.data["totalItems"];
+      parseResponse(response);
 
       if (typeof response.data != 'undefined' && "search" in response.data && "mapping" in response.data['search']) {
         let keyToIgnore = ['id'];
@@ -456,12 +454,19 @@ export function useBaseStore()
     return item;
   }
 
+  function parseResponse(response: AxiosResponse<any, any, {}>)
+  {
+    list.value = response.data["member"];
+    totalItems.value = response.data["totalItems"];
+    isLoading.value = false;
+  }
+
   function reset()
   {
     isLoading.value = false;
     error.value = null;
     list.value = [];
-    listLength.value = 0;
+    totalItems.value = 0;
     return true;
   }
 
@@ -560,7 +565,7 @@ export function useBaseStore()
     isLoading,
     item,
     list,
-    listLength,
+    totalItems,
     localStorageName,
     mapping,
     visibleFields,
@@ -580,6 +585,7 @@ export function useBaseStore()
     hasItems,
     parseArrays,
     parseItem,
+    parseResponse,
     reset,
     resetError,
     save,

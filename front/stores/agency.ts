@@ -12,13 +12,14 @@ export const useAgencyStore = defineStore('agency', () =>
     error,
     item,
     list,
-    listLength,
+    totalItems,
     deleteItem,
     findAll,
     find,
     hasError,
     hasItems,
     getById,
+    parseResponse,
     reset,
     save,
     resetError,
@@ -34,9 +35,7 @@ export const useAgencyStore = defineStore('agency', () =>
     error.value = null;
     try {
       let response = await thisAPI.findAllActive();
-      isLoading.value = false;
-      list.value = response.data["member"];
-      listLength.value = response.data["totalItems"];
+      parseResponse(response);
       return response.list;
     } catch (error: any) {
       isLoading.value = false;
@@ -51,7 +50,7 @@ export const useAgencyStore = defineStore('agency', () =>
     error,
     item,
     list,
-    listLength,
+    totalItems,
     deleteItem,
     findAll,
     find,

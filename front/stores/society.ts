@@ -12,13 +12,14 @@ export const useSocietyStore = defineStore('society', () =>
     error,
     item,
     list,
-    listLength,
+    totalItems,
     deleteItem,
     findAll,
     find,
     hasError,
     hasItems,
     getById,
+    parseResponse,
     reset,
     save,
     resetError,
@@ -33,9 +34,7 @@ export const useSocietyStore = defineStore('society', () =>
     list.value = [];
     try {
       let response = await thisAPI.findAllActive();
-      isLoading.value = false;
-      list.value = response.data["member"];
-      listLength.value = response.data["totalItems"];
+      parseResponse(response);
       return list;
     } catch (error) {
       isLoading.value = false;
@@ -50,7 +49,7 @@ export const useSocietyStore = defineStore('society', () =>
     error,
     item,
     list,
-    listLength,
+    totalItems,
     deleteItem,
     findAll,
     findAllActive,

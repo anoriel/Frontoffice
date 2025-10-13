@@ -15,7 +15,7 @@ export interface BaseStoreInterface
   isLoading: false,
   item: any,
   list: any[],
-  listLength: number,
+  totalItems: number,
   localStorageName: string,
   mapping: Record<string, MappingType>,//used to generate filter form and parse items
   visibleFields: AvailableField[],
