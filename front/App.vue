@@ -51,7 +51,7 @@
           <v-list-item append-icon="mdi-logout" link @click="logout()">
             <v-list-item-title>{{
               $helpers.capitalizeFirstLetter($t('logout'))
-              }}</v-list-item-title>
+            }}</v-list-item-title>
             <template v-slot:append>
               <v-icon color="primary"></v-icon>
             </template>
@@ -165,16 +165,28 @@ router.beforeEach(async (to, from) =>
     return { name: 'login' }
   }
 })
+
+//routes that do not require loading with lock
+const routeNamesWithoutLock = ['login', 'error-403', 'error-404', 'error-500', 'home', 'welcome'];
+
 router.afterEach((to, from) =>
 {
+  //set page title
   document.title = appTitle + (to?.meta?.title ? (' - ' + helpers.capitalizeFirstLetter(t(to.meta.title))) : '');
-  if (to.name !== 'login')
+
+  //set loading with lock only if the route is not in the list of routes without lock
+  if (routeNamesWithoutLock.includes(to.name))
+  {
+    globalStore.isLoadingWithLock = false
+  } else
   {
     globalStore.isLoadingWithLock = true
-    if (securityStore.getIsAuthenticated())
-    {
-      securityStore.lastUrl = to.fullPath;
-    }
+  }
+
+  //save last url if not on login page and authenticated
+  if (to.name !== 'login' && securityStore.getIsAuthenticated())
+  {
+    securityStore.lastUrl = to.fullPath;
   }
 });
 

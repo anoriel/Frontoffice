@@ -6,7 +6,7 @@ import CustomsCommissionsList from "../views/customs/CustomsCommissionsList.vue"
 const moduleRoutes: RouteRecordRaw[] = [
   {
     name: "menu.customs",
-    path: "/#",
+    path: "",
     component: CustomsCommissionsList,
     meta: {
       icon: "mdi-police-station",
@@ -26,7 +26,7 @@ const moduleRoutes: RouteRecordRaw[] = [
   },
   {
     name: "customs.settings",
-    path: "/#",
+    path: "",
     component: CustomsCommissionCategoryList,
     meta: {
       icon: "mdi-cog",

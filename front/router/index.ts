@@ -21,6 +21,15 @@ const baseRoutes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '',
+    name: 'welcome',
+    component: HomeView,
+    meta: {
+      icon: "mdi-home",
+      title: "home",
+    },
+  },
+  {
     path: '/about',
     name: 'about',
     component: AboutView

@@ -5,7 +5,7 @@ import OSSIntegration from "../views/oss/Integration.vue";
 const moduleRoutes: RouteRecordRaw[] = [
   {
     name: "OSS.OSS",
-    path: "/#",
+    path: "",
     component: OSSDashboard,
     meta: {
       flag: 'eu',

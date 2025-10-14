@@ -6,7 +6,7 @@ import VATList from "../views/vat/List.vue";
 const moduleRoutes: RouteRecordRaw[] = [
   {
     name: "menu.VAT",
-    path: "/#",
+    path: "",
     component: VATDashboard,
     meta: {
       icon: "mdi-chart-areaspline",

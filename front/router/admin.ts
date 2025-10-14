@@ -5,7 +5,7 @@ import { RouteRecordRaw } from "vue-router";
 const moduleRoutes: RouteRecordRaw[] = [
   {
     name: "admin.admin",
-    path: "/#",
+    path: "",
     component: UserSecurity,
     meta: {
       icon: "mdi-security",

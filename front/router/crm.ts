@@ -10,7 +10,7 @@ import LeadsList from "@/views/crm/lead/List.vue";
 const moduleRoutes: RouteRecordRaw[] = [
   {
     name: "menu.crm",
-    path: "/#",
+    path: "",
     component: {},
     meta: {
       icon: "mdi-face-agent",
@@ -57,7 +57,7 @@ const moduleRoutes: RouteRecordRaw[] = [
   },
   {
     name: "crm.settings",
-    path: "/#",
+    path: "",
     component: AssignmentRule,
     meta: {
       icon: "mdi-cog",
@@ -110,7 +110,7 @@ const moduleRoutes: RouteRecordRaw[] = [
     path: "/crm/lead/:id",
     component: LeadPage,
     meta: {
-      parent: "menu.crm",
+      parent: "lead.list",
       isHidden: true,
       title: "lead.page",
       hasRole: "ROLE_CRM"
