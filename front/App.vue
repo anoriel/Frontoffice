@@ -5,7 +5,7 @@
         <img src="/images/asd-group-logo-couleur-transparent-white.png" :alt="appTitle" :title="appTitle" height="48" />
         <span>{{ appTitle }}</span>
 
-        <v-btn color="primary" :href="getLegacyIntranetUrl()" class="ml-16" variant="elevated" elevation="5"
+        <v-btn color="primary" :href="$getLegacyIntranetUrl()" class="ml-16" variant="elevated" elevation="5"
           rounded="0">
           <v-icon>mdi-link-variant</v-icon>
           &nbsp; Go to
@@ -143,7 +143,6 @@ const { t } = useI18n({ useScope: "global" });
 
 
 const appTitle = import.meta.env.VITE_APP_TITLE
-const legacyIntranetUrl = import.meta.env.VITE_INTRANET_LEGACY_URL
 const releaseVersion = import.meta.env.VITE_RELEASE_VERSION
 const environment = import.meta.env.VITE_ENV
 
@@ -251,22 +250,6 @@ function getEnvironment()
   return "";
 }
 
-function getLegacyIntranetUrl()
-{
-  let username = sessionStorage.getItem('username')
-  let authToken = sessionStorage.getItem('authToken')
-  if (null == username || null == authToken)
-  {
-    return legacyIntranetUrl
-  }
-  return (
-    legacyIntranetUrl +
-    '/admin/identification.php?identifiant=' +
-    username +
-    '&authToken=' +
-    authToken
-  )
-}
 
 function interceptResponse(response)
 {
