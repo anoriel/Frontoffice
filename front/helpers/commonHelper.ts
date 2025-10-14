@@ -97,6 +97,8 @@ interface Vue3Instance extends CommonHelperMethods
 
 export default function useCommonHelper()
 {
+  const legacyIntranetUrl = import.meta.env.VITE_INTRANET_LEGACY_URL;
+
   function areObjectsEqual(obj1: object, obj2: object)
   {
     const obj1Entries = Object.entries(obj1).sort();
@@ -472,6 +474,22 @@ export default function useCommonHelper()
     }
   }
 
+  function getLegacyIntranetUrl()
+  {
+    let username = sessionStorage.getItem('username')
+    let authToken = sessionStorage.getItem('authToken')
+    if (null == username || null == authToken) {
+      return legacyIntranetUrl
+    }
+    return (
+      legacyIntranetUrl +
+      '/admin/identification.php?identifiant=' +
+      username +
+      '&authToken=' +
+      authToken
+    )
+  }
+
   function getObjectNameWithCountry(e: ObjectWithCountry): string | undefined
   {
     if (!('iso3166' in e) && (!('pays' in e) || typeof e.pays !== 'object' || !('iso3166' in e.pays))) return;
@@ -678,7 +696,6 @@ export default function useCommonHelper()
     let diff = 0;
     while (diff < ms || stop-- <= 0) {
       diff = new Date().getTime() - start;
-      console.log(diff, ms);
     }
   }
 
@@ -726,12 +743,14 @@ export default function useCommonHelper()
     getGravatarURL,
     getHexColor,
     getHourFromDate,
+    getLegacyIntranetUrl,
     getObjectNameWithCountry,
     getSlotName,
     initiale,
     isArray,
     isObject,
     isEmptyOrNull,
+    legacyIntranetUrl,
     listWithSlots,
     lowercaseFirstLetter,
     numberToString,

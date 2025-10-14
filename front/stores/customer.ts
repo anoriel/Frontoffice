@@ -4,6 +4,8 @@ import { useBaseStore } from './baseStore';
 import { useCustomerTypeStore } from '@/stores/customerType'
 import { DatatableSortBy } from '@/interfaces/datatableSortBy';
 import { useContacTypeStore } from './contactType';
+import useCommonHelper from '../helpers/commonHelper'
+const helpers = useCommonHelper()
 
 
 export const useCustomerStore = defineStore('customer', () =>
@@ -112,6 +114,11 @@ export const useCustomerStore = defineStore('customer', () =>
 
   localStorageName.value = "CrmCustomer"
 
+  function getActionOnOpeningItem(id: number)
+  {
+    let url = helpers.legacyIntranetUrl + "/admin/client.php?action_suivante=affiche_modifier&id=" + id;
+    return { url: url };
+  }
 
   return {
     availableFields,
@@ -135,6 +142,7 @@ export const useCustomerStore = defineStore('customer', () =>
     findPage,
     hasError,
     hasItems,
+    getActionOnOpeningItem,
     getById,
     getContextKey,
     getFiltersDiff,

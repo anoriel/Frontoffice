@@ -7,6 +7,7 @@ export interface BaseStoreInterface
   availableFields: AvailableField[],
   context: Record<string, any>,
   currentPage: number,
+  customMapping: Record<string, any>,
   defaultContext: Record<string, any>,
   error: any,
   exportList: any,

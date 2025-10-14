@@ -22,7 +22,7 @@
 
       <v-list v-if="getFilteredSettingsByStorageName().length" density="compact">
         <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('personal parameters'))
-          }}</v-list-subheader>
+        }}</v-list-subheader>
         <v-list-item v-for="item in getFilteredSettingsByStorageName()" :key="item.id" :value="item.id"
           @click="loadFilters(item)">
           <v-list-item-title>
@@ -33,7 +33,7 @@
       <v-divider></v-divider>
       <v-list v-if="getPublicSettingsByStorageName().length" density="compact">
         <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('public parameters'))
-          }}</v-list-subheader>
+        }}</v-list-subheader>
         <v-list-item v-for="item in getPublicSettingsByStorageName()" :key="item.id" :value="item.id"
           @click="loadFilters(item)">
           <v-list-item-title>
@@ -65,7 +65,8 @@
   <v-container fluid class="w-100 h-100 overflow-auto">
     <v-data-table-server :hover="true" v-model:items-per-page="itemsPerPage" :headers="visibleFields" striped="even"
       :items="serverItems" :items-length="totalItems" :loading="loading" @update:options="loadItems"
-      v-model:page="store.currentPage" density="compact" v-model:sort-by="sortBy" fixed-header style="max-height: 99%;">
+      v-model:page="store.currentPage" density="compact" v-model:sort-by="sortBy" fixed-header style="max-height: 99%;"
+      @click:row="(event, { item, index }) => openItemPage(event, item, index)" :row-props="rowClasses">
 
       <!-- #region top -->
       <template v-slot:top>
@@ -283,6 +284,7 @@ switch (props.moduleName)
 
 const itemsPerPage = shallowRef(globalStore.perPage)
 const loading = shallowRef(true)
+const rowBeingEdited = shallowRef({})
 const searchFilters = ref(JSON.parse(JSON.stringify(store.value.getSearchFilters())))
 const showColumns = shallowRef(false)
 const serverItems = shallowRef([])
@@ -362,6 +364,82 @@ async function loadItems({ page, itemsPerPage, sortBy, groupBy, search })
   loading.value = false;
 }
 
+function openItemPage(event, item, index)
+{
+  if (rowBeingEdited.value[item.id])
+  {
+    rowBeingEdited.value[item.id].focus();
+    return;
+  } else if (('rowIsDisabled' in item && item.rowIsDisabled))
+  {
+    return;
+  }
+
+  const routeData = store.value.getActionOnOpeningItem(item.id);
+  if (!'url' in routeData)//if no url, it's a route object, we change the page with router.push
+  {
+    router.push(routeData);
+    return;
+  }
+
+  //else it's a url, we open a new window
+  //we store the window in rowBeingEdited to avoid opening multiple windows for the same item
+  //and to be able to detect when the window is closed
+  //so we can reload the item in the list
+  //and remove the window from rowBeingEdited
+  rowBeingEdited.value[item.id] = window.open(routeData.url, '', 'width=1680,height=1024');
+
+  // Later, to detect when myWindow is closed
+  var timer = setInterval(function ()
+  {
+    if (rowBeingEdited.value[item.id].closed)
+    {
+      clearInterval(timer);
+      this.reloadItem(item)
+    }
+  }.bind(this, index), 100);
+
+}
+
+async function reloadItem(item)
+{
+
+  if (item != null)
+  {
+    item._rowVariant = "isBeingEdited font-italic bg-blue-grey-lighten-3 cursor-not-allowed"
+    item.rowIsDisabled = true;
+    await useSecurityStore().getLongRequest(2);
+    //TODO: reload only the item
+    item._rowVariant = "blinking bg-red-lighten-3 cursor-pointer"
+    delete item.rowIsDisabled;
+
+    setTimeout(function ()
+    {
+      this.unblinkRow(item);
+    }.bind(this, item), 1500);
+  }
+  if (item.id in rowBeingEdited.value)
+  {
+    delete rowBeingEdited.value[item.id];
+  }
+}
+
+function rowClasses({ item })
+{
+  let cssClass = {
+  };
+  if ('_rowVariant' in item && item._rowVariant)
+  {
+    cssClass[item._rowVariant] = true;
+  } else
+  {
+    cssClass = { 'cursor-pointer': true }
+  }
+  return {
+    class: cssClass,
+  }
+}
+
 function saveFilters(filters)
 {
   globalStore.showFiltersDialog = false
@@ -410,4 +488,46 @@ async function saveListSettingsToCloud(selectedListSetting, selectedIsPublic)
   globalStore.showSettingsDialog = false
 }
 
+function unblinkRow(item)
+{
+  delete item._rowVariant;
+}
 </script>
+
+<style>
+.blinking {
+  animation: fastblink 250ms infinite;
+}
+
+.isBeingEdited {
+  animation: slowblink 2000ms infinite;
+}
+
+@keyframes fastblink {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes slowblink {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+</style>

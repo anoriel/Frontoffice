@@ -13,9 +13,9 @@ const thisApi = {
   {
     return await axios.get<Utilisateur>("/me");
   },
-  async getLongRequest()
+  async getLongRequest(seconds: number = 1)
   {
-    return await axios.get("/getLongRequest/1");
+    return await axios.get("/getLongRequest/" + seconds);
   },
   async login(login: string, password: string)
   {

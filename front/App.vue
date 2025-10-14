@@ -5,7 +5,7 @@
         <img src="/images/asd-group-logo-couleur-transparent-white.png" :alt="appTitle" :title="appTitle" height="48" />
         <span>{{ appTitle }}</span>
 
-        <v-btn color="primary" :href="$getLegacyIntranetUrl()" class="ml-16" variant="elevated" elevation="5"
+        <v-btn color="primary" :href="$helpers.getLegacyIntranetUrl()" class="ml-16" variant="elevated" elevation="5"
           rounded="0">
           <v-icon>mdi-link-variant</v-icon>
           &nbsp; Go to

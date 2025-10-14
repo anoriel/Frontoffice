@@ -39,24 +39,7 @@ const helpers = useCommonHelper()
 app.config.globalProperties.$axios = axios
 app.config.globalProperties.$helpers = helpers
 app.config.globalProperties.$gravatarDefaultImage = import.meta.env.VITE_GRAVATAR_DEFAULT_IMAGE
-app.config.globalProperties.$legacyIntranetUrl = import.meta.env.VITE_INTRANET_LEGACY_URL
-app.config.globalProperties.$getLegacyIntranetUrl = getLegacyIntranetUrl
 
-function getLegacyIntranetUrl()
-{
-  let username = sessionStorage.getItem('username')
-  let authToken = sessionStorage.getItem('authToken')
-  if (null == username || null == authToken) {
-    return app.config.globalProperties.$legacyIntranetUrl
-  }
-  return (
-    app.config.globalProperties.$legacyIntranetUrl +
-    '/admin/identification.php?identifiant=' +
-    username +
-    '&authToken=' +
-    authToken
-  )
-}
 
 app.directive('debounce', vueDebounce({ lock: true }))
   .mount('#app')

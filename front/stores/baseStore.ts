@@ -1,7 +1,6 @@
 import { computed, ref } from "vue"
 import api_base from '@/api/api_base';
 import { Item } from '@/interfaces/item';
-import useCommonHelper from '../helpers/commonHelper'
 import { DatatableSortBy } from "@/interfaces/datatableSortBy";
 import { AvailableField } from "@/interfaces/availableField";
 import { FieldsByType } from "@/interfaces/fieldsByType";
@@ -11,10 +10,13 @@ import { DefaultContext } from "@/interfaces/defaultContext";
 import { MappingType } from "@/interfaces/mappingType";
 import moment from "moment";
 import { AxiosResponse } from "axios";
+import useCommonHelper from '../helpers/commonHelper'
 const helpers = useCommonHelper()
-
-
-
+interface FilterArrayItem
+{
+  key: string;
+  value: any;
+}
 
 export function useBaseStore()
 {
@@ -363,10 +365,11 @@ export function useBaseStore()
     return Object.keys(getFiltersDiff()).length;
   }
 
-  interface FilterArrayItem
+  //opens the item page, to be customized in each store
+  function getActionOnOpeningItem(id: number)
   {
-    key: string;
-    value: any;
+    console.log("Please customize the getActionOnOpeningItem function in your store, here we are ignoring the id " + id);
+    return { name: 'login' };
   }
 
   let filtersArray: FilterArrayItem[] = [];
@@ -583,6 +586,7 @@ export function useBaseStore()
     getVisibleFields,
     hasError,
     hasItems,
+    getActionOnOpeningItem,
     parseArrays,
     parseItem,
     parseResponse,

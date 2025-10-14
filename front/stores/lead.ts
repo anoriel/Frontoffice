@@ -95,6 +95,25 @@ export const useLeadStore = defineStore('lead', () =>
 
   localStorageName.value = "CrmLead"
 
+  async function addLeadComment(leadComment: LeadComment)
+  {
+    isLoading.value = true;
+    error.value = null;
+    try {
+      let response = await thisAPI.addLeadComment(leadComment)
+      isLoading.value = false;
+      return response.data;
+    } catch (error: any) {
+      isLoading.value = false;
+      error.value = error;
+      return null;
+    }
+  }
+
+  function getActionOnOpeningItem(id: number)
+  {
+    return { name: 'lead.page', params: { id: id } };
+  }
 
   function parseItem(item: Lead)
   {
@@ -133,24 +152,6 @@ export const useLeadStore = defineStore('lead', () =>
     //#endregion
     return item;
   }
-
-
-  async function addLeadComment(leadComment: LeadComment)
-  {
-    isLoading.value = true;
-    error.value = null;
-    try {
-      let response = await thisAPI.addLeadComment(leadComment)
-      isLoading.value = false;
-      return response.data;
-    } catch (error: any) {
-      isLoading.value = false;
-      error.value = error;
-      return null;
-    }
-  }
-
-
 
   async function transformIntoProspect(lead: Lead)
   {
@@ -193,6 +194,7 @@ export const useLeadStore = defineStore('lead', () =>
     findPage,
     hasError,
     hasItems,
+    getActionOnOpeningItem,
     getById,
     getContextKey,
     getNumberOfFilters,

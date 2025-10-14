@@ -273,12 +273,12 @@ export const useSecurityStore = defineStore('security', () =>
     isLoading.value = false
   }
 
-  async function getLongRequest()
+  async function getLongRequest(seconds: number = 1)
   {
     error.value = null
     isLoading.value = true
     try {
-      await thisAPI.getLongRequest()
+      await thisAPI.getLongRequest(seconds)
       isLoading.value = false
     } catch (error) {
       error = error
