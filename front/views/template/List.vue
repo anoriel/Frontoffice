@@ -376,7 +376,7 @@ function openItemPage(event, item, index)
   }
 
   const routeData = store.value.getActionOnOpeningItem(item.id);
-  if (!'url' in routeData)//if no url, it's a route object, we change the page with router.push
+  if (!('url' in routeData))//if no url, it's a route object, we change the page with router.push
   {
     router.push(routeData);
     return;
