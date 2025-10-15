@@ -2,8 +2,11 @@
   <v-app>
     <v-app-bar color="blue-darken-4" image="/images/bg-header.png" density="compact">
       <v-app-bar-title>
-        <img src="/images/asd-group-logo-couleur-transparent-white.png" :alt="appTitle" :title="appTitle" height="48" />
-        <span>{{ appTitle }}</span>
+        <router-link :to="{ name: 'welcome' }" id="logo" style="cursor: pointer;">
+          <img src="/images/asd-group-logo-couleur-transparent-white.png" :alt="appTitle" :title="appTitle"
+            height="48" />
+          {{ appTitle }}
+        </router-link>
 
         <v-btn color="primary" :href="$helpers.getLegacyIntranetUrl()" class="ml-16" variant="elevated" elevation="5"
           rounded="0">
@@ -51,7 +54,7 @@
           <v-list-item append-icon="mdi-logout" link @click="logout()">
             <v-list-item-title>{{
               $helpers.capitalizeFirstLetter($t('logout'))
-            }}</v-list-item-title>
+              }}</v-list-item-title>
             <template v-slot:append>
               <v-icon color="primary"></v-icon>
             </template>
@@ -115,12 +118,14 @@
 }
 
 
-.v-toolbar-title__placeholder>span {
+#logo {
   align-items: center !important;
+  color: white;
   display: flex !important;
   gap: 1rem;
   padding-left: 1rem !important;
-  padding-top: 12px !important;
+  padding-top: 0 !important;
+  text-decoration: none !important;
 }
 </style>
 
