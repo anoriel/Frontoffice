@@ -4,6 +4,13 @@ import * as ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { SHA1, SHA256 } from 'crypto-js';
 import tinycolor from 'tinycolor2'
+import i18n from '@/plugins/i18n'
+
+function t(key: string): string
+{
+  const t = i18n.global.t;
+  return t(key);
+}
 
 
 interface GenericListItem
@@ -141,34 +148,34 @@ export default function useCommonHelper()
       direction: 'ltr',
       format: 'yyyy-mm-dd',
       separator: ' ~ ',
-      applyLabel: this.capitalizeFirstLetter(this.$t('apply')),
-      cancelLabel: this.capitalizeFirstLetter(this.$t('cancel')),
+      applyLabel: capitalizeFirstLetter(t('apply')),
+      cancelLabel: capitalizeFirstLetter(t('cancel')),
       weekLabel: 'W',
       customRangeLabel: 'Custom Range',
       daysOfWeek: [
-        this.capitalizeFirstLetter(this.$t('weekday.sunday').slice(0, 3)),
-        this.capitalizeFirstLetter(this.$t('weekday.monday').slice(0, 3)),
-        this.capitalizeFirstLetter(this.$t('weekday.tuesday').slice(0, 3)),
-        this.capitalizeFirstLetter(this.$t('weekday.wednesday').slice(0, 3)),
-        this.capitalizeFirstLetter(this.$t('weekday.thursday').slice(0, 3)),
-        this.capitalizeFirstLetter(this.$t('weekday.friday').slice(0, 3)),
-        this.capitalizeFirstLetter(this.$t('weekday.saturday').slice(0, 3)),
+        capitalizeFirstLetter(t('weekday.sunday').slice(0, 3)),
+        capitalizeFirstLetter(t('weekday.monday').slice(0, 3)),
+        capitalizeFirstLetter(t('weekday.tuesday').slice(0, 3)),
+        capitalizeFirstLetter(t('weekday.wednesday').slice(0, 3)),
+        capitalizeFirstLetter(t('weekday.thursday').slice(0, 3)),
+        capitalizeFirstLetter(t('weekday.friday').slice(0, 3)),
+        capitalizeFirstLetter(t('weekday.saturday').slice(0, 3)),
       ],
       monthNames: [
-        this.capitalizeFirstLetter(this.$t('month.january').slice(0, 3)),
-        this.capitalizeFirstLetter(this.$t('month.february').slice(0, 3)),
-        this.capitalizeFirstLetter(this.$t('month.march').slice(0, 3)),
-        this.capitalizeFirstLetter(this.$t('month.april').slice(0, 3)),
-        this.capitalizeFirstLetter(this.$t('month.may').slice(0, 3)),
-        this.capitalizeFirstLetter(this.$t('month.june').slice(0, 3)),
-        this.capitalizeFirstLetter(this.$t('month.july').slice(0, 3)),
-        this.capitalizeFirstLetter(this.$t('month.august').slice(0, 3)),
-        this.capitalizeFirstLetter(this.$t('month.september').slice(0, 3)),
-        this.capitalizeFirstLetter(this.$t('month.october').slice(0, 3)),
-        this.capitalizeFirstLetter(this.$t('month.november').slice(0, 3)),
-        this.capitalizeFirstLetter(this.$t('month.december').slice(0, 3)),
+        capitalizeFirstLetter(t('month.january').slice(0, 3)),
+        capitalizeFirstLetter(t('month.february').slice(0, 3)),
+        capitalizeFirstLetter(t('month.march').slice(0, 3)),
+        capitalizeFirstLetter(t('month.april').slice(0, 3)),
+        capitalizeFirstLetter(t('month.may').slice(0, 3)),
+        capitalizeFirstLetter(t('month.june').slice(0, 3)),
+        capitalizeFirstLetter(t('month.july').slice(0, 3)),
+        capitalizeFirstLetter(t('month.august').slice(0, 3)),
+        capitalizeFirstLetter(t('month.september').slice(0, 3)),
+        capitalizeFirstLetter(t('month.october').slice(0, 3)),
+        capitalizeFirstLetter(t('month.november').slice(0, 3)),
+        capitalizeFirstLetter(t('month.december').slice(0, 3)),
       ],
-      firstDay: parseInt(this.$t('dateRangePicker.firstDay'))
+      firstDay: parseInt(t('dateRangePicker.firstDay'))
     };
     return locale;
   }
@@ -176,14 +183,14 @@ export default function useCommonHelper()
   function dateRangePickerLocaleRanges(this: Vue3Instance): DateRanges
   {
     const ranges: DateRanges = {};
-    ranges[this.capitalizeFirstLetter(this.$t('dateRangePicker.today'))] = [moment().toDate(), moment().toDate()];
-    ranges[this.capitalizeFirstLetter(this.$t('dateRangePicker.yesterday'))] = [moment().subtract(1, 'days').toDate(), moment().subtract(1, 'days').toDate()];
-    ranges[this.capitalizeFirstLetter(this.$t('dateRangePicker.thisMonth'))] = [moment().startOf('month').toDate(), moment().endOf('month').endOf('day').toDate()];
-    ranges[this.capitalizeFirstLetter(this.$t('dateRangePicker.lastMonth'))] = [moment().subtract(1, 'months').startOf('month').toDate(), moment().subtract(1, 'months').endOf('month').endOf('day').toDate()];
-    ranges[this.capitalizeFirstLetter(this.$t('dateRangePicker.thisQuarter'))] = [moment().startOf('quarter').toDate(), moment().endOf('quarter').endOf('day').toDate()];
-    ranges[this.capitalizeFirstLetter(this.$t('dateRangePicker.lastQuarter'))] = [moment().subtract(1, 'quarters').startOf('quarter').toDate(), moment().subtract(1, 'quarters').endOf('quarter').endOf('day').toDate()];
-    ranges[this.capitalizeFirstLetter(this.$t('dateRangePicker.thisYear'))] = [moment().startOf('year').toDate(), moment().endOf('year').endOf('day').toDate()];
-    ranges[this.capitalizeFirstLetter(this.$t('dateRangePicker.lastYear'))] = [moment().subtract(1, 'years').startOf('year').toDate(), moment().subtract(1, 'years').endOf('year').endOf('day').toDate()];
+    ranges[capitalizeFirstLetter(t('dateRangePicker.today'))] = [moment().toDate(), moment().toDate()];
+    ranges[capitalizeFirstLetter(t('dateRangePicker.yesterday'))] = [moment().subtract(1, 'days').toDate(), moment().subtract(1, 'days').toDate()];
+    ranges[capitalizeFirstLetter(t('dateRangePicker.thisMonth'))] = [moment().startOf('month').toDate(), moment().endOf('month').endOf('day').toDate()];
+    ranges[capitalizeFirstLetter(t('dateRangePicker.lastMonth'))] = [moment().subtract(1, 'months').startOf('month').toDate(), moment().subtract(1, 'months').endOf('month').endOf('day').toDate()];
+    ranges[capitalizeFirstLetter(t('dateRangePicker.thisQuarter'))] = [moment().startOf('quarter').toDate(), moment().endOf('quarter').endOf('day').toDate()];
+    ranges[capitalizeFirstLetter(t('dateRangePicker.lastQuarter'))] = [moment().subtract(1, 'quarters').startOf('quarter').toDate(), moment().subtract(1, 'quarters').endOf('quarter').endOf('day').toDate()];
+    ranges[capitalizeFirstLetter(t('dateRangePicker.thisYear'))] = [moment().startOf('year').toDate(), moment().endOf('year').endOf('day').toDate()];
+    ranges[capitalizeFirstLetter(t('dateRangePicker.lastYear'))] = [moment().subtract(1, 'years').startOf('year').toDate(), moment().subtract(1, 'years').endOf('year').endOf('day').toDate()];
     return ranges;
   }
 
@@ -309,7 +316,7 @@ export default function useCommonHelper()
     );
   }
 
-  function formatBytesArray(this: Vue3Instance, bytes: number, inline: boolean = false): FormatBytesResult | string
+  function formatBytesArray(bytes: number, inline: boolean = false): FormatBytesResult | string
   {
     const sizes = [
       "unit_bytes",
@@ -326,13 +333,13 @@ export default function useCommonHelper()
     if (bytes == 0) {
       returnArray = {
         value: 0,
-        unit: this.$t("unit_byte"),
+        unit: t("unit_byte"),
       };
     } else {
       const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)).toString());
       returnArray = {
         value: Math.round(bytes / Math.pow(1024, i)),
-        unit: this.$t(sizes[i]),
+        unit: t(sizes[i]),
       };
     }
     return inline ? returnArray.value + " " + returnArray.unit : returnArray;
@@ -470,7 +477,7 @@ export default function useCommonHelper()
   function getHourFromDate(value: string | Date | null | undefined): string | undefined
   {
     if (value) {
-      return moment(new Date(String(value))).format("HH:ii:ss");
+      return moment(new Date(String(value))).format("HH:mm:ss");
     }
   }
 
@@ -498,10 +505,10 @@ export default function useCommonHelper()
 
   function getSlotName(this: Vue3Instance, e: SlotObject): string
   {
-    let returnValue = '< ' + this.$t('not assigned').toUpperCase() + ' >';
+    let returnValue = '< ' + t('not assigned').toUpperCase() + ' >';
 
     if (e.id == 0) {
-      returnValue = '< ' + this.$t('anything').toUpperCase() + ' >';
+      returnValue = '< ' + t('anything').toUpperCase() + ' >';
     } else if (e && e.stringValue) {
       returnValue = e.stringValue;
     }

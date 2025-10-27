@@ -221,7 +221,7 @@ async function updated()
     'roles': activeItem.value.roles
   });
   globalStore.setIsBackgroundLoading(true)
-  let request = await userStore.save(activeItem.value.id, activeItem.value);
+  let request = await userStore.save(activeItem.value);
   filteredList.value[index] = request;
   globalStore.setIsBackgroundLoading(false);
 }

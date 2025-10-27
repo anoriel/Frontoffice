@@ -217,12 +217,15 @@ axios.interceptors.request.use((request) =>
   {
     request.headers['Authorization'] = 'Bearer ' + sessionStorage.getItem('JWTToken')
   }
-  if (request.method == 'patch')
+  if (!('Content-Type' in request.headers))
   {
-    request.headers['Content-Type'] = 'application/merge-patch+json'
-  } else if (request.method == 'post')
-  {
-    request.headers['Content-Type'] = 'application/json'
+    if (request.method == 'patch')
+    {
+      request.headers['Content-Type'] = 'application/merge-patch+json'
+    } else if (request.method == 'post')
+    {
+      request.headers['Content-Type'] = 'application/json'
+    }
   }
   return request
 })

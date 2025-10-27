@@ -1,0 +1,12 @@
+$material-light: (
+  'background': #ffe3e3,
+);
+
+// override some Vuetify variables and defined some variables of my own, e.g.
+// Vuetify default is 48px
+$data-table-mobile-row-min-height: 32px;
+
+// Increase default height by 10px
+// https://vuetifyjs.com/en/api/v-date-picker/#sass-variables
+// $date-picker-table-height: 252px;
+$date-picker-table-height: 500px;

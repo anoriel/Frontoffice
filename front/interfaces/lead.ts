@@ -37,7 +37,7 @@ export interface Lead extends Item
   monthlyExpectedIncome?: number;
   punctualExpectedIncome?: number;
   reminderDate?: Date;
-  readonly leadHistories?: any;
+  leadHistories?: any;
 
 
   [key: string]: any;

@@ -119,7 +119,7 @@ async function deleteItem(item: any)
 {
   if (!item.id) {
     const index = list.value.findIndex((element: { id: number; }) => element.id === item.id)
-    await props.currentItemsStore.save(item.id, item);
+    await props.currentItemsStore.save(item);
     list.value.splice(index, 1);
     return;
   }
@@ -136,7 +136,7 @@ function editItem(item: any)
 
 async function saveItem(item: any)
 {
-  let savedItem = await props.currentItemsStore.save(item.id, item);
+  let savedItem = await props.currentItemsStore.save(item);
   if (item.id != null) {
     const index = list.value.findIndex((element: { id: number; }) => element.id === item.id)
     list.value[index] = savedItem

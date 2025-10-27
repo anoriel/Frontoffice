@@ -55,7 +55,7 @@ export const useSettingsStore = defineStore('settings', () =>
 
   async function saveSettingsByStorageName(storageName: string, setting: Setting)
   {
-    let result = await save(setting.id ?? -1, setting);
+    let result = await save(setting);
     if (result) {
       let index = settingsByStorageName.value[storageName].findIndex(s => s.id === setting.id);
       if (index !== -1) {

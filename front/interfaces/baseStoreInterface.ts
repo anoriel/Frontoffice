@@ -39,7 +39,7 @@ export interface BaseStoreInterface
   parseSortBy: any,
   reset(): boolean,
   resetError(): void,
-  save(id: number, item: any): any,
+  save(item: any): any,
   setContext: any,
   setContextKey: any,
   setVisibleFields: any,

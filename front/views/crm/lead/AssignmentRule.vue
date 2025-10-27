@@ -25,15 +25,9 @@
       </v-btn>
     </v-row>
 
-    <v-dialog max-width="600" v-model="yesNoDialog">
-      <v-card :title="$helpers.capitalizeFirstLetter($t('are you sure you want to delete this line?'))">
-        <v-card-actions class="bg-surface-light">
-          <v-btn :text="$helpers.capitalizeFirstLetter($t('no'))" color="error" @click="removeRowCancelled()" />
-          <v-spacer></v-spacer>
-          <v-btn :text="$helpers.capitalizeFirstLetter($t('yes'))" color="success" @click="removeRowConfirmed()" />
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <yes-no-dialog :dialog="yesNoDialog" :title="$t('confirm deletion')"
+      :message="$t('are you sure you want to delete this line?')" :yes-text="$t('delete')" :no-text="$t('cancel')"
+      @yes="removeRowConfirmed()" @no="removeRowCancelled()" />
 
     <v-dialog v-model="editDialog" max-width="500">
       <v-card :title="$helpers.capitalizeFirstLetter($t('modify data'))">
@@ -239,9 +233,10 @@ import { useI18n } from "vue-i18n";
 const { t } = useI18n({ useScope: "global" });
 import useCommonHelper from '@/helpers/commonHelper'
 const helpers = useCommonHelper()
+import { update } from 'lodash';
 
 import CountryComponent from '@/components/CountryComponent.vue';
-import { update } from 'lodash';
+import YesNoDialog from '@/components/YesNoDialog.vue'
 
 const addFilterDialog = ref(false)
 const assignmentRulesList = ref([])
@@ -629,7 +624,7 @@ function sortList(reset = false)
 async function updated(item)
 {
 
-  let response = await leadAssignmentRuleStore.save(item.id, item);
+  let response = await leadAssignmentRuleStore.save(item);
   if (response)
   {
     let index = assignmentRulesList.value.findIndex((element) => element.id === response.id)

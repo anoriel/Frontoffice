@@ -5,10 +5,10 @@ export interface MediaObject extends Item {
   mimeType?: string;
   filesystem?: string;
   directory?: string;
-  fileURL?: string;
+  fileURL: string;
   category?: string;
   createdAt?: Date;
   leadComments?: string[];
   size?: number;
-  clientOriginalName?: string;
+  clientOriginalName: string;
 }

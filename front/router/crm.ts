@@ -1,7 +1,7 @@
 import { RouteRecordRaw } from "vue-router";
 import AssignmentRule from "../views/crm/lead/AssignmentRule.vue";
 import LeadDashboard from "../views/crm/lead/Dashboard.vue";
-import LeadPage from "../views/crm/lead/LeadPage.vue";
+import LeadPage from "@/views/crm/lead/Item.vue";
 import OriginsList from "../views/crm/lead/OriginsList.vue";
 import ReasonList from "../views/crm/lead/ReasonList.vue";
 import CustomersList from "@/views/crm/customer/List.vue";
@@ -115,6 +115,7 @@ const moduleRoutes: RouteRecordRaw[] = [
       title: "lead.page",
       hasRole: "ROLE_CRM"
     },
+    props: (route) => ({ id: route.params.id, duplicateLead: null }),
   }
 ];
 

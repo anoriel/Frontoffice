@@ -94,7 +94,7 @@ export function useBaseStore()
     }
   }
 
-  async function findAll(showFullData: boolean = false)
+  async function findAll(showFullData: boolean = false): Promise<Item[]>
   {
     isLoading.value = true;
     error.value = null;
@@ -107,7 +107,7 @@ export function useBaseStore()
     } catch (err: any) {
       isLoading.value = false;
       error.value = err;
-      return null;
+      return [];
     }
   }
 
@@ -478,7 +478,7 @@ export function useBaseStore()
     error.value = null;
   }
 
-  async function save(id: number, itemData: any)
+  async function save(itemData: any)
   {
     isLoading.value = true;
     error.value = null;
@@ -501,7 +501,7 @@ export function useBaseStore()
 
       let response = null
       if (itemData.id && parseInt(itemData.id) > 0) {
-        response = await api.value.save(id, itemData)
+        response = await api.value.save(itemData.id, itemData)
       } else {
         response = await api.value.add(itemData);
       }
