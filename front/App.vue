@@ -54,7 +54,7 @@
           <v-list-item append-icon="mdi-logout" link @click="logout()">
             <v-list-item-title>{{
               $helpers.capitalizeFirstLetter($t('logout'))
-              }}</v-list-item-title>
+            }}</v-list-item-title>
             <template v-slot:append>
               <v-icon color="primary"></v-icon>
             </template>
@@ -130,6 +130,7 @@
 </style>
 
 <script setup>
+import { getActivePinia } from "pinia"
 import PageTitle from '@/components/PageTitle.vue';
 import NavBar from './components/NavBar.vue'
 import axios from './plugins/axios/axios'
@@ -287,6 +288,8 @@ function interceptResponse(response)
 async function logout()
 {
   await securityStore.logout()
+  // map through that list and use the **$reset** fn to reset the state
+  getActivePinia()._s.forEach(store => store.$reset());
   router.push({ name: 'login' });
 }
 

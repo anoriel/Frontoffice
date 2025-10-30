@@ -8,6 +8,23 @@ import vuetify from './plugins/vuetify'
 import router from './router'
 import vueDebounce from 'vue-debounce'
 import useCommonHelper from './helpers/commonHelper'
+import { cloneDeep } from 'lodash'
+
+const piniaInstance = createPinia()
+piniaInstance.use(({ store }) =>
+{
+  //fix pinia Error: 🍍: Store "security" is built using the setup syntax and does not implement $reset().
+  const initialState = cloneDeep(store.$state)
+  if (typeof store.$reset !== "undefined") {
+    store.$reset = () =>
+    {
+      store.$patch($state =>
+      {
+        Object.assign($state, initialState)
+      })
+    }
+  }
+})
 
 //custom directive to make te function effective
 i18n.global.te = (key: Parameters<typeof i18n.global.te>[0], locale: Parameters<typeof i18n.global.te>[1]) =>
@@ -30,7 +47,7 @@ declare module '@vue/runtime-core' {
 
 const app = createApp(App)
 
-app.use(createPinia())
+app.use(piniaInstance)
 app.use(i18n)
 app.use(router)
 app.use(vuetify)
