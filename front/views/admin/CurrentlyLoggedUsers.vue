@@ -38,7 +38,6 @@ const currentlyLoggedUsersList = ref([])
 onMounted(async () =>
 {
   currentlyLoggedUsersList.value = await userStore.getCurrentlyLoggedUsers();
-  globalStore.isLoadingWithLock = false
 })
 
 const pageCount = computed(() =>

@@ -148,7 +148,6 @@ onMounted(async () =>
     list = list.filter(e => `${e.nom} ${e.prenom}`.toLowerCase().indexOf(userFilter.value.toLowerCase()) >= 0);
   }
   filteredList.value = list
-  globalStore.isLoadingWithLock = false
 })
 
 function getUserName(e)

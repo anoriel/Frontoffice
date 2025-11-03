@@ -307,7 +307,6 @@ onMounted(async () =>
   {
     await countryStore.findAll()
   }
-  globalStore.isLoadingWithLock = false
 })
 
 function addAnItem()

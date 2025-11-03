@@ -236,8 +236,6 @@ import { onMounted, ref, watch } from 'vue'
 import _ from "lodash";
 import { useRouter } from 'vue-router'
 const router = useRouter()
-import { useGlobalStore } from '@/stores/global';
-const globalStore = useGlobalStore();
 import { useLeadStore } from '@/stores/lead';
 const leadStore = useLeadStore();
 import { useLeadCommentStore } from '@/stores/leadComment';
@@ -344,8 +342,6 @@ onMounted(async () =>
   }
   clonedLead.value = _.cloneDeep(lead.value);
   getActivity();
-
-  globalStore.isLoadingWithLock = false
 })
 
 async function addComment()

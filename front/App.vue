@@ -54,7 +54,7 @@
           <v-list-item append-icon="mdi-logout" link @click="logout()">
             <v-list-item-title>{{
               $helpers.capitalizeFirstLetter($t('logout'))
-            }}</v-list-item-title>
+              }}</v-list-item-title>
             <template v-slot:append>
               <v-icon color="primary"></v-icon>
             </template>
@@ -279,6 +279,7 @@ function interceptResponse(response)
     axiosNbRequests.value = 0
     axiosMaxRequests.value = 0
     axiosIsLoading.value = false
+    globalStore.isLoadingWithLock = false
   }
 }
 
