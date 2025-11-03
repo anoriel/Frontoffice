@@ -56,7 +56,7 @@
 import { ref } from 'vue';
 import { useGlobalStore } from '@/stores/global';
 import { PropType } from 'vue';
-import { BaseStoreInterface } from '@/interfaces/baseStoreInterface';
+import { BaseStoreInterface } from '@/interfaces/BaseStoreInterface';
 const globalStore = useGlobalStore()
 import useCommonHelper from '@/helpers/commonHelper'
 const helpers = useCommonHelper()

@@ -504,52 +504,52 @@
     <testcase classname="Lead Refusal Reason Store State Management should manage item data" name="Lead Refusal Reason Store State Management should manage item data" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="Utilisateur Interface" errors="0" failures="0" skipped="0" timestamp="2025-09-24T08:25:09" time="0.109" tests="23">
-    <testcase classname="Utilisateur Interface Type Structure should allow utilisateur object with required roles property" name="Utilisateur Interface Type Structure should allow utilisateur object with required roles property" time="0.001">
+  <testsuite name="UserInterface Interface" errors="0" failures="0" skipped="0" timestamp="2025-09-24T08:25:09" time="0.109" tests="23">
+    <testcase classname="UserInterface Interface Type Structure should allow utilisateur object with required roles property" name="UserInterface Interface Type Structure should allow utilisateur object with required roles property" time="0.001">
     </testcase>
-    <testcase classname="Utilisateur Interface Type Structure should allow utilisateur object with all optional properties" name="Utilisateur Interface Type Structure should allow utilisateur object with all optional properties" time="0.002">
+    <testcase classname="UserInterface Interface Type Structure should allow utilisateur object with all optional properties" name="UserInterface Interface Type Structure should allow utilisateur object with all optional properties" time="0.002">
     </testcase>
-    <testcase classname="Utilisateur Interface Type Structure should work with minimal required properties only" name="Utilisateur Interface Type Structure should work with minimal required properties only" time="0.003">
+    <testcase classname="UserInterface Interface Type Structure should work with minimal required properties only" name="UserInterface Interface Type Structure should work with minimal required properties only" time="0.003">
     </testcase>
-    <testcase classname="Utilisateur Interface Property Types should have correct basic information types" name="Utilisateur Interface Property Types should have correct basic information types" time="0.001">
+    <testcase classname="UserInterface Interface Property Types should have correct basic information types" name="UserInterface Interface Property Types should have correct basic information types" time="0.001">
     </testcase>
-    <testcase classname="Utilisateur Interface Property Types should have correct actif boolean type" name="Utilisateur Interface Property Types should have correct actif boolean type" time="0.001">
+    <testcase classname="UserInterface Interface Property Types should have correct actif boolean type" name="UserInterface Interface Property Types should have correct actif boolean type" time="0.001">
     </testcase>
-    <testcase classname="Utilisateur Interface Property Types should have correct lastActivityAt date type" name="Utilisateur Interface Property Types should have correct lastActivityAt date type" time="0">
+    <testcase classname="UserInterface Interface Property Types should have correct lastActivityAt date type" name="UserInterface Interface Property Types should have correct lastActivityAt date type" time="0">
     </testcase>
-    <testcase classname="Utilisateur Interface Property Types should have required readonly roles array type" name="Utilisateur Interface Property Types should have required readonly roles array type" time="0.001">
+    <testcase classname="UserInterface Interface Property Types should have required readonly roles array type" name="UserInterface Interface Property Types should have required readonly roles array type" time="0.001">
     </testcase>
-    <testcase classname="Utilisateur Interface Property Types should allow any type for relationship properties" name="Utilisateur Interface Property Types should allow any type for relationship properties" time="0.001">
+    <testcase classname="UserInterface Interface Property Types should allow any type for relationship properties" name="UserInterface Interface Property Types should allow any type for relationship properties" time="0.001">
     </testcase>
-    <testcase classname="Utilisateur Interface Property Types should have readonly properties with correct types" name="Utilisateur Interface Property Types should have readonly properties with correct types" time="0">
+    <testcase classname="UserInterface Interface Property Types should have readonly properties with correct types" name="UserInterface Interface Property Types should have readonly properties with correct types" time="0">
     </testcase>
-    <testcase classname="Utilisateur Interface Interface Extension should extend Item interface" name="Utilisateur Interface Interface Extension should extend Item interface" time="0.001">
+    <testcase classname="UserInterface Interface Interface Extension should extend Item interface" name="UserInterface Interface Interface Extension should extend Item interface" time="0.001">
     </testcase>
-    <testcase classname="Utilisateur Interface Required vs Optional Properties should require roles property" name="Utilisateur Interface Required vs Optional Properties should require roles property" time="0">
+    <testcase classname="UserInterface Interface Required vs Optional Properties should require roles property" name="UserInterface Interface Required vs Optional Properties should require roles property" time="0">
     </testcase>
-    <testcase classname="Utilisateur Interface Required vs Optional Properties should have all other properties as optional" name="Utilisateur Interface Required vs Optional Properties should have all other properties as optional" time="0.003">
+    <testcase classname="UserInterface Interface Required vs Optional Properties should have all other properties as optional" name="UserInterface Interface Required vs Optional Properties should have all other properties as optional" time="0.003">
     </testcase>
-    <testcase classname="Utilisateur Interface Real-world Usage should work with user list" name="Utilisateur Interface Real-world Usage should work with user list" time="0.001">
+    <testcase classname="UserInterface Interface Real-world Usage should work with user list" name="UserInterface Interface Real-world Usage should work with user list" time="0.001">
     </testcase>
-    <testcase classname="Utilisateur Interface Real-world Usage should work with partial user data" name="Utilisateur Interface Real-world Usage should work with partial user data" time="0.001">
+    <testcase classname="UserInterface Interface Real-world Usage should work with partial user data" name="UserInterface Interface Real-world Usage should work with partial user data" time="0.001">
     </testcase>
-    <testcase classname="Utilisateur Interface Real-world Usage should work with user creation payload" name="Utilisateur Interface Real-world Usage should work with user creation payload" time="0">
+    <testcase classname="UserInterface Interface Real-world Usage should work with user creation payload" name="UserInterface Interface Real-world Usage should work with user creation payload" time="0">
     </testcase>
-    <testcase classname="Utilisateur Interface Real-world Usage should work with user update payload" name="Utilisateur Interface Real-world Usage should work with user update payload" time="0">
+    <testcase classname="UserInterface Interface Real-world Usage should work with user update payload" name="UserInterface Interface Real-world Usage should work with user update payload" time="0">
     </testcase>
-    <testcase classname="Utilisateur Interface Real-world Usage should work with role-based filtering" name="Utilisateur Interface Real-world Usage should work with role-based filtering" time="0">
+    <testcase classname="UserInterface Interface Real-world Usage should work with role-based filtering" name="UserInterface Interface Real-world Usage should work with role-based filtering" time="0">
     </testcase>
-    <testcase classname="Utilisateur Interface Business Logic Properties should handle user authentication and authorization" name="Utilisateur Interface Business Logic Properties should handle user authentication and authorization" time="0.001">
+    <testcase classname="UserInterface Interface Business Logic Properties should handle user authentication and authorization" name="UserInterface Interface Business Logic Properties should handle user authentication and authorization" time="0.001">
     </testcase>
-    <testcase classname="Utilisateur Interface Business Logic Properties should handle organizational relationships" name="Utilisateur Interface Business Logic Properties should handle organizational relationships" time="0.001">
+    <testcase classname="UserInterface Interface Business Logic Properties should handle organizational relationships" name="UserInterface Interface Business Logic Properties should handle organizational relationships" time="0.001">
     </testcase>
-    <testcase classname="Utilisateur Interface Business Logic Properties should handle user impersonation" name="Utilisateur Interface Business Logic Properties should handle user impersonation" time="0.002">
+    <testcase classname="UserInterface Interface Business Logic Properties should handle user impersonation" name="UserInterface Interface Business Logic Properties should handle user impersonation" time="0.002">
     </testcase>
-    <testcase classname="Utilisateur Interface Business Logic Properties should handle activity tracking and points system" name="Utilisateur Interface Business Logic Properties should handle activity tracking and points system" time="0">
+    <testcase classname="UserInterface Interface Business Logic Properties should handle activity tracking and points system" name="UserInterface Interface Business Logic Properties should handle activity tracking and points system" time="0">
     </testcase>
-    <testcase classname="Utilisateur Interface Business Logic Properties should handle display representation" name="Utilisateur Interface Business Logic Properties should handle display representation" time="0.001">
+    <testcase classname="UserInterface Interface Business Logic Properties should handle display representation" name="UserInterface Interface Business Logic Properties should handle display representation" time="0.001">
     </testcase>
-    <testcase classname="Utilisateur Interface Business Logic Properties should handle different role combinations" name="Utilisateur Interface Business Logic Properties should handle different role combinations" time="0">
+    <testcase classname="UserInterface Interface Business Logic Properties should handle different role combinations" name="UserInterface Interface Business Logic Properties should handle different role combinations" time="0">
     </testcase>
   </testsuite>
   <testsuite name="Lead Interface" errors="0" failures="0" skipped="0" timestamp="2025-09-24T08:25:09" time="0.104" tests="22">

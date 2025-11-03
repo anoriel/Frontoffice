@@ -2,15 +2,40 @@
   <v-container fluid class="w-100 h-100 overflow-auto position-relative">
     <v-app-bar density="compact" variant="flat">
       <v-spacer></v-spacer>
-      <v-menu v-if="lead.id" color="primary" size="sm">
+      <v-btn v-if="nbModifications && !lead.isLoading" size="x-small" class="bg-warning position-relative p-0 pr-1 mr-1"
+        @click="cancelModifications()" :disabled="lead.isLoading">
+        <v-icon>mdi-cancel</v-icon>
+        {{ $helpers.capitalizeFirstLetter($t('cancel')) }}
+      </v-btn>
+      <v-badge location="top right" color="warning" :model-value="timeBeforeSave != undefined && timeBeforeSave > 0"
+        :content="timeBeforeSave" class="mb-1 mt-1 mr-1"
+        :class="{ 'mr-3': timeBeforeSave != undefined && timeBeforeSave > 0 }">
+        <v-tooltip :disabled="formIsValid !== false" location="top" color="warning">
+          <template v-slot:activator="{ props }" class="ml-1">
+            <span v-bind="props">
+              <v-btn size="x-small" color="success" variant="flat" @click="save()"
+                :disabled="!nbModifications || formIsValid === false || lead.isLoading"
+                :class="{ 'cursor-not-allowed': formIsValid === false }">
+                <v-icon>mdi-content-save</v-icon>
+                {{ $helpers.capitalizeFirstLetter($t('save')) }}
+              </v-btn>
+            </span>
+          </template>
+          <span>
+            {{ $helpers.capitalizeFirstLetter($t('please check required fields')) }}
+          </span>
+        </v-tooltip>
+      </v-badge>
+
+      <v-menu v-if="lead.id" color="primary" size="x-small">
         <template v-slot:activator="{ props }" :disabled="loading">
-          <v-btn v-bind="props" class="bg-secondary" color="white" size="small" :disabled="leadStore.isLoading">
+          <v-btn v-bind="props" class="bg-secondary" color="white" size="x-small" :disabled="leadStore.isLoading">
             <v-icon>mdi-cog</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('action')) }}
           </v-btn>
         </template>
 
         <v-list>
-          <v-list-item v-if="lead.leadType?.name != 'lost'" @click="duplicateLead()" density="compact">
+          <v-list-item v-if="lead.id" @click="duplicateLead()" density="compact">
             <v-icon class="text-primary">
               mdi-content-copy
             </v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('duplicate')) }}
@@ -43,25 +68,13 @@
           </v-list-item>
         </v-list>
       </v-menu>
-
-      <v-tooltip v-else :disabled="formIsValid" location="top" color="warning">
-        <template v-slot:activator="{ props }" class="ml-1">
-          <span v-bind="props">
-            <v-btn color="success" @click="save(true)" :disabled="!formIsValid"
-              :class="{ 'cursor-not-allowed': !formIsValid }" size="small">
-              <v-icon>mdi-content-save</v-icon>
-              {{ $helpers.capitalizeFirstLetter($t('save')) }}
-            </v-btn>
-          </span>
-        </template>
-        <span>
-          {{ $helpers.capitalizeFirstLetter($t('please check required fields')) }}
-        </span>
-      </v-tooltip>
     </v-app-bar>
 
     <v-row>
       <v-col md="12" lg="8" class="mt-lg-2 mt-xl-0 pb-16">
+        <div>formIsValid={{ formIsValid }}</div>
+        <div>nbModifications={{ nbModifications }}</div>
+        <div>modificationsList={{ modificationsList }}</div>
         <div>
           <div class="arrow_button_cartouche d-flex flex-row-reverse" border="primary lg">
             <button v-for="leadType, index in getVisibleTypesList()" :key="index"
@@ -75,14 +88,14 @@
           <span v-if="lead.leadType?.name == 'won'" class="wonTag text-success">
             {{ $helpers.capitalizeFirstLetter($t('lead.won')) }}
           </span>
-          <span v-else-if="lead.leadType?.name == 'lost'" class="lostTag text-danger">
+          <span v-else-if="lead.leadType?.name == 'lost'" class="lostTag text-error">
             {{ $helpers.capitalizeFirstLetter($t('lead.lost')) }}
           </span>
           <span v-else-if="lead.leadType?.name == 'spam'" class="spamTag text-warning">
             {{ $helpers.capitalizeFirstLetter($t('lead.spam')) }}
           </span>
 
-          <v-form ref="leadForm" v-model="formIsValid" @submit.prevent>
+          <v-form v-model="formIsValid" @submit.prevent lazy-validation>
             <div class="leadDivContent">
               <v-row class="mb-8 border-b">
                 <v-col col="10" md="9" class="pt-3 pa-0">
@@ -93,30 +106,12 @@
                       required @keydown.enter.prevent="$event.target.blur()" density="compact" />
                   </h1>
                 </v-col>
-                <v-col col="2" md="3" class="pt-3 pa-0 bg-white-opacity-50">
-                  <v-text-field v-if="creationDateIsLocked" :value="$helpers.formatDate(lead.createdAt)"
-                    :class="lead.createdAt ? '' : 'opacity-50-for-label'"
-                    :label="$helpers.capitalizeFirstLetter($t('lead.createdAt'))" prepend-icon="mdi-calendar" readonly
-                    :rules="[() => !!lead.createdAt || $helpers.capitalizeFirstLetter($t('field required', { field: $helpers.capitalizeFirstLetter($t('lead.createdAt')) }))]"
-                    required disabled :title="$helpers.formatDateTime(lead.createdAt)" density="compact">
-                    <template v-slot:append>
-                      <v-icon @click="creationDateIsLocked = !creationDateIsLocked">
-                        {{ creationDateIsLocked ? 'mdi-lock' : 'mdi-lock-open-variant' }}
-                      </v-icon>
-                    </template>
+                <v-col col="2" md="3" class="pt-3 pl-1 pa-0 bg-white-opacity-50">
+                  <v-text-field v-model="lead.createdAt" :value="$helpers.formatDate(lead.createdAt)" readonly
+                    :label="$helpers.capitalizeFirstLetter($t('lead.createdAt'))" prepend-inner-icon="mdi-calendar"
+                    required icon-color="primary" :title="$helpers.formatDateTime(lead.createdAt)" density="compact"
+                    @mousedown:control="dateTimeDialog = true">
                   </v-text-field>
-                  <v-menu v-else ref="menu" v-model="showDatePicker" :close-on-content-click="false"
-                    transition="scale-transition" offset-y min-width="auto">
-                    <template v-slot:activator="{ props }">
-                      <v-text-field :value="$helpers.formatDate(lead.createdAt)"
-                        :label="$helpers.capitalizeFirstLetter($t('lead.createdAt'))" prepend-icon="mdi-calendar"
-                        readonly v-bind="props"
-                        :append-outer-icon="creationDateIsLocked ? 'mdi-lock' : 'mdi-lock-open-variant'"
-                        @click:append-outer="creationDateIsLocked = !creationDateIsLocked" density="compact" />
-                    </template>
-                    <v-date-input v-model="lead.createdAt" min="2020-01-01" clearable density="compact"
-                      mode-icon="mdi-calendar-edit" @input="showDatePicker = false; creationDateIsLocked = true" />
-                  </v-menu>
                 </v-col>
               </v-row>
             </div>
@@ -163,24 +158,30 @@
                 <UtilisateurComponent :user="leadActivity.user" class="ml-1 text-blue-darken-4" />
                 <v-list density="compact" class="pa-0">
                   <v-list-item v-for="item in leadActivity.activities">
-                    <v-list-item-title class="text-caption">
+                    <v-list-item-title class="text-caption" :title="getFullChangesText(item.history)">
                       <template v-if="item.history">
-                        <span>{{ $helpers.capitalizeFirstLetter($te('lead.' +
+                        <span class="font-italic">
+                          [{{ $helpers.getHourFromDate(item.history.createdAt) }}]
+                        </span>
+                        <span class="text-blue-darken-4">{{ $helpers.capitalizeFirstLetter($te('lead.' +
                           item.history.updatedField) ? $t('lead.' + item.history.updatedField) :
                           ($t(item.history.updatedField))) }}{{
                             $t(':')
                           }}</span>
                         <span class="activityValues">
-                          <span v-if="!item.history.onlyNewValue" :class="{ 'emptyCell': !item.history.oldValue }"
-                            class="text-decoration-line-through text-danger">
-                            {{ item.history.oldValue ? ($te(item.history.oldValue) ? $t(item.history.oldValue) :
-                              ($te('lead.' +
-                                item.history.oldValue) ? $t('lead.' + item.history.oldValue) : item.history.oldValue)) : '{'
+                          <span v-if="!item.history.onlyNewValue">
+                            <span :class="{ 'emptyCell': !item.history.oldValue }"
+                              class="text-decoration-line-through text-error">
+                              {{ item.history.oldValue ? ($te(item.history.oldValue) ? $t(item.history.oldValue) :
+                                ($te('lead.' +
+                                  item.history.oldValue) ? $t('lead.' + item.history.oldValue) : item.history.oldValue)) :
+                                '{'
                                 + $t('empty') +
-                            '}'
-                            }}
+                                '}'
+                              }}
+                            </span>
+                            <span>&nbsp;->&nbsp;</span>
                           </span>
-                          <span v-if="!item.history.onlyNewValue">&nbsp;->&nbsp;</span>
                           <span :class="{ 'emptyCell': !item.history.newValue }" class="text-success">
                             {{ item.history.newValue ? ($te(item.history.newValue) ? $t(item.history.newValue) :
                               ($te('lead.' +
@@ -195,7 +196,7 @@
                         <span class="font-italic">
                           [{{ $helpers.getHourFromDate(item.comment.createdAt) }}]
                         </span>
-                        <span class="text-blue-darken-4">
+                        <span class="text-success">
                           {{ $helpers.capitalizeFirstLetter($t('comment')) }}{{ $t(':') }}
                         </span>
                         <span class="">
@@ -225,10 +226,14 @@
   <yes-no-dialog ref="deleteDialog" :dialog="yesNoDialog" :title="$t('confirm deletion')"
     :message="$t('are you sure you want to delete this item?')" :yes-text="$t('delete')" :no-text="$t('cancel')"
     @yes="confirmDelete" @no="yesNoDialog = false" />
+
+  <date-time-dialog :dialog="dateTimeDialog" :model-date="lead.createdAt" :title="$t('lead.createdAt')"
+    @saveDateTime="lead.createdAt = $event; dateTimeDialog = false" @cancelDateTime="dateTimeDialog = false" />
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
+import _ from "lodash";
 import { useRouter } from 'vue-router'
 const router = useRouter()
 import { useGlobalStore } from '@/stores/global';
@@ -239,35 +244,35 @@ import { useLeadCommentStore } from '@/stores/leadComment';
 const leadCommentStore = useLeadCommentStore();
 import { useLeadTypeStore } from '@/stores/leadType';
 const leadTypeStore = useLeadTypeStore()
+import { useMediaObjectStore } from '@/stores/mediaObject';
 import { useSecurityStore } from '@/stores/security';
 const securityStore = useSecurityStore();
 import useCommonHelper from '@/helpers/commonHelper'
 const helpers = useCommonHelper()
 
 
-import YesNoDialog from '@/components/YesNoDialog.vue'
-import { Lead } from '@/interfaces/lead';
-import { isNumber } from 'lodash';
-import { LeadType } from '@/interfaces/leadtype';
-import UtilisateurComponent from '@/components/UtilisateurComponent.vue';
-import { MediaObject } from '@/interfaces/mediaobject';
-import { useMediaObjectStore } from '@/stores/mediaObject';
-import { Utilisateur } from '@/interfaces/utilisateur';
-import { LeadComment } from '@/interfaces/leadcomment';
-import { LeadHistory } from '@/interfaces/leadhistory';
+import { LeadInterface } from '@/interfaces/LeadInterface';
+import { LeadTypeInterface } from '@/interfaces/LeadTypeInterface';
+import { MediaObjectInterface } from '@/interfaces/MediaObjectInterface';
+import { UserInterface } from '@/interfaces/UserInterface';
+import { LeadCommentInterface } from '@/interfaces/LeadCommentInterface';
+import { LeadHistoryInterface } from '@/interfaces/LeadHistoryInterface';
 
+import DateTimeDialog from '@/components/DateTimeDialog.vue';
+import UtilisateurComponent from '@/components/UtilisateurComponent.vue';
+import YesNoDialog from '@/components/YesNoDialog.vue'
 
 
 interface MergedLeadCommentLeadHistory
 {
-  user: Utilisateur,
+  user: UserInterface,
   createdAt: Date,
-  comment?: LeadComment,
-  history?: LeadHistory,
+  comment?: LeadCommentInterface,
+  history?: LeadHistoryInterface,
 }
 interface LeadActivity
 {
-  user: Utilisateur,
+  user: UserInterface,
   activities: MergedLeadCommentLeadHistory[]
 }
 
@@ -282,23 +287,50 @@ const props = defineProps({
   }
 });
 
-const creationDateIsLocked = ref(true)
 const formIsValid = ref(false);
 const leadActivities = ref<Record<string, LeadActivity[]>>({})
-const lead = ref<Lead>({});
+const lead = ref<LeadInterface>({});
+const clonedLead = ref<LeadInterface>({});
 const mediaObjects = ref<File[]>([])
 const newComment = ref(null);
-const showDatePicker = ref(false);
+const savingDelay = ref(3);//delay before saving in seconds
+const timeBeforeSave = ref<number | undefined>(undefined)
+const timeoutBeforeSave = ref<NodeJS.Timeout | undefined>(undefined)
 const yesNoDialog = ref(false)
+const dateTimeDialog = ref(false)
 
-const leadTypes = ref<LeadType[]>([]);
+const leadTypes = ref<LeadTypeInterface[]>([]);
+const watchLeadValue = ref(false);
+const nbModifications = ref(0);
+const modificationsList = ref<Record<string, any>>({});
+
+watch(
+  () => _.cloneDeep(lead.value),
+  () =>
+  {
+    if (!watchLeadValue.value) {
+      watchLeadValue.value = true;
+      return;
+    }
+    getModifications();
+    if (nbModifications.value > 0 && formIsValid.value !== false) {
+      //need to set a tiemout as input rules verification needs a delay
+      setTimeout(() =>
+      {
+        setTimeBeforeSave(true);
+      }, 200);
+    } else {
+      clearCurrentTimeout();
+    }
+  }
+)
 
 onMounted(async () =>
 {
   if (!leadTypeStore.list.length) {
     await leadTypeStore.findAll();
   }
-  leadTypes.value = leadTypeStore.list as LeadType[]
+  leadTypes.value = leadTypeStore.list as LeadTypeInterface[]
   if (props.id === null || props.id === "new") {
     lead.value = {
       createdAt: new Date(Date.now()),
@@ -308,8 +340,9 @@ onMounted(async () =>
       duplicateLeadRefresh()
     }
   } else {
-    lead.value = await leadStore.find(isNumber(props.id) ? props.id : parseInt(props.id));
+    lead.value = await leadStore.find(_.isNumber(props.id) ? props.id : parseInt(props.id));
   }
+  clonedLead.value = _.cloneDeep(lead.value);
   getActivity();
 
   globalStore.isLoadingWithLock = false
@@ -317,6 +350,8 @@ onMounted(async () =>
 
 async function addComment()
 {
+  clearCurrentTimeout();
+  watchLeadValue.value = false;
   let comment = {
     "comment": newComment.value,
     "lead": lead.value['@id'],
@@ -329,7 +364,15 @@ async function addComment()
   getActivity();
 }
 
-function changeType(leadType: LeadType)
+function cancelModifications()
+{
+  watchLeadValue.value = false;
+  lead.value = _.cloneDeep(clonedLead.value);
+  getModifications();
+  clearCurrentTimeout();
+}
+
+function changeType(leadType: LeadTypeInterface)
 {
   lead.value.refusalReasons = [];
   lead.value.leadType = leadType;
@@ -347,6 +390,14 @@ function changeTypeToLost()
   //TODO: terminer la fonction marqué comme perdu
 }
 
+function clearCurrentTimeout()
+{
+  timeBeforeSave.value = undefined;
+  if (timeoutBeforeSave.value != undefined) {
+    clearTimeout(timeoutBeforeSave.value);
+  }
+}
+
 function confirmDelete()
 {
   // leadStore.delete(lead.value.id).then(() =>
@@ -355,7 +406,7 @@ function confirmDelete()
   // });
 }
 
-async function downloadMediaObject(mediaObject: MediaObject)
+async function downloadMediaObject(mediaObject: MediaObjectInterface)
 {
   useMediaObjectStore().getMediaObject(mediaObject.fileURL, mediaObject.clientOriginalName);
 }
@@ -405,59 +456,76 @@ function getActivity()
 
   let activitiesList: MergedLeadCommentLeadHistory[] = [];
 
-  deepArray.forEach((e: LeadHistory | LeadComment) =>
+  deepArray.forEach((e: LeadHistoryInterface | LeadCommentInterface) =>
   {
     let h: MergedLeadCommentLeadHistory = {
       user: e.user,
       createdAt: e.createdAt,
     }
     if (e['@type'] == "LeadHistory") {
-      h.history = JSON.parse(JSON.stringify(e)) as LeadHistory;
+      h.history = JSON.parse(JSON.stringify(e)) as LeadHistoryInterface;
     } else if (e['@type'] == "LeadComment") {
-      h.comment = JSON.parse(JSON.stringify(e)) as LeadComment;
+      h.comment = JSON.parse(JSON.stringify(e)) as LeadCommentInterface;
     }
     activitiesList.push(h);
   })
-  leadActivities.value = {};
-  let currentLeadActivity: LeadActivity | null = null;//to group by user
-  let theDay: string | null = null;
-  let lastDay: string | null = null;
 
+  leadActivities.value = {};
   activitiesList.forEach((e: MergedLeadCommentLeadHistory) =>
   {
-    theDay = helpers.formatDate(e.createdAt) as string;
-    if (theDay) {
+    let theDay: string = helpers.formatDate(e.createdAt) as string;
 
-      if (currentLeadActivity != null) {
-        if (currentLeadActivity.user?.id != e.user?.id) {
-          leadActivities.value[theDay].push(currentLeadActivity);
-        }
-        if (lastDay && lastDay != theDay) {
-          leadActivities.value[lastDay].push(currentLeadActivity);
-        }
-      }
+    if (!(theDay in leadActivities.value)) {//new day to group
+      leadActivities.value[theDay] = [];
+    }
 
-      if (!(theDay in leadActivities.value)) {
-        leadActivities.value[theDay] = [];
-        currentLeadActivity = null;
-      }
-
-      if (currentLeadActivity == null || currentLeadActivity.user?.id != e.user?.id) {
-        currentLeadActivity = {
+    let lastActivity = leadActivities.value[theDay].slice(-1).pop();
+    if (typeof lastActivity == 'undefined') {//no info for this day yet
+      leadActivities.value[theDay].push({
+        user: e.user,
+        activities: [e]
+      });
+    } else {
+      if (lastActivity.user?.id == e.user?.id) {//user is the same
+        lastActivity.activities.push(e);
+      } else {//new user
+        leadActivities.value[theDay].push({
           user: e.user,
-          activities: []
-        }
+          activities: [e]
+        });
       }
-
-      currentLeadActivity.activities.push(e)
-      lastDay = theDay
     }
   })
-  if (theDay && currentLeadActivity) {
-    leadActivities.value[theDay].push(currentLeadActivity);
-  }
 
-  currentLeadActivity = null;
+
+}
+
+function getFullChangesText(history: LeadHistoryInterface | undefined)
+{
+  if (history == undefined) {
+    return
+  }
+  let fullText = '';
+
+  if (!history.onlyNewValue) {
+    fullText += history.oldValue + ' -> ';
+  }
+  fullText += history.newValue;
+
+  return fullText
+}
+
+const fieldsToIgnore = ['leadHistories']
+function getModifications()
+{
+  modificationsList.value = helpers.differencesBetweenObjects(clonedLead.value, lead.value);
+  fieldsToIgnore.forEach((field: string) =>
+  {
+    if (field in modificationsList.value) {
+      delete modificationsList.value[field];
+    }
+  })
+  nbModifications.value = Object.keys(modificationsList.value).length;
 }
 
 function getVisibleTypesList()
@@ -465,9 +533,49 @@ function getVisibleTypesList()
   return leadTypes.value.filter(function (el) { return !el.isHidden; }).reverse();
 }
 
-function save(value: boolean)
+async function save()
 {
-  console.log("save :" + value);
+  clearCurrentTimeout();
+  watchLeadValue.value = false;
+  lead.value = await leadStore.save(lead.value);
+  if (clonedLead.value.id) {
+    clonedLead.value = _.cloneDeep(lead.value);
+    getActivity();
+  } else {
+    router.push({ name: "lead.page", params: { id: lead.value.id } });
+  }
+}
+
+function setTimeBeforeSave(reset = false)
+{
+  if (formIsValid.value === false) {
+    clearCurrentTimeout();
+    return;
+  }
+  setTimeoutBeforeSave(reset);
+
+  if (timeBeforeSave.value != undefined && timeBeforeSave.value <= 0) {
+    save();
+  } else {
+    timeoutBeforeSave.value = setTimeout(function ()
+    {
+      setTimeBeforeSave();
+    }, 1000);
+  }
+}
+
+function setTimeoutBeforeSave(reset = false)
+{
+  if (timeoutBeforeSave.value != undefined) {
+    clearTimeout(timeoutBeforeSave.value);
+  }
+
+  if (timeBeforeSave.value == undefined || reset) {
+    timeBeforeSave.value = savingDelay.value;
+  }
+  else {
+    timeBeforeSave.value--;
+  }
 }
 </script>
 
@@ -475,9 +583,7 @@ function save(value: boolean)
 <style lang="scss">
 .leadName input {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Ubuntu, "Liberation Sans", Arial, "Odoo Unicode Support Noto", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
-  font-size: 13px !important;
   font-weight: 500 !important;
-  text-transform: uppercase !important;
 }
 </style>
 

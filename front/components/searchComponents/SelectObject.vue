@@ -49,7 +49,7 @@ import AgencyComponent from "@/components/AgencyComponent.vue";
 import CountryComponent from '@/components/CountryComponent.vue';
 import SocietyComponent from '@/components/SocietyComponent.vue';
 import UtilisateurComponent from '@/components/UtilisateurComponent.vue'
-import { Item } from '@/interfaces/item';
+import { Item } from '@/interfaces/ItemInterface';
 import { useCustomerTypeStore } from '@/stores/customerType';
 
 const props = defineProps({

@@ -12,8 +12,8 @@
       <v-card-text>{{ $helpers.capitalizeFirstLetter(message) }}</v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn @click="onNo" color="error" :prepend-icon="yesIcon">{{ noText }}</v-btn>
-        <v-btn @click="onYes" color="success" :prepend-icon="noIcon">{{ yesText }}</v-btn>
+        <v-btn @click="onNo" color="error" :prepend-icon="noIcon">{{ noText }}</v-btn>
+        <v-btn @click="onYes" color="success" :prepend-icon="yesIcon">{{ yesText }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

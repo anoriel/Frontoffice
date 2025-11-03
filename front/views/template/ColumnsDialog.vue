@@ -66,8 +66,8 @@ import { shallowRef } from 'vue';
 import draggable from 'vuedraggable'
 import { useGlobalStore } from '@/stores/global';
 import { PropType } from 'vue';
-import { BaseStoreInterface } from '@/interfaces/baseStoreInterface';
-import { AvailableField } from '@/interfaces/availableField';
+import { BaseStoreInterface } from '@/interfaces/BaseStoreInterface';
+import { AvailableField } from '@/interfaces/AvailableFieldInterface';
 const globalStore = useGlobalStore()
 import useCommonHelper from '@/helpers/commonHelper'
 const helpers = useCommonHelper()

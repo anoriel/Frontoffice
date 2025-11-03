@@ -48,6 +48,7 @@ interface DiffResult
 {
   type: string;
   data: any;
+  oldData: any;
 }
 
 interface DiffMapper
@@ -209,6 +210,26 @@ export default function useCommonHelper()
     return _.isEqual(sortKeys(obj1), sortKeys(obj2));
   }
 
+  /**
+ * Deep diff between two object, using lodash
+ * @param  {Object} object Object compared
+ * @param  {Object} base   Object to compare with
+ * @return {Object}        Return a new object who represent the diff
+ */
+  function differencesBetweenObjects(object: Object, base: Object)
+  {
+    function changes(object: Object, base: Object)
+    {
+      return _.transform(object, function (result: any, value, key)
+      {
+        if (!_.isEqual(value, base[key])) {
+          result[key] = (_.isObject(value) && _.isObject(base[key])) ? changes(value, base[key]) : value;
+        }
+      });
+    }
+    return changes(object, base);
+  }
+
   function deepDiffMapper(): DiffMapper
   {
     return {
@@ -227,7 +248,8 @@ export default function useCommonHelper()
           }
           return {
             type: this.compareValues(obj1, obj2),
-            data: obj1 === undefined ? obj2 : obj1
+            data: obj2,
+            oldData: obj1
           };
         }
 
@@ -739,6 +761,7 @@ export default function useCommonHelper()
     dateRangePickerLocaleRanges,
     deepCompareWithoutOrder,
     deepDiffMapper,
+    differencesBetweenObjects,
     ExcelDateToJSDate,
     formatBytesArray,
     formatDate,

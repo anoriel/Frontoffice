@@ -2,7 +2,7 @@
 import axios from "@/plugins/axios/axios";
 import api_base from './api_base'
 import merge from 'deepmerge-json'
-import { Lead } from "@/interfaces/lead";
+import { LeadInterface } from "@/interfaces/LeadInterface";
 
 const thisApi = {
   baseUrl: '/leads',
@@ -28,7 +28,7 @@ const thisApi = {
   {
     return axios.get(`${this.baseUrl}?leadType.id=${leadTypeId}`);
   },
-  transformIntoProspect(item: Lead)
+  transformIntoProspect(item: LeadInterface)
   {
     return axios.patch(`${this.baseUrl}/transform_into_prospect/${item.id}`, item);
   },

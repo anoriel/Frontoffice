@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import thisAPI from '@/api/settings'
 import { useBaseStore } from './baseStore';
 import { ref } from 'vue';
-import { Setting } from '@/interfaces/setting';
+import { Setting } from '@/interfaces/SettingInterface';
 
 export const useSettingsStore = defineStore('settings', () =>
 {

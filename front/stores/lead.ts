@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia'
 import thisAPI from '@/api/lead'
 import { useBaseStore } from './baseStore';
-import { Lead } from '@/interfaces/lead';
-import { LeadComment } from '@/interfaces/leadcomment';
+import { Lead } from '@/interfaces/LeadInterface';
+import { LeadCommentInterface } from '@/interfaces/LeadCommentInterface';
 import { useLeadTypeStore } from '@/stores/leadType'
-import { DatatableSortBy } from '@/interfaces/datatableSortBy';
+import { DatatableSortBy } from '@/interfaces/DatatableSortByInterface';
 
 
 export const useLeadStore = defineStore('lead', () =>
@@ -95,7 +95,7 @@ export const useLeadStore = defineStore('lead', () =>
 
   localStorageName.value = "CrmLead"
 
-  async function addLeadComment(leadComment: LeadComment)
+  async function addLeadComment(leadComment: LeadCommentInterface)
   {
     isLoading.value = true;
     error.value = null;

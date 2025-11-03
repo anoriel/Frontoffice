@@ -1,13 +1,13 @@
 import { computed, ref } from "vue"
 import api_base from '@/api/api_base';
-import { Item } from '@/interfaces/item';
-import { DatatableSortBy } from "@/interfaces/datatableSortBy";
-import { AvailableField } from "@/interfaces/availableField";
-import { FieldsByType } from "@/interfaces/fieldsByType";
-import { IriTemplateMapping } from "@/interfaces/iriTemplateMapping";
+import { Item } from '@/interfaces/ItemInterface';
+import { DatatableSortBy } from "@/interfaces/DatatableSortByInterface";
+import { AvailableField } from "@/interfaces/AvailableFieldInterface";
+import { FieldsByType } from "@/interfaces/FieldsByTypeInterface";
+import { IriTemplateMapping } from "@/interfaces/IriTemplateMappingInterface";
 import { isArray, isBoolean, isObject } from "lodash";
-import { DefaultContext } from "@/interfaces/defaultContext";
-import { MappingType } from "@/interfaces/mappingType";
+import { DefaultContext } from "@/interfaces/DefaultContextInterface";
+import { MappingType } from "@/interfaces/MappingTypeInterface";
 import moment from "moment";
 import { AxiosResponse } from "axios";
 import useCommonHelper from '../helpers/commonHelper'

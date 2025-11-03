@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import thisAPI from '@/api/leadType'
 import { useBaseStore } from './baseStore';
-import { LeadType } from '@/interfaces/leadtype';
+import { LeadType } from '@/interfaces/LeadTypeInterface';
 import { ref, watch } from 'vue';
 
 export const useLeadTypeStore = defineStore('leadType', () =>

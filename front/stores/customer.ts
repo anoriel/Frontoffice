@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import thisAPI from '@/api/customer'
 import { useBaseStore } from './baseStore';
 import { useCustomerTypeStore } from '@/stores/customerType'
-import { DatatableSortBy } from '@/interfaces/datatableSortBy';
+import { DatatableSortBy } from '@/interfaces/DatatableSortByInterface';
 import { useContacTypeStore } from './contactType';
 import useCommonHelper from '../helpers/commonHelper'
 const helpers = useCommonHelper()

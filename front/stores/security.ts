@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import thisAPI from '@/api/security'
 import { useBaseStore } from './baseStore';
-import { Utilisateur } from '@/interfaces/utilisateur'
+import { UserInterface } from '@/interfaces/UserInterface'
 import { ref, watch } from 'vue';
 
 
@@ -109,13 +109,13 @@ export const useSecurityStore = defineStore('security', () =>
   const currentUserRoles = ref([] as string[] | null)
   const lastPoints = ref(0)
   const lastUrl = ref<string | null>(localStorage.getItem("lastUrl"))
-  const me = ref(null as Utilisateur | null)
+  const me = ref(null as UserInterface | null)
   const points = ref(0)
   const returnUrl = ref<string | null>(null)
   const roles = ref([] as string[])
   const roleHierarchy = ref({})
   const roleHierarchyMap = ref({})
-  const switch_user = ref(null as Utilisateur | null)
+  const switch_user = ref(null as UserInterface | null)
 
   // Watch for changes to lastUrl
   watch(lastUrl, () =>
@@ -436,7 +436,7 @@ export const useSecurityStore = defineStore('security', () =>
     return null
   }
 
-  function switchUser(user: Utilisateur)
+  function switchUser(user: UserInterface)
   {
     switch_user.value = user;
     currentUserRoles.value = user ? user.roles : [];

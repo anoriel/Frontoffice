@@ -33,7 +33,7 @@ const helpers = useCommonHelper()
 import { useI18n } from "vue-i18n";
 const { t } = useI18n({ useScope: "global" });
 import { useSettingsStore } from '@/stores/settings';
-import { Setting } from '@/interfaces/setting';
+import { Setting } from '@/interfaces/SettingInterface';
 import { useSecurityStore } from '@/stores/security';
 import { isObject, isString } from 'lodash';
 const settingsStore = useSettingsStore()

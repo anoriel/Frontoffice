@@ -1,12 +1,12 @@
 import axios from "@/plugins/axios/axios";
 import api_base from './api_base'
 import merge from 'deepmerge-json'
-import { LeadComment } from "@/interfaces/leadcomment";
+import { LeadCommentInterface } from "@/interfaces/LeadCommentInterface";
 
 const thisApi = {
   baseUrl: '/lead_comments',
 
-  add(item: LeadComment)
+  add(item: LeadCommentInterface)
   {
     let formData = new FormData();
     formData.append("lead", item.lead);
@@ -17,7 +17,6 @@ const thisApi = {
         formData.append('mediaObject[]', file);
       });
     }
-    console.log("leadData")
     return axios.post(`${this.baseUrl}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",

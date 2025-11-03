@@ -65,7 +65,7 @@
 <script setup lang="ts">
 import { ref, shallowRef, toRef, computed, type PropType } from 'vue';
 
-import { BaseStoreInterface } from '@/interfaces/baseStoreInterface'
+import { BaseStoreInterface } from '@/interfaces/BaseStoreInterface'
 
 
 const props = defineProps({

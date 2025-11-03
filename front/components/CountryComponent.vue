@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
 import { type PropType } from 'vue';
-import { Pays } from '@/interfaces/pays';
+import { Pays } from '@/interfaces/CountryInterface';
 import { CountryCode } from '@/types/CountryCode';
 import FlagIcon from './FlagIcon.vue';
 

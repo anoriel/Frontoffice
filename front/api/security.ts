@@ -1,4 +1,4 @@
-import { Utilisateur } from "@/interfaces/utilisateur";
+import { UserInterface } from "@/interfaces/UserInterface";
 import axios from "@/plugins/axios/axios";
 import api_base from './api_base'
 import merge from 'deepmerge-json'
@@ -11,7 +11,7 @@ interface TokenResponse
 const thisApi = {
   async getApiMe()
   {
-    return await axios.get<Utilisateur>("/me");
+    return await axios.get<UserInterface>("/me");
   },
   async getLongRequest(seconds: number = 1)
   {

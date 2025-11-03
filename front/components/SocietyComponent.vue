@@ -9,7 +9,7 @@
 import { type PropType } from 'vue';
 import { CountryCode } from '@/types/CountryCode';
 import FlagIcon from './FlagIcon.vue';
-import { Societe } from '@/interfaces/societe';
+import { Societe } from '@/interfaces/SocietyInterface';
 
 const props = defineProps({
   society: {

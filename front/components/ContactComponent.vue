@@ -71,11 +71,11 @@
 
 <script setup lang="ts">
 import { type PropType } from 'vue';
-import { Interlocuteur } from '@/interfaces/interlocuteur';
+import { InterlocuteurInterface } from '@/interfaces/InterlocuteurInterface';
 
 defineProps({
   contact: {
-    type: Object as PropType<Interlocuteur>,
+    type: Object as PropType<InterlocuteurInterface>,
     required: true,
   },
 })

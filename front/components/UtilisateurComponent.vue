@@ -9,11 +9,11 @@
 
 <script setup lang="ts">
 import { type PropType } from 'vue';
-import { Utilisateur } from '@/interfaces/utilisateur';
+import { UserInterface } from '@/interfaces/UserInterface';
 
 defineProps({
   user: {
-    type: Object as PropType<Utilisateur>,
+    type: Object as PropType<UserInterface>,
     required: false,
   },
   iconSize: {

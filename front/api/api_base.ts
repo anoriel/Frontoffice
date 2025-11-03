@@ -82,6 +82,10 @@ export default {
   },
   save(id: number, item: object)
   {
-    return axios.patch(`${this.baseUrl}/${id}`, item);
+    return axios.patch(`${this.baseUrl}/${id}`, item, {
+      headers: {
+        "Content-Type": "application/merge-patch+json",
+      },
+    });
   },
 };
