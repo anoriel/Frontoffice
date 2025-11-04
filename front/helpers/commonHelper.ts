@@ -107,6 +107,12 @@ export default function useCommonHelper()
 {
   const legacyIntranetUrl = import.meta.env.VITE_INTRANET_LEGACY_URL;
 
+  const optionsNullTrueFalse = [
+    { text: 'undefined', value: null },
+    { text: 'no', value: false },
+    { text: 'yes', value: true }
+  ];
+
   function areObjectsEqual(obj1: object, obj2: object)
   {
     const obj1Entries = Object.entries(obj1).sort();
@@ -537,6 +543,20 @@ export default function useCommonHelper()
     return returnValue;
   }
 
+  function getVariant(currentValue: boolean | undefined, option: { text: string; value: boolean | null; })
+  {
+    let variant = 'secondary';
+    if (option.value === true) {
+      variant = 'success';
+    } else if (option.value === false) {
+      variant = 'error';
+    }
+    if (currentValue != option.value) {
+      variant = 'outline-' + variant;
+    }
+    return variant;
+  }
+
   function initiale(str: string): string
   {
     return str.charAt(0).toUpperCase();
@@ -776,6 +796,7 @@ export default function useCommonHelper()
     getLegacyIntranetUrl,
     getObjectNameWithCountry,
     getSlotName,
+    getVariant,
     initiale,
     isArray,
     isObject,
@@ -785,6 +806,7 @@ export default function useCommonHelper()
     lowercaseFirstLetter,
     numberToString,
     makeToast,
+    optionsNullTrueFalse,
     padZero,
     removeDuplicates,
     removeItemFromList,

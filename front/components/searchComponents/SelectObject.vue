@@ -10,7 +10,7 @@
         <customer-component v-else-if="fieldObjectType == 'customer'" :customer="item.raw" />
         <society-component v-else-if="fieldObjectType == 'society'" :society="item.raw" />
         <utilisateur-component v-else-if="fieldObjectType == 'user'" :user="item.raw" />
-        <v-chip v-else-if="item.raw" :style="getCssForText(item.raw)" density="compact">
+        <v-chip v-else-if="item.raw" :style="getCssForText(item.raw)" density="compact" class="text-no-wrap">
           {{ getStringValue(item.raw) }}
         </v-chip>
       </template>

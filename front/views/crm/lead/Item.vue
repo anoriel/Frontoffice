@@ -75,29 +75,32 @@
         <div>formIsValid={{ formIsValid }}</div>
         <div>nbModifications={{ nbModifications }}</div>
         <div>modificationsList={{ modificationsList }}</div>
-        <div>
-          <div class="arrow_button_cartouche d-flex flex-row-reverse position-relative" border="primary lg">
-            <button v-for="leadType, index in getVisibleTypesList()" :key="index"
-              :ref="'typeList[' + leadType.name + ']'" class="arrow_button" :disabled="leadType.id == lead.leadType?.id"
-              @click="changeType(leadType)">
-              {{ $helpers.capitalizeFirstLetter($t('lead.' + leadType.name)) }}
-            </button>
+        <v-sheet>
+          <div>
+            <div class="arrow_button_cartouche d-flex flex-row-reverse position-relative" border="primary lg">
+              <button v-for="leadType, index in getVisibleTypesList()" :key="index"
+                :ref="'typeList[' + leadType.name + ']'" class="arrow_button"
+                :disabled="leadType.id == lead.leadType?.id" @click="changeType(leadType)">
+                {{ $helpers.capitalizeFirstLetter($t('lead.' + leadType.name)) }}
+              </button>
+            </div>
           </div>
-        </div>
-        <v-container class="leadDiv" :class="lead.leadType?.name" min-height="200">
-          <span v-if="lead.leadType?.name == 'won'" class="wonTag text-success">
-            {{ $helpers.capitalizeFirstLetter($t('lead.won')) }}
-          </span>
-          <span v-else-if="lead.leadType?.name == 'lost'" class="lostTag text-error">
-            {{ $helpers.capitalizeFirstLetter($t('lead.lost')) }}
-          </span>
-          <span v-else-if="lead.leadType?.name == 'spam'" class="spamTag text-warning">
-            {{ $helpers.capitalizeFirstLetter($t('lead.spam')) }}
-          </span>
+          <v-container fluid class="leadDiv bg-light-blue-lighten-5" :class="lead.leadType?.name" min-height="200">
+            <!-- #region leadType tag -->
+            <span v-if="lead.leadType?.name == 'won'" class="wonTag text-success">
+              {{ $helpers.capitalizeFirstLetter($t('lead.won')) }}
+            </span>
+            <span v-else-if="lead.leadType?.name == 'lost'" class="lostTag text-error">
+              {{ $helpers.capitalizeFirstLetter($t('lead.lost')) }}
+            </span>
+            <span v-else-if="lead.leadType?.name == 'spam'" class="spamTag text-warning">
+              {{ $helpers.capitalizeFirstLetter($t('lead.spam')) }}
+            </span>
+            <!-- #endregion leadType tag -->
 
-          <v-form v-model="formIsValid" @submit.prevent lazy-validation>
-            <div class="leadDivContent">
-              <v-row class="border-b">
+            <v-form v-model="formIsValid" @submit.prevent lazy-validation>
+              <!-- #region lead name -->
+              <v-row>
                 <v-col col="10" md="9" class="pt-3 pa-0">
                   <v-text-field v-model="lead.customerName" class="leadName" variant="underlined"
                     :label="$helpers.capitalizeFirstLetter($t('lead.customerName'))"
@@ -113,10 +116,24 @@
                   </v-text-field>
                 </v-col>
               </v-row>
+              <!-- #endregion lead name -->
 
+              <!-- #region lastUpdatedAt -->
+              <v-row class="text-right">
+                <v-col class="pa-0">
+                  <small>
+                    <i>
+                      {{ $helpers.capitalizeFirstLetter($t('lastUpdatedAt')) }}{{ $t(":") }}
+                      {{ $helpers.formatDateTime(lead.lastUpdatedAt) }}
+                    </i>
+                  </small>
+                </v-col>
+              </v-row>
+              <!-- #endregion lastUpdatedAt -->
 
-              <v-row class="row mt-0 text-right mr-16px ml-16px pb-1">
-                <v-col>
+              <!-- #region lead link to customer -->
+              <v-row class="text-right">
+                <v-col class="pa-0">
                   <div v-if="lead.customer" class="position-relative">
                     <small><i>
                         {{ $helpers.capitalizeFirstLetter($t('lead.linkedTo')) }}
@@ -135,7 +152,8 @@
                     </v-btn>
                   </div>
                   <div v-else class="position-relative">
-                    <v-btn color="success" size="small" :disabled="!lead.id || formIsValid === false || lead.isLoading"
+                    <v-btn color="success" size="x-small"
+                      :disabled="!lead.id || formIsValid === false || lead.isLoading"
                       @click="linkCustomerDialog = true">
                       <v-icon class="font-size-1rem">
                         mdi-link
@@ -145,9 +163,170 @@
                   </div>
                 </v-col>
               </v-row>
-            </div>
-          </v-form>
-        </v-container>
+              <!-- #endregion lead link to customer -->
+
+              <!-- #region refusalReasons -->
+              <v-row v-if="lead.refusalReasons && lead.refusalReasons.length">
+                <v-col class="pa-0 text-error bg-white">
+                  <v-list density="compact">
+                    <v-list-subheader class="text-error font-italic">{{
+                      $helpers.capitalizeFirstLetter($t('lead.refusalReason')) }}
+                      {{ $t(':') }}</v-list-subheader>
+
+                    <v-list-item v-for="(item, index) in lead.refusalReasons" :key="index" :value="item"
+                      class="text-error" disabled>
+                      <template v-slot:prepend>
+                        <v-icon icon="mdi-window-close"></v-icon>
+                      </template>
+                      <v-list-item-title v-text="item.name"></v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-col>
+              </v-row>
+              <!-- #endregion refusalReasons -->
+
+              <!-- #region Contact -->
+              <v-row>
+                <v-col class="pa-0 pt-3">
+                  <fieldset class="fieldset bg-white mb-4 pa-2">
+                    <legend class="ml-3 pl-1 pr-1">
+                      <v-icon>mdi-card-account-mail</v-icon>
+                      {{ $helpers.capitalizeFirstLetter($t("lead.contact")) }}
+                    </legend>
+                    <v-row>
+                      <v-col column="3">
+                        <v-text-field v-model="lead.name" :class="lead.name ? '' : 'opacity-50-for-label'"
+                          density="compact" :label="$helpers.capitalizeFirstLetter($t('name'))" type="text"
+                          @keydown.enter.prevent="$event.target.blur()" />
+                      </v-col>
+                      <v-col column="3">
+                        <v-text-field v-model="lead.firstname" :class="lead.firstname ? '' : 'opacity-50-for-label'"
+                          density="compact" :label="$helpers.capitalizeFirstLetter($t('firstname'))" type="text"
+                          @keydown.enter.prevent="$event.target.blur()" />
+                      </v-col>
+                      <v-col column="3">
+                        <v-text-field v-model="lead.email" :class="lead.email ? '' : 'opacity-50-for-label'"
+                          :rules="[v => !v || /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,5})+$/.test(v) || $helpers.capitalizeFirstLetter($t('e-mail must be valid'))]"
+                          density="compact" :label="$helpers.capitalizeFirstLetter($t('lead.email'))" type="email"
+                          @keydown.enter.prevent="$event.target.blur()" />
+                      </v-col>
+                      <v-col column="2">
+                        <v-text-field v-model="lead.tel" :class="lead.tel ? '' : 'opacity-50-for-label'"
+                          :label="$helpers.capitalizeFirstLetter($t('lead.phone'))" type="text" density="compact"
+                          @keydown.enter.prevent="$event.target.blur()" />
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col column="6">
+                        <p class="text-caption">{{ $helpers.capitalizeFirstLetter($t('lead.onNewsletterList')) }}</p>
+                        <v-btn-toggle v-model="lead.onNewsletterList" density="compact" border divided>
+                          <v-btn v-for="(option, key) in $helpers.optionsNullTrueFalse" :key="key" :value="option.value"
+                            :color="$helpers.getVariant(lead.onNewsletterList, option)">
+                            {{ $helpers.capitalizeFirstLetter($t(option.text)) }}
+                          </v-btn>
+                        </v-btn-toggle>
+                      </v-col>
+                      <v-col column="6">
+                        <p class="text-caption">{{ $helpers.capitalizeFirstLetter($t('lead.rgpdAccepted')) }}</p>
+                        <v-btn-toggle v-model="lead.rgpdAccepted" density="compact" border divided>
+                          <v-btn v-for="(option, key) in $helpers.optionsNullTrueFalse" :key="key" :value="option.value"
+                            :color="$helpers.getVariant(lead.rgpdAccepted, option)">
+                            {{ $helpers.capitalizeFirstLetter($t(option.text)) }}
+                          </v-btn>
+                        </v-btn-toggle>
+                      </v-col>
+                    </v-row>
+                  </fieldset>
+                </v-col>
+              </v-row>
+              <!-- #endregion Contact -->
+
+              <!-- #region Adresse client -->
+              <v-row>
+                <v-col class="pa-0 pt-3">
+                  <fieldset class="fieldset bg-white mb-4 pa-2">
+                    <legend class="ml-3 pl-1 pr-1">
+                      <v-icon>mdi-city</v-icon>
+                      {{ $helpers.capitalizeFirstLetter($t("lead.customerAddress")) }}
+                    </legend>
+                    <v-row>
+                      <v-col column="7" class="pa-5">
+                        <v-row>
+                          <v-col class="pa-0">
+                            <v-text-field v-model="lead.address1" density="compact"
+                              :label="$helpers.capitalizeFirstLetter($t('lead.address1'))" />
+                          </v-col>
+                        </v-row>
+                        <v-row>
+                          <v-col class="pa-0">
+                            <v-text-field v-model="lead.address2" density="compact"
+                              :label="$helpers.capitalizeFirstLetter($t('lead.address2'))" />
+                          </v-col>
+                        </v-row>
+                      </v-col>
+                      <v-col column="5" class="pa-5">
+                        <v-row>
+                          <v-col class="pa-0 pe-3" cols="4">
+                            <v-text-field v-model="lead.zipCode" density="compact"
+                              :label="$helpers.capitalizeFirstLetter($t('lead.zipCode'))" />
+                          </v-col>
+                          <v-col class="pa-0" cols="8">
+                            <v-text-field v-model="lead.city" density="compact"
+                              :label="$helpers.capitalizeFirstLetter($t('lead.city'))" />
+                          </v-col>
+                        </v-row>
+                        <v-row>
+                          <v-col class="pa-0">
+                            <select-object fieldname="lead.countryOfEstablishment" fieldObjectType="country"
+                              :label="$helpers.capitalizeFirstLetter($t('lead.countryOfEstablishment'))"
+                              v-model="lead.countryOfEstablishment" :multiple="false" />
+                          </v-col>
+                        </v-row>
+                      </v-col>
+                    </v-row>
+                  </fieldset>
+                </v-col>
+              </v-row>
+              <!-- #endregion Adresse client -->
+
+              <!-- #region needs -->
+              <v-row>
+                <v-col class="pa-0 pt-3">
+                  <fieldset class="fieldset bg-white mb-4 pa-2">
+                    <legend class="ml-3 pl-1 pr-1">
+                      <v-icon>mdi-chat-question</v-icon>
+                      {{ $helpers.capitalizeFirstLetter($t("lead.customerNeeds")) }}
+                    </legend>
+                    <v-row>
+                      <v-col column="3">
+                        <select-object fieldname="lead.businessSector" fieldObjectType="businessSector"
+                          :label="$helpers.capitalizeFirstLetter($t('lead.businessSector'))"
+                          v-model="lead.businessSector" :multiple="false" />
+                      </v-col>
+                      <v-col column="3">
+                        <select-object fieldname="lead.serviceDomain" fieldObjectType="serviceDomain"
+                          :label="$helpers.capitalizeFirstLetter($t('lead.serviceDomain'))" v-model="lead.serviceDomain"
+                          :multiple="false" />
+                      </v-col>
+                      <v-col column="3">
+                        <select-object fieldname="lead.serviceType" fieldObjectType="serviceType"
+                          :label="$helpers.capitalizeFirstLetter($t('lead.serviceType'))" v-model="lead.serviceType"
+                          :multiple="false" />
+                      </v-col>
+                      <v-col column="3">
+                        <select-object fieldname="lead.countryOfDestination" fieldObjectType="country"
+                          :label="$helpers.capitalizeFirstLetter($t('lead.countryOfDestination'))"
+                          v-model="lead.countryOfDestination" :multiple="false" />
+                      </v-col>
+                    </v-row>
+                  </fieldset>
+                </v-col>
+              </v-row>
+              <!-- #endregion needs -->
+
+            </v-form>
+          </v-container>
+        </v-sheet>
       </v-col>
 
       <v-col md="12" lg="4" class="mt-lg-2 mt-xl-0 pb-16" :class="lead.id ? '' : 'opacity-50'">
@@ -649,10 +828,11 @@ async function save()
 {
   clearCurrentTimeout();
   watchLeadValue.value = false;
-  lead.value = await leadStore.save(lead.value);
+  lead.value = await leadStore.save(_.cloneDeep(lead.value));
   if (clonedLead.value.id) {
     clonedLead.value = _.cloneDeep(lead.value);
     getActivity();
+    getModifications();
   } else {
     router.push({ name: "lead.page", params: { id: lead.value.id } });
   }
@@ -775,7 +955,6 @@ async function transformIntoProspect()
 
 .leadDiv {
   border: 1px solid rgb(var(--v-theme-primary));
-  background-color: rgba(var(--v-theme-primary), 0.07);
   color: #000;
   position: relative;
 }
