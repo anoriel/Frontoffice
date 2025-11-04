@@ -76,7 +76,7 @@
         <div>nbModifications={{ nbModifications }}</div>
         <div>modificationsList={{ modificationsList }}</div>
         <div>
-          <div class="arrow_button_cartouche d-flex flex-row-reverse" border="primary lg">
+          <div class="arrow_button_cartouche d-flex flex-row-reverse position-relative" border="primary lg">
             <button v-for="leadType, index in getVisibleTypesList()" :key="index"
               :ref="'typeList[' + leadType.name + ']'" class="arrow_button" :disabled="leadType.id == lead.leadType?.id"
               @click="changeType(leadType)">
@@ -97,21 +97,52 @@
 
           <v-form v-model="formIsValid" @submit.prevent lazy-validation>
             <div class="leadDivContent">
-              <v-row class="mb-8 border-b">
+              <v-row class="border-b">
                 <v-col col="10" md="9" class="pt-3 pa-0">
-                  <h1>
-                    <v-text-field v-model="lead.customerName" class="leadName"
-                      :label="$helpers.capitalizeFirstLetter($t('lead.customerName'))"
-                      :rules="[() => !!lead.customerName || $helpers.capitalizeFirstLetter($t('field required', { field: $helpers.capitalizeFirstLetter($t('lead.customerName')) }))]"
-                      required @keydown.enter.prevent="$event.target.blur()" density="compact" />
-                  </h1>
+                  <v-text-field v-model="lead.customerName" class="leadName" variant="underlined"
+                    :label="$helpers.capitalizeFirstLetter($t('lead.customerName'))"
+                    :rules="[() => !!lead.customerName || $helpers.capitalizeFirstLetter($t('field required', { field: $helpers.capitalizeFirstLetter($t('lead.customerName')) }))]"
+                    required @keydown.enter.prevent="$event.target.blur()" density="compact" />
                 </v-col>
-                <v-col col="2" md="3" class="pt-3 pl-1 pa-0 bg-white-opacity-50">
+                <v-col col="2" md="3" class="pt-3 pl-3 pa-0 d-flex align-center">
                   <v-text-field v-model="lead.createdAt" :value="$helpers.formatDate(lead.createdAt)" readonly
-                    :label="$helpers.capitalizeFirstLetter($t('lead.createdAt'))" prepend-inner-icon="mdi-calendar"
-                    required icon-color="primary" :title="$helpers.formatDateTime(lead.createdAt)" density="compact"
-                    @mousedown:control="dateTimeDialog = true">
+                    variant="underlined" :label="$helpers.capitalizeFirstLetter($t('lead.createdAt'))"
+                    prepend-inner-icon="mdi-calendar" required icon-color="primary"
+                    :title="$helpers.formatDateTime(lead.createdAt)" density="compact"
+                    @mousedown:control="dateTimeDialog = true" style="vertical-align: middle;">
                   </v-text-field>
+                </v-col>
+              </v-row>
+
+
+              <v-row class="row mt-0 text-right mr-16px ml-16px pb-1">
+                <v-col>
+                  <div v-if="lead.customer" class="position-relative">
+                    <small><i>
+                        {{ $helpers.capitalizeFirstLetter($t('lead.linkedTo')) }}
+                        {{ $t(':') }}
+                      </i></small>
+                    <a :href="getCustomerUrl()" target="_blank"
+                      :class="{ 'font-italic': lead.customer.customerType?.id == 1000 }">
+                      {{ lead.customer.nomSociete }}
+                      <span v-if="lead.customer.customerType?.id == 1000">&nbsp;(prospect)</span>
+                    </a>
+                    <v-btn color="error" size="x-small" @click="lead.customer = null" style="vertical-align: middle;">
+                      <v-icon class="font-size-1rem">
+                        mdi-link-off
+                      </v-icon>
+                      {{ $helpers.capitalizeFirstLetter($t('break the link')) }}
+                    </v-btn>
+                  </div>
+                  <div v-else class="position-relative">
+                    <v-btn color="success" size="small" :disabled="!lead.id || formIsValid === false || lead.isLoading"
+                      @click="linkCustomerDialog = true">
+                      <v-icon class="font-size-1rem">
+                        mdi-link
+                      </v-icon>
+                      {{ $helpers.capitalizeFirstLetter($t('link customer')) }}
+                    </v-btn>
+                  </div>
                 </v-col>
               </v-row>
             </div>
@@ -229,6 +260,70 @@
 
   <date-time-dialog :dialog="dateTimeDialog" :model-date="lead.createdAt" :title="$t('lead.createdAt')"
     @saveDateTime="lead.createdAt = $event; dateTimeDialog = false" @cancelDateTime="dateTimeDialog = false" />
+
+
+  <v-dialog v-model="linkCustomerDialog" max-width="800" @after-leave="resetModal()">
+    <v-card>
+      <v-img src="/images/bg-header.png" class="align-end" gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)" cover>
+        <v-card-title class="text-white">
+          <img src="/images/asd-group-logo-couleur-transparent-white.png" alt="ASD GROUP" title="ASD GROUP" height="48"
+            style="vertical-align: middle;" class="mr-3" />
+          {{ $helpers.capitalizeFirstLetter($t('link')) + ' ' + $t('customer.label') }}
+        </v-card-title>
+      </v-img>
+
+      <v-card-text>
+
+        <span class="d-flex justify-center ma-3">
+          <v-btn size="small" color="success" variant="flat" @click="transformIntoProspect()"
+            :class="{ 'cursor-not-allowed': formIsValid === false }">
+            <v-icon>mdi-content-save</v-icon>
+            {{ $helpers.capitalizeFirstLetter($t('lead.transform lead into a new prospect')) }}
+          </v-btn>
+        </span>
+
+        <hr>
+
+        <div class="text-center font-weight-bold">
+          {{ $helpers.capitalizeFirstLetter($t('or')) }}
+        </div>
+        <hr>
+        <form ref="customerSearchForm">
+          <!-- #region customer -->
+          <select-object fieldname="customer.label" fieldObjectType="customer"
+            :label="$helpers.capitalizeFirstLetter($t('customer.existing'))" :preloadData="false" v-model="customer"
+            :multiple="false" />
+
+          <!-- #endregion customer -->
+        </form>
+
+      </v-card-text>
+
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn @click="linkCustomerDialog = false" color="error" prepend-icon="mdi-close">{{
+          $helpers.capitalizeFirstLetter($t('cancel')) }}</v-btn>
+        <v-tooltip :disabled="!customer" location="top" color="warning">
+          <template v-slot:activator="{ props }" class="ml-1">
+            <span v-bind="props">
+              <v-btn color="success" variant="flat" @click="linkCustomer()" :disabled="!customer"
+                prepend-icon="mdi-link" :class="{ 'cursor-not-allowed': formIsValid === false }">
+                {{ $helpers.capitalizeFirstLetter($t('link')) }}
+              </v-btn>
+            </span>
+          </template>
+          <span>
+            {{ $helpers.capitalizeFirstLetter($t('field required', {
+              field: $helpers.capitalizeFirstLetter($t('customer.label'))
+            }))
+            }}
+          </span>
+        </v-tooltip>
+      </v-card-actions>
+    </v-card>
+
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -249,16 +344,19 @@ import useCommonHelper from '@/helpers/commonHelper'
 const helpers = useCommonHelper()
 
 
+import { CustomerInterface } from '@/interfaces/CustomerInterface';
+import { LeadCommentInterface } from '@/interfaces/LeadCommentInterface';
+import { LeadHistoryInterface } from '@/interfaces/LeadHistoryInterface';
 import { LeadInterface } from '@/interfaces/LeadInterface';
 import { LeadTypeInterface } from '@/interfaces/LeadTypeInterface';
 import { MediaObjectInterface } from '@/interfaces/MediaObjectInterface';
 import { UserInterface } from '@/interfaces/UserInterface';
-import { LeadCommentInterface } from '@/interfaces/LeadCommentInterface';
-import { LeadHistoryInterface } from '@/interfaces/LeadHistoryInterface';
 
 import DateTimeDialog from '@/components/DateTimeDialog.vue';
+import SelectObject from '@/components/searchComponents/SelectObject.vue';
 import UtilisateurComponent from '@/components/UtilisateurComponent.vue';
 import YesNoDialog from '@/components/YesNoDialog.vue'
+import { useGlobalStore } from '@/stores/global';
 
 
 interface MergedLeadCommentLeadHistory
@@ -285,10 +383,12 @@ const props = defineProps({
   }
 });
 
+const customer = ref<CustomerInterface | null>(null)
 const formIsValid = ref(false);
 const leadActivities = ref<Record<string, LeadActivity[]>>({})
 const lead = ref<LeadInterface>({});
 const clonedLead = ref<LeadInterface>({});
+const linkCustomerDialog = ref(false)
 const mediaObjects = ref<File[]>([])
 const newComment = ref(null);
 const savingDelay = ref(3);//delay before saving in seconds
@@ -496,6 +596,11 @@ function getActivity()
 
 }
 
+function getCustomerUrl()
+{
+  return import.meta.env.VITE_INTRANET_LEGACY_URL + '/admin/' + (lead.value.customer?.customerType?.id == 1000 ? 'prospect' : 'client') + '.php?action_suivante=affiche_modifier&id=' + lead.value.customer?.id;
+}
+
 function getFullChangesText(history: LeadHistoryInterface | undefined)
 {
   if (history == undefined) {
@@ -529,6 +634,17 @@ function getVisibleTypesList()
   return leadTypes.value.filter(function (el) { return !el.isHidden; }).reverse();
 }
 
+function linkCustomer()
+{
+  lead.value.customer = customer.value;
+  linkCustomerDialog.value = false;
+}
+
+function resetModal()
+{
+  customer.value = null;
+}
+
 async function save()
 {
   clearCurrentTimeout();
@@ -551,7 +667,8 @@ function setTimeBeforeSave(reset = false)
   setTimeoutBeforeSave(reset);
 
   if (timeBeforeSave.value != undefined && timeBeforeSave.value <= 0) {
-    save();
+    console.log('SAVE');
+    // save();
   } else {
     timeoutBeforeSave.value = setTimeout(function ()
     {
@@ -573,12 +690,25 @@ function setTimeoutBeforeSave(reset = false)
     timeBeforeSave.value--;
   }
 }
+
+async function transformIntoProspect()
+{
+  useGlobalStore().isLoadingWithLock = true;
+  setTimeout(async () =>
+  {
+    watchLeadValue.value = false;
+    lead.value = await leadStore.transformIntoProspect(lead.value);
+    clonedLead.value = _.cloneDeep(lead.value);
+    linkCustomerDialog.value = false;
+  }, 200);
+}
 </script>
 
 
 <style lang="scss">
 .leadName input {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Ubuntu, "Liberation Sans", Arial, "Odoo Unicode Support Noto", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+  font-size: 24px;
   font-weight: 500 !important;
 }
 </style>
@@ -593,7 +723,7 @@ function setTimeoutBeforeSave(reset = false)
   padding-left: 1.1rem;
   position: relative;
   text-transform: uppercase;
-  z-index: 2;
+  z-index: 19;
 }
 
 .arrow_button:disabled {
@@ -674,6 +804,6 @@ function setTimeoutBeforeSave(reset = false)
   opacity: 0.3;
   text-transform: uppercase;
   font-weight: bolder;
-  z-index: 999;
+  z-index: 9;
 }
 </style>

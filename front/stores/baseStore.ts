@@ -1,13 +1,13 @@
 import { computed, ref } from "vue"
 import api_base from '@/api/api_base';
-import { Item } from '@/interfaces/ItemInterface';
-import { DatatableSortBy } from "@/interfaces/DatatableSortByInterface";
-import { AvailableField } from "@/interfaces/AvailableFieldInterface";
-import { FieldsByType } from "@/interfaces/FieldsByTypeInterface";
-import { IriTemplateMapping } from "@/interfaces/IriTemplateMappingInterface";
+import { ItemInterface } from '@/interfaces/ItemInterface';
+import { DatatableSortByInterface } from "@/interfaces/DatatableSortByInterface";
+import { AvailableFieldInterface } from "@/interfaces/AvailableFieldInterface";
+import { FieldsByTypeInterface } from "@/interfaces/FieldsByTypeInterface";
+import { IriTemplateMappingInterface } from "@/interfaces/IriTemplateMappingInterface";
 import { isArray, isBoolean, isObject } from "lodash";
-import { DefaultContext } from "@/interfaces/DefaultContextInterface";
-import { MappingType } from "@/interfaces/MappingTypeInterface";
+import { DefaultContextInterface } from "@/interfaces/DefaultContextInterface";
+import { MappingTypeInterface } from "@/interfaces/MappingTypeInterface";
 import moment from "moment";
 import { AxiosResponse } from "axios";
 import useCommonHelper from '../helpers/commonHelper'
@@ -24,13 +24,13 @@ export function useBaseStore()
   const currentPage = ref(1)
   const isLoading = ref(false)
   const error = ref(null)
-  const item = ref(null as Item | null)
-  const list = ref([] as Item[])
+  const item = ref(null as ItemInterface | null)
+  const list = ref([] as ItemInterface[])
   const totalItems = ref(0)
 
 
-  const availableFields = ref<AvailableField[]>([])
-  const fieldsByType = ref<FieldsByType>({//used to display value inside data table, or format input in forms for filters component
+  const availableFields = ref<AvailableFieldInterface[]>([])
+  const fieldsByType = ref<FieldsByTypeInterface>({//used to display value inside data table, or format input in forms for filters component
     'boolean': [],//will display a switch for boolean value or a check/close/? icon
     'count': [],//will display a number in data table, a list in forms
     'date': [],//will display a date in data table, start/end date calendar in forms
@@ -42,19 +42,19 @@ export function useBaseStore()
     'stringsList': [],//will display string value(s) in data table, a multiple select box in forms
   })
   const context = ref<Record<string, any>>({})
-  const defaultContext = ref<DefaultContext>({
+  const defaultContext = ref<DefaultContextInterface>({
     currentPage: 1,
     filters: {},
-    sortBy: { key: 'id', order: 'asc' } as DatatableSortBy,
+    sortBy: { key: 'id', order: 'asc' } as DatatableSortByInterface,
     version: '0.0',
     visibleFields: [],
   })
   const filters = ref<Record<string, any>>([])
   const orderByList = ref<Record<string, string>>({})
-  const mapping = ref<Record<string, MappingType>>({})//list of properties with their key name (ex: leadType.name)) to generate filter form and parse items
-  const customMapping = ref<Record<string, MappingType>>({})//custom mapping that will override or be added to the automatic mapping
+  const mapping = ref<Record<string, MappingTypeInterface>>({})//list of properties with their key name (ex: leadType.name)) to generate filter form and parse items
+  const customMapping = ref<Record<string, MappingTypeInterface>>({})//custom mapping that will override or be added to the automatic mapping
   const localStorageName = ref("base")
-  const visibleFields = ref<AvailableField[]>([])
+  const visibleFields = ref<AvailableFieldInterface[]>([])
 
   const hasError = computed(() => { return error.value !== null })
   const hasItems = computed(() => { return list.value && list.value.length > 0 })
@@ -77,7 +77,7 @@ export function useBaseStore()
     }
   }
 
-  async function exportList(sortBy: DatatableSortBy, filters: Record<string, MappingType>, properties: AvailableField[])
+  async function exportList(sortBy: DatatableSortByInterface, filters: Record<string, MappingTypeInterface>, properties: AvailableFieldInterface[])
   {
     let parsed = parseArrays(filters);
     let filtersArray = parsed[0];
@@ -94,7 +94,7 @@ export function useBaseStore()
     }
   }
 
-  async function findAll(showFullData: boolean = false): Promise<Item[]>
+  async function findAll(showFullData: boolean = false): Promise<ItemInterface[]>
   {
     isLoading.value = true;
     error.value = null;
@@ -128,7 +128,7 @@ export function useBaseStore()
     }
   }
 
-  async function findPage(page: number, perPage: number, sortBy: DatatableSortBy, filters: any)
+  async function findPage(page: number, perPage: number, sortBy: DatatableSortByInterface, filters: any)
   {
     let parsed = parseArrays(filters);
     let filtersArray = parsed[0];
@@ -149,7 +149,7 @@ export function useBaseStore()
         let keyToIgnore = ['id'];
 
         //we scan the mapping to see if the fields are sortable and get the name of the filterable field (ex: businessSector.name)
-        let responseMapping: IriTemplateMapping[] = response.data['search']['mapping'];
+        let responseMapping: IriTemplateMappingInterface[] = response.data['search']['mapping'];
 
         //we add fields of type "type:xxx" in the mapping
         //ex: type:customerName -> mapping['customerName'] = {type: 'string'}
@@ -157,10 +157,10 @@ export function useBaseStore()
         //we also initialize the default filters to null (or [] for objects) and add them to the default context
         const typeRegexList = [/type:.*/];
         const isObjectRegexList = [/object:.*/];
-        responseMapping.filter(function (element: IriTemplateMapping)
+        responseMapping.filter(function (element: IriTemplateMappingInterface)
         {
           return typeRegexList.some(rx => rx.test(element.variable));
-        }).forEach((element: IriTemplateMapping) =>
+        }).forEach((element: IriTemplateMappingInterface) =>
         {
           let variable = element.variable.replace('type:', '');
 
@@ -169,10 +169,10 @@ export function useBaseStore()
             return;
           }
 
-          let mappingType = { type: element.property } as MappingType;
+          let mappingType = { type: element.property } as MappingTypeInterface;
           let searchValue = defaultContext.value.filters[variable] ?? null;
           if (isObjectRegexList.some(rx => rx.test(element.property))) {
-            mappingType = { type: 'object', object: element.property.replace('object:', '') } as MappingType;
+            mappingType = { type: 'object', object: element.property.replace('object:', '') } as MappingTypeInterface;
             searchValue = defaultContext.value.filters[variable] ?? [];
           }
 
@@ -181,7 +181,7 @@ export function useBaseStore()
           defaultContext.value.filters[variable] = searchValue;
         });
 
-        let newMapping: Record<string, MappingType> = {};
+        let newMapping: Record<string, MappingTypeInterface> = {};
         //sorting by custom mapping if provided
         Object.keys(customMapping.value).forEach(function (key)
         {
@@ -219,12 +219,12 @@ export function useBaseStore()
               continue;
             }
             //we look in the mapping if the field is sortable and get the name of the property to sort on
-            let foundSortableValue = responseMapping.find(function (el: IriTemplateMapping) { return el.variable.startsWith('orderBy') && el.property.startsWith(field); });
+            let foundSortableValue = responseMapping.find(function (el: IriTemplateMappingInterface) { return el.variable.startsWith('orderBy') && el.property.startsWith(field); });
             if (foundSortableValue != undefined) {
               orderByList.value[field] = foundSortableValue.property;
             }
             //we look in the mapping if the field is filterable on its existance
-            let foundFilterableOnExistance = responseMapping.find((el: IriTemplateMapping) => el.variable == "exists[${field}]" && el.property == field);
+            let foundFilterableOnExistance = responseMapping.find((el: IriTemplateMappingInterface) => el.variable == "exists[${field}]" && el.property == field);
             //we determine the type of the field
             let fieldType = 'string';
             if (fieldsByType.value.boolean?.includes(field)) {
@@ -234,19 +234,19 @@ export function useBaseStore()
             } else if (fieldsByType.value.object?.find((e: any) => e.name == field) || fieldsByType.value.objectsList?.find((e: any) => e.name == field) || fieldsByType.value.progressBar?.find((e: any) => e.name == field)) {
               fieldType = "object";
             }
-            let availableField: AvailableField = {
+            let AvailableFieldInterface: AvailableFieldInterface = {
               'key': field,
               'sortable': foundSortableValue != undefined,
               'sortProperty': foundSortableValue?.property,
               'fieldType': fieldType,
               'filterableOnExistance': foundFilterableOnExistance != undefined
             };
-            availableFields.value.push(availableField);
+            availableFields.value.push(AvailableFieldInterface);
 
             //if visibleFields exists for this field, we update it with the new properties (sortable, sortProperty, filterableOnExistance)
             let visibleFieldIndex = visibleFields.value.findIndex(vf => vf.key == field);
             if (visibleFieldIndex > -1) {
-              visibleFields.value[visibleFieldIndex] = availableField;
+              visibleFields.value[visibleFieldIndex] = AvailableFieldInterface;
             }
           }
         }
@@ -332,7 +332,7 @@ export function useBaseStore()
     return filledProps;
   }
 
-  function getOrderBy(reset: boolean = false): DatatableSortBy[]
+  function getOrderBy(reset: boolean = false): DatatableSortByInterface[]
   {
     let sortBy = getContextKey("sortBy", reset)
     //we check the sortBy field by its property, as the DataTable component needs the sortBy key, not the sortProperty
@@ -341,7 +341,7 @@ export function useBaseStore()
       sortBy.property = foundVisibleField.key
     }
 
-    return [sortBy as DatatableSortBy];
+    return [sortBy as DatatableSortByInterface];
   }
 
   function getSearchFilters(reset: boolean = false)
@@ -547,7 +547,7 @@ export function useBaseStore()
     return setContextKey("filters", filters.value);
   }
 
-  function setVisibleFields(fields: AvailableField[])
+  function setVisibleFields(fields: AvailableFieldInterface[])
   {
     visibleFields.value = fields;
 

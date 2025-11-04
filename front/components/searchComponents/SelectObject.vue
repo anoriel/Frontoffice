@@ -1,11 +1,13 @@
 <template>
-  <div v-if="list && list.length">
-    <v-autocomplete v-model="model" :items="list" :item-title="getObjectName" item-value="id" :label="label"
-      :placeholder="label" auto-focus clearable auto-select-first min-width="150" density="compact" :chips="chips"
-      :closable-chips="closableChips" return-object :multiple="true">
+  <div v-if="!preloadData || (list && list.length)">
+    <v-autocomplete v-model="model" :items="list" :item-title="getObjectName" item-value="id" :label="label" auto-focus
+      clearable auto-select-first min-width="150" density="compact" :chips="chips" :closable-chips="closableChips"
+      return-object :multiple="multiple" @update:search="searchItem" :loading="store?.isLoading ? 'error' : false"
+      autocomplete="off">
       <template v-slot:selection="{ item }">
         <agency-component v-if="fieldObjectType == 'agency'" :agency="item.raw" />
         <country-component v-else-if="fieldObjectType == 'country'" :country="item.raw" />
+        <customer-component v-else-if="fieldObjectType == 'customer'" :customer="item.raw" />
         <society-component v-else-if="fieldObjectType == 'society'" :society="item.raw" />
         <utilisateur-component v-else-if="fieldObjectType == 'user'" :user="item.raw" />
         <v-chip v-else-if="item.raw" :style="getCssForText(item.raw)" density="compact">
@@ -13,10 +15,11 @@
         </v-chip>
       </template>
       <template v-slot:item="{ props, item }">
-        <v-list-item v-bind="props">
+        <v-list-item v-bind="props" :disabled="store?.isLoading">
           <template v-slot:title>
             <agency-component v-if="fieldObjectType == 'agency'" :agency="item.raw" />
             <country-component v-else-if="fieldObjectType == 'country'" :country="item.raw" />
+            <customer-component v-else-if="fieldObjectType == 'customer'" :customer="item.raw" />
             <society-component v-else-if="fieldObjectType == 'society'" :society="item.raw" />
             <utilisateur-component v-else-if="fieldObjectType == 'user'" :user="item.raw" />
             <v-chip v-else-if="item.raw" :style="getCssForText(item.raw)" density="compact">
@@ -24,6 +27,14 @@
             </v-chip>
           </template>
         </v-list-item>
+      </template>
+      <template v-slot:no-data>
+        <v-list-item v-bind="props" v-if="store?.isLoading">
+          <v-progress-circular color="white" indeterminate :size="20" :width="2"></v-progress-circular>&nbsp;{{
+            $t('loading') }}...
+        </v-list-item>
+        <v-list-item class="text-no-wrap" v-else>{{ $helpers.capitalizeFirstLetter($t('no data available'))
+          }}</v-list-item>
       </template>
     </v-autocomplete>
   </div>
@@ -39,6 +50,7 @@ const { t, te } = useI18n({ useScope: "global" });
 import { useAgencyStore } from '@/stores/agency';
 import { useBusinessSectorStore } from '@/stores/businessSector';
 import { useCountryStore } from '@/stores/country';
+import { useCustomerStore } from '@/stores/customer';
 import { useLeadTypeStore } from '@/stores/leadType';
 import { useServiceDomainStore } from '@/stores/serviceDomain';
 import { useServiceTypeStore } from '@/stores/serviceType';
@@ -47,10 +59,12 @@ import { useUserStore } from '@/stores/user';
 
 import AgencyComponent from "@/components/AgencyComponent.vue";
 import CountryComponent from '@/components/CountryComponent.vue';
+import CustomerComponent from '@/components/CustomerComponent.vue';
 import SocietyComponent from '@/components/SocietyComponent.vue';
 import UtilisateurComponent from '@/components/UtilisateurComponent.vue'
-import { Item } from '@/interfaces/ItemInterface';
+import { ItemInterface } from '@/interfaces/ItemInterface';
 import { useCustomerTypeStore } from '@/stores/customerType';
+import _ from 'lodash';
 
 const props = defineProps({
   fieldname: {
@@ -69,9 +83,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  moduleName: {
-    type: String,
-    required: true,
+  multiple: {
+    type: Boolean,
+    required: false,
+    default: true
   },
   chips: {
     type: Boolean,
@@ -90,6 +105,11 @@ const props = defineProps({
     {
       return []
     }
+  },
+  preloadData: {
+    type: Boolean,
+    required: false,
+    default: true
   },
   withSlots: {
     type: Boolean,
@@ -116,6 +136,9 @@ onMounted(async () =>
     case "country":
       store.value = useCountryStore()
       break;
+    case "customer":
+      store.value = useCustomerStore()
+      break;
     case "customerType":
       store.value = useCustomerTypeStore()
       break;
@@ -140,7 +163,7 @@ onMounted(async () =>
       }
       break;
   }
-  if (store.value && !store.value.list.length) {
+  if (store.value && !store.value.list.length && props.preloadData) {
     if (['agency', 'society', 'user'].includes(props.fieldObjectType)) {
       await store.value.findAllActive();
     } else {
@@ -149,12 +172,16 @@ onMounted(async () =>
   }
   if (store.value && store.value.list.length) {
     list.value = JSON.parse(JSON.stringify(store.value.list));
-  } else {
+  } else if (props.preloadData) {
     console.log(props.fieldname)
   }
 })
 
 
+function getCssForText(item: ItemInterface)
+{
+  return helpers.getCssForText(getStringValue(item));
+}
 
 function getObjectName(e: any)
 {
@@ -162,14 +189,19 @@ function getObjectName(e: any)
   return (e.iso3166 ?? e.pays.iso3166) + e.stringValue;
 }
 
-function getCssForText(item: Item)
-{
-  return helpers.getCssForText(getStringValue(item));
-}
 
-function getStringValue(item: Item)
+function getStringValue(item: ItemInterface)
 {
   let text = item.stringValue ?? '<unknown>'
   return helpers.capitalizeFirstLetter(te(text) ? t(text) : text);
 }
+
+const loadData = async (text: string) =>
+{
+  list.value = [];
+  if (text.length < 3) return;
+  list.value = await store.value.findByName(text);
+}
+
+const searchItem = _.debounce(loadData, 1000);
 </script>

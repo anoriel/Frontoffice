@@ -67,7 +67,7 @@ import draggable from 'vuedraggable'
 import { useGlobalStore } from '@/stores/global';
 import { PropType } from 'vue';
 import { BaseStoreInterface } from '@/interfaces/BaseStoreInterface';
-import { AvailableField } from '@/interfaces/AvailableFieldInterface';
+import { AvailableFieldInterface } from '@/interfaces/AvailableFieldInterface';
 const globalStore = useGlobalStore()
 import useCommonHelper from '@/helpers/commonHelper'
 const helpers = useCommonHelper()
@@ -94,10 +94,10 @@ const props = defineProps({
   },
 })
 
-const clonedAvailableColumns = shallowRef<AvailableField[]>([])
-const clonedVisibleColumns = shallowRef<AvailableField[]>([])
+const clonedAvailableColumns = shallowRef<AvailableFieldInterface[]>([])
+const clonedVisibleColumns = shallowRef<AvailableFieldInterface[]>([])
 
-function getColumnName(column: AvailableField)
+function getColumnName(column: AvailableFieldInterface)
 {
   return helpers.capitalizeFirstLetter(t(te(props.moduleName + '.' + column.key) ? props.moduleName + '.' + column.key : column.key));
 }
@@ -137,7 +137,7 @@ function reset()
   refreshClonedAvailableColumns();
 }
 
-function sortLeadColumns(columnsList: AvailableField[])
+function sortLeadColumns(columnsList: AvailableFieldInterface[])
 {
   columnsList.sort(function (a, b)
   {

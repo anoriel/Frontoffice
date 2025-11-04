@@ -1,4 +1,4 @@
-import { Item as ItemInterface } from "@/interfaces/ItemInterface";
+import { ItemInterface } from "@/interfaces/ItemInterface";
 
 export default class Item implements ItemInterface
 {

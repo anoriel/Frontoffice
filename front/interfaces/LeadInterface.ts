@@ -1,3 +1,4 @@
+import { CustomerInterface } from './CustomerInterface';
 import { ItemInterface } from './ItemInterface';
 
 export interface LeadInterface extends ItemInterface
@@ -11,7 +12,7 @@ export interface LeadInterface extends ItemInterface
   priority?: number;
   annualExpectedIncome?: number;
   incomeProbability?: number;
-  customer?: any;
+  customer?: CustomerInterface | null;
   countryOfEstablishment?: any;
   countryOfDestination?: any;
   serviceType?: any;

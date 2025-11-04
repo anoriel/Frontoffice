@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import thisAPI from '@/api/customer'
 import { useBaseStore } from './baseStore';
 import { useCustomerTypeStore } from '@/stores/customerType'
-import { DatatableSortBy } from '@/interfaces/DatatableSortByInterface';
+import { DatatableSortByInterface } from '@/interfaces/DatatableSortByInterface';
 import { useContacTypeStore } from './contactType';
 import useCommonHelper from '../helpers/commonHelper'
 const helpers = useCommonHelper()
@@ -43,6 +43,7 @@ export const useCustomerStore = defineStore('customer', () =>
     getSearchFilters,
     getVisibleFields,
     parseArrays,
+    parseResponse,
     reset,
     save,
     setSearchFilters,
@@ -82,7 +83,7 @@ export const useCustomerStore = defineStore('customer', () =>
     filters: {
       'customerType.id': [1000, 1001],
     },
-    sortBy: { key: 'nomSociete', order: 'asc' } as DatatableSortBy,
+    sortBy: { key: 'nomSociete', order: 'asc' } as DatatableSortByInterface,
     version: "1.0",
     visibleFields: [
       { "key": "dateAjout" },
@@ -113,6 +114,21 @@ export const useCustomerStore = defineStore('customer', () =>
   fieldsByType.value.string = ['nomSociete', 'tel', 'email', 'reference']
 
   localStorageName.value = "CrmCustomer"
+
+  async function findByName(name: string, customerTypes: number[] = [1001])
+  {
+    isLoading.value = true;
+    error.value = null;
+    try {
+      let response = await thisAPI.findByName(name, customerTypes);
+      parseResponse(response);
+      return list.value;
+    } catch (error: any) {
+      isLoading.value = false;
+      error.value = error;
+      return null;
+    }
+  }
 
   function getActionOnOpeningItem(id: number)
   {
@@ -159,6 +175,7 @@ export const useCustomerStore = defineStore('customer', () =>
     defaultContext,
     localStorageName,
 
+    findByName,
     parseArrays,
   }
 })

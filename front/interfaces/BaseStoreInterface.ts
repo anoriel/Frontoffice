@@ -1,10 +1,10 @@
-import { AvailableField } from "./AvailableFieldInterface"
-import { MappingType } from "./MappingTypeInterface";
+import { AvailableFieldInterface } from "./AvailableFieldInterface"
+import { MappingTypeInterface } from "./MappingTypeInterface";
 
 export interface BaseStoreInterface
 {
   api: any,
-  availableFields: AvailableField[],
+  availableFields: AvailableFieldInterface[],
   context: Record<string, any>,
   currentPage: number,
   customMapping: Record<string, any>,
@@ -18,8 +18,8 @@ export interface BaseStoreInterface
   list: any[],
   totalItems: number,
   localStorageName: string,
-  mapping: Record<string, MappingType>,//used to generate filter form and parse items
-  visibleFields: AvailableField[],
+  mapping: Record<string, MappingTypeInterface>,//used to generate filter form and parse items
+  visibleFields: AvailableFieldInterface[],
 
   hasError(): boolean,
   hasItems(): boolean,

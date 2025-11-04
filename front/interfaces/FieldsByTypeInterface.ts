@@ -1,4 +1,4 @@
-import { FieldType } from "./FieldTypeInterface";
+import { FieldTypeInterface } from "./FieldTypeInterface";
 
 export interface FieldsByTypeInterface
 {
@@ -7,9 +7,9 @@ export interface FieldsByTypeInterface
   'country'?: string[],
   'date'?: string[],
   'datetime'?: string[],
-  'object'?: FieldType[],
-  'objectsList'?: FieldType[],
-  'progressBar'?: FieldType[],
+  'object'?: FieldTypeInterface[],
+  'objectsList'?: FieldTypeInterface[],
+  'progressBar'?: FieldTypeInterface[],
   'string'?: string[],
   'stringsList'?: string[],
 }

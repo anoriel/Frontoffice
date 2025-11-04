@@ -9,11 +9,11 @@
 import { type PropType } from 'vue';
 import { CountryCode } from '@/types/CountryCode';
 import FlagIcon from './FlagIcon.vue';
-import { Societe } from '@/interfaces/SocietyInterface';
+import { SocietyInterface } from '@/interfaces/SocietyInterface';
 
 const props = defineProps({
   society: {
-    type: Object as PropType<Societe>,
+    type: Object as PropType<SocietyInterface>,
     required: true,
   },
 })

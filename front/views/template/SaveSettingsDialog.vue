@@ -33,7 +33,7 @@ const helpers = useCommonHelper()
 import { useI18n } from "vue-i18n";
 const { t } = useI18n({ useScope: "global" });
 import { useSettingsStore } from '@/stores/settings';
-import { Setting } from '@/interfaces/SettingInterface';
+import { SettingInterface } from '@/interfaces/SettingInterface';
 import { useSecurityStore } from '@/stores/security';
 import { isObject, isString } from 'lodash';
 const settingsStore = useSettingsStore()
@@ -46,12 +46,12 @@ const props = defineProps({
   },
 })
 
-const selectedListSetting = ref<Setting | String | null>(null)
+const selectedListSetting = ref<SettingInterface | String | null>(null)
 const selectedIsPublic = ref(false);
 
 function checkName()
 {
-  return (v: Setting | String | null) =>
+  return (v: SettingInterface | String | null) =>
   {
     if (!v || (typeof v === 'string' && !v.trim().length) || (isObject(v) && 'name' in v && !v.name.trim().length)) {
       return helpers.capitalizeFirstLetter(t('please give a name'));

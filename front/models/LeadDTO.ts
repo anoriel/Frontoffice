@@ -94,7 +94,7 @@ export class LeadDTO extends Item implements LeadInterface
     }
   )
   {
-    super(rawData);
+    super();
     Object.keys(rawData).forEach((key: string) =>
     {
       if (key in this) {

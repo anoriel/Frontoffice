@@ -7,13 +7,13 @@
 
 <script setup lang="ts">
 import { type PropType } from 'vue';
-import { Agency } from '@/interfaces/AgencyInterface';
+import { AgencyInterface } from '@/interfaces/AgencyInterface';
 import { CountryCode } from '@/types/CountryCode';
 import FlagIcon from './FlagIcon.vue';
 
 const props = defineProps({
   agency: {
-    type: Object as PropType<Agency>,
+    type: Object as PropType<AgencyInterface>,
     required: true,
   },
 })

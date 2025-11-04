@@ -30,7 +30,11 @@ const thisApi = {
   },
   transformIntoProspect(item: LeadInterface)
   {
-    return axios.patch(`${this.baseUrl}/transform_into_prospect/${item.id}`, item);
+    return axios.patch(`${this.baseUrl}/transform_into_prospect/${item.id}`, item, {
+      headers: {
+        "Content-Type": "application/merge-patch+json",
+      },
+    });
   },
 }
 

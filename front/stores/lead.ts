@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia'
 import thisAPI from '@/api/lead'
 import { useBaseStore } from './baseStore';
-import { Lead } from '@/interfaces/LeadInterface';
+import { LeadInterface } from '@/interfaces/LeadInterface';
 import { LeadCommentInterface } from '@/interfaces/LeadCommentInterface';
 import { useLeadTypeStore } from '@/stores/leadType'
-import { DatatableSortBy } from '@/interfaces/DatatableSortByInterface';
+import { DatatableSortByInterface } from '@/interfaces/DatatableSortByInterface';
 
 
 export const useLeadStore = defineStore('lead', () =>
@@ -59,7 +59,7 @@ export const useLeadStore = defineStore('lead', () =>
   defaultContext.value = {
     currentPage: 1,
     filters: {},
-    sortBy: { key: 'createdAt', order: 'desc' } as DatatableSortBy,
+    sortBy: { key: 'createdAt', order: 'desc' } as DatatableSortByInterface,
     version: "1.0",
     visibleFields: [
       { "key": "createdAt" },
@@ -115,7 +115,7 @@ export const useLeadStore = defineStore('lead', () =>
     return { name: 'lead.page', params: { id: id } };
   }
 
-  function parseItem(item: Lead)
+  function parseItem(item: LeadInterface)
   {
     //#region properties rewriting
     if (item.needsDescription == null) {
@@ -153,7 +153,7 @@ export const useLeadStore = defineStore('lead', () =>
     return item;
   }
 
-  async function transformIntoProspect(lead: Lead)
+  async function transformIntoProspect(lead: LeadInterface)
   {
     isLoading.value = true;
     error.value = null;
