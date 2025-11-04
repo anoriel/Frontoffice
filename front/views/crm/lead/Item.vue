@@ -324,6 +324,99 @@
               </v-row>
               <!-- #endregion needs -->
 
+              <!-- #region société -->
+              <v-row>
+                <v-col class="pa-0 pt-3">
+                  <fieldset class="fieldset bg-white mb-4 pa-2">
+                    <legend class="ml-3 pl-1 pr-1">
+                      <v-icon>mdi-badge-account-horizontal-outline</v-icon>
+                      {{ $helpers.capitalizeFirstLetter($t("lead.customerIdentity")) }}
+                    </legend>
+                    <v-row>
+                      <v-col column="6">
+                        <v-text-field v-model="lead.registrationNumber" density="compact"
+                          :label="$helpers.capitalizeFirstLetter($t('lead.registrationNumber'))" />
+                      </v-col>
+                      <v-col column="6">
+                        <v-text-field v-model="lead.vatNumber" density="compact"
+                          :label="$helpers.capitalizeFirstLetter($t('lead.vatNumber'))" />
+                      </v-col>
+                    </v-row>
+                  </fieldset>
+                </v-col>
+              </v-row>
+              <!-- #endregion société -->
+
+              <!-- #region lead Parameters  -->
+              <v-row>
+                <v-col class="pa-0 pt-3">
+                  <fieldset class="fieldset bg-white mb-4 pa-2">
+                    <legend class="ml-3 pl-1 pr-1">
+                      <v-icon>mdi-account-settings</v-icon>
+                      {{ $helpers.capitalizeFirstLetter($t("lead.settings")) }}
+                    </legend>
+                    <v-row>
+                      <v-col>
+                        <v-number-input control-variant="stacked" v-model="lead.punctualExpectedIncome"
+                          density="compact" prepend-inner-icon="mdi-currency-eur" :min="0"
+                          :label="$helpers.capitalizeFirstLetter($t('lead.punctualExpectedIncome'))" />
+                      </v-col>
+                      <v-col>
+                        <v-number-input control-variant="stacked" v-model="lead.monthlyExpectedIncome" density="compact"
+                          prepend-inner-icon="mdi-currency-eur" :min="0"
+                          :label="$helpers.capitalizeFirstLetter($t('lead.monthlyExpectedIncome'))" />
+                      </v-col>
+                      <v-col>
+                        <v-number-input control-variant="stacked" v-model="lead.annualExpectedIncome" density="compact"
+                          prepend-inner-icon="mdi-currency-eur" :min="0"
+                          :label="$helpers.capitalizeFirstLetter($t('lead.annualExpectedIncome'))" />
+                      </v-col>
+                      <v-col>
+                        <p class="text-caption" style="margin-top: -15px">{{
+                          $helpers.capitalizeFirstLetter($t('priority'))
+                          }}</p>
+                        <v-rating hover :length="5" :size="32" v-model="lead.priority" active-color="primary"
+                          density="compact" />
+                      </v-col>
+                      <v-col>
+                        <v-date-input v-model="lead.reminderDate"
+                          :label="$helpers.capitalizeFirstLetter($t('lead.reminderDate'))" clearable density="compact"
+                          mode-icon="mdi-calendar-edit" />
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col column="4">
+                        <select-object fieldname="lead.user" fieldObjectType="user"
+                          :label="$helpers.capitalizeFirstLetter($t('seller'))" v-model="lead.user" :multiple="false" />
+                      </v-col>
+                      <v-col column="4">
+                        <select-object fieldname="lead.agency" fieldObjectType="agency"
+                          :label="$helpers.capitalizeFirstLetter($t('agency'))" v-model="lead.agency"
+                          :multiple="false" />
+                      </v-col>
+                      <v-col column="4">
+                        <select-object fieldname="lead.society" fieldObjectType="society"
+                          :label="$helpers.capitalizeFirstLetter($t('society'))" v-model="lead.society"
+                          :multiple="false" />
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col>
+                        <select-object fieldname="lead.origin" fieldObjectType="leadOrigin"
+                          :label="$helpers.capitalizeFirstLetter($t('lead.origin'))" v-model="lead.origin"
+                          prependIcon="mdi-map-marker-question" :multiple="false" />
+                      </v-col>
+                      <v-col v-if="securityStore.hasRole('ROLE_CRM_ADMIN')">
+                        <v-text-field v-model="lead.originDescription" density="compact"
+                          prepend-inner-icon="mdi-map-marker-plus"
+                          :label="$helpers.capitalizeFirstLetter($t('lead.originDescription'))" />
+                      </v-col>
+                    </v-row>
+                  </fieldset>
+                </v-col>
+              </v-row>
+              <!-- #endregion lead Parameters -->
+
             </v-form>
           </v-container>
         </v-sheet>

@@ -3,7 +3,7 @@
     <v-autocomplete v-model="model" :items="list" :item-title="getObjectName" item-value="id" :label="label" auto-focus
       clearable auto-select-first min-width="150" density="compact" :chips="chips" :closable-chips="closableChips"
       return-object :multiple="multiple" @update:search="searchItem" :loading="store?.isLoading ? 'error' : false"
-      autocomplete="off">
+      :prepend-inner-icon="prependIcon" autocomplete="off">
       <template v-slot:selection="{ item }">
         <agency-component v-if="fieldObjectType == 'agency'" :agency="item.raw" />
         <country-component v-else-if="fieldObjectType == 'country'" :country="item.raw" />
@@ -52,6 +52,7 @@ import { useBusinessSectorStore } from '@/stores/businessSector';
 import { useCountryStore } from '@/stores/country';
 import { useCustomerStore } from '@/stores/customer';
 import { useLeadTypeStore } from '@/stores/leadType';
+import { useLeadOriginStore } from '@/stores/leadOrigin';
 import { useServiceDomainStore } from '@/stores/serviceDomain';
 import { useServiceTypeStore } from '@/stores/serviceType';
 import { useSocietyStore } from '@/stores/society';
@@ -111,6 +112,10 @@ const props = defineProps({
     required: false,
     default: true
   },
+  prependIcon: {
+    type: String,
+    required: false
+  },
   withSlots: {
     type: Boolean,
     required: false,
@@ -141,6 +146,9 @@ onMounted(async () =>
       break;
     case "customerType":
       store.value = useCustomerTypeStore()
+      break;
+    case "leadOrigin":
+      store.value = useLeadOriginStore()
       break;
     case "leadType":
       store.value = useLeadTypeStore()
@@ -173,7 +181,7 @@ onMounted(async () =>
   if (store.value && store.value.list.length) {
     list.value = JSON.parse(JSON.stringify(store.value.list));
   } else if (props.preloadData) {
-    console.log(props.fieldname)
+    console.log('module for ' + props.fieldname + ' is unknown')
   }
 })
 
@@ -198,6 +206,7 @@ function getStringValue(item: ItemInterface)
 
 const loadData = async (text: string) =>
 {
+  if (props.preloadData) return;
   list.value = [];
   if (text.length < 3) return;
   list.value = await store.value.findByName(text);
