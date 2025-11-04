@@ -667,8 +667,7 @@ function setTimeBeforeSave(reset = false)
   setTimeoutBeforeSave(reset);
 
   if (timeBeforeSave.value != undefined && timeBeforeSave.value <= 0) {
-    console.log('SAVE');
-    // save();
+    save();
   } else {
     timeoutBeforeSave.value = setTimeout(function ()
     {
