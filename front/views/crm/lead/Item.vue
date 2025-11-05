@@ -72,9 +72,6 @@
 
     <v-row>
       <v-col md="12" lg="8" class="mt-lg-2 mt-xl-0 pb-16">
-        <div>formIsValid={{ formIsValid }}</div>
-        <div>nbModifications={{ nbModifications }}</div>
-        <div>modificationsList={{ modificationsList }}</div>
         <v-sheet>
           <div>
             <div class="arrow_button_cartouche d-flex flex-row-reverse position-relative" border="primary lg">
@@ -374,7 +371,7 @@
                       <v-col>
                         <p class="text-caption" style="margin-top: -15px">{{
                           $helpers.capitalizeFirstLetter($t('priority'))
-                          }}</p>
+                        }}</p>
                         <v-rating hover :length="5" :size="32" v-model="lead.priority" active-color="primary"
                           density="compact" />
                       </v-col>

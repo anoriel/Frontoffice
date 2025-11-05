@@ -22,7 +22,7 @@
 
       <v-list v-if="getFilteredSettingsByStorageName().length" density="compact">
         <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('personal parameters'))
-        }}</v-list-subheader>
+          }}</v-list-subheader>
         <v-list-item v-for="item in getFilteredSettingsByStorageName()" :key="item.id" :value="item.id"
           @click="loadFilters(item)">
           <v-list-item-title>
@@ -33,7 +33,7 @@
       <v-divider></v-divider>
       <v-list v-if="getPublicSettingsByStorageName().length" density="compact">
         <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('public parameters'))
-        }}</v-list-subheader>
+          }}</v-list-subheader>
         <v-list-item v-for="item in getPublicSettingsByStorageName()" :key="item.id" :value="item.id"
           @click="loadFilters(item)">
           <v-list-item-title>
@@ -365,9 +365,9 @@ async function loadItems({ page, itemsPerPage, sortBy, groupBy, search })
 
 function openItemPage(event, item, index)
 {
-  if (rowBeingEdited.value[item.id])
+  if (rowBeingEdited.value[props.moduleName + "-" + item.id])
   {
-    rowBeingEdited.value[item.id].focus();
+    rowBeingEdited.value[props.moduleName + "-" + item.id].focus();
     return;
   } else if (('rowIsDisabled' in item && item.rowIsDisabled))
   {
@@ -375,28 +375,39 @@ function openItemPage(event, item, index)
   }
 
   const routeData = store.value.getActionOnOpeningItem(item.id);
-  if (!('url' in routeData))//if no url, it's a route object, we change the page with router.push
+  if (!('url' in routeData))//if no url, it's a route object, we change the page with router.push or new tab if CTRL key is down
   {
-    router.push(routeData);
-    return;
+    if (event.ctrlKey)
+    {
+      let theRoute = router.resolve(routeData);
+      // Open in new tab & store rowBeingEdited
+      rowBeingEdited.value[props.moduleName + "-" + item.id] = window.open(theRoute.href, '_blank');
+    } else
+    {
+      router.push(routeData);
+    }
+  } else
+  {
+    //else it's a url, we open a new window
+    //we store the window in rowBeingEdited to avoid opening multiple windows for the same item
+    //and to be able to detect when the window is closed
+    //so we can reload the item in the list
+    //and remove the window from rowBeingEdited
+    rowBeingEdited.value[props.moduleName + "-" + item.id] = window.open(routeData.url, '', 'width=1680,height=1024');
   }
 
-  //else it's a url, we open a new window
-  //we store the window in rowBeingEdited to avoid opening multiple windows for the same item
-  //and to be able to detect when the window is closed
-  //so we can reload the item in the list
-  //and remove the window from rowBeingEdited
-  rowBeingEdited.value[item.id] = window.open(routeData.url, '', 'width=1680,height=1024');
-
-  // Later, to detect when myWindow is closed
-  var timer = setInterval(function ()
+  if (props.moduleName + "-" + item.id in rowBeingEdited.value)
   {
-    if (rowBeingEdited.value[item.id].closed)
+    // Later, to detect when myWindow is closed
+    var timer = setInterval(function ()
     {
-      clearInterval(timer);
-      this.reloadItem(item)
-    }
-  }.bind(this, index), 100);
+      if (rowBeingEdited.value[props.moduleName + "-" + item.id].closed)
+      {
+        clearInterval(timer);
+        this.reloadItem(item)
+      }
+    }.bind(this, index), 100);
+  }
 
 }
 
@@ -407,19 +418,27 @@ async function reloadItem(item)
   {
     item._rowVariant = "isBeingEdited font-italic bg-blue-grey-lighten-3 cursor-not-allowed"
     item.rowIsDisabled = true;
-    await useSecurityStore().getLongRequest(2);
-    //TODO: reload only the item
-    item._rowVariant = "blinking bg-red-lighten-3 cursor-pointer"
-    delete item.rowIsDisabled;
+    item = await store.value.find(item.id);
+    let indexInList = serverItems.value.findIndex(function (el) { return el.id === item.id; });
+    if (indexInList > -1)
+    {
+      item._rowVariant = "blinking bg-red-lighten-3 cursor-pointer"
+      serverItems.value.splice(indexInList, 1, item);
+      if (props.moduleName + "-" + item.id in rowBeingEdited.value)
+      {
+        delete rowBeingEdited.value[props.moduleName + "-" + item.id];
+      }
+      item = serverItems.value[indexInList];
+    }
+    if ('rowIsDisabled' in item)
+    {
+      delete indexInList.rowIsDisabled;
+    }
 
     setTimeout(function ()
     {
       this.unblinkRow(item);
     }.bind(this, item), 1500);
-  }
-  if (item.id in rowBeingEdited.value)
-  {
-    delete rowBeingEdited.value[item.id];
   }
 }
 

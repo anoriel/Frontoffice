@@ -511,8 +511,8 @@ export default function useCommonHelper()
 
   function getLegacyIntranetUrl()
   {
-    let username = sessionStorage.getItem('username')
-    let authToken = sessionStorage.getItem('authToken')
+    let username = localStorage.getItem('username')
+    let authToken = localStorage.getItem('authToken')
     if (null == username || null == authToken) {
       return legacyIntranetUrl
     }

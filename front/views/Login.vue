@@ -81,12 +81,12 @@ async function performLogin()
     let authToken = securityStore.getAuthToken()
     if (authToken != null)
     {
-      sessionStorage.setItem('authToken', authToken)
+      localStorage.setItem('authToken', authToken)
     }
     let username = securityStore.getUsername()
     if (username != null)
     {
-      sessionStorage.setItem('username', username)
+      localStorage.setItem('username', username)
     }
     changeRoute()
   }

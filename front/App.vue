@@ -214,9 +214,9 @@ axios.interceptors.request.use((request) =>
     }
     request.url += '_switch_user=' + this.getLoggedAs()
   }
-  if (sessionStorage.getItem('JWTToken'))
+  if (localStorage.getItem('JWTToken'))
   {
-    request.headers['Authorization'] = 'Bearer ' + sessionStorage.getItem('JWTToken')
+    request.headers['Authorization'] = 'Bearer ' + localStorage.getItem('JWTToken')
   }
   if (['patch', 'post'].includes(request.headers))
   {

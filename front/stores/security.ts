@@ -129,8 +129,8 @@ export const useSecurityStore = defineStore('security', () =>
 
   function getJWTToken()
   {
-    if (JWTToken.value == null && sessionStorage.getItem("JWTToken") != null) {
-      JWTToken.value = sessionStorage.getItem("JWTToken")
+    if (JWTToken.value == null && localStorage.getItem("JWTToken") != null) {
+      JWTToken.value = localStorage.getItem("JWTToken")
     }
     return JWTToken.value
   }
@@ -138,8 +138,8 @@ export const useSecurityStore = defineStore('security', () =>
   function getAuthToken()
   {
     //authToken for legacy intranet
-    if (JWTToken.value == null && sessionStorage.getItem("JWTToken") != null) {
-      JWTTokenInfo.value = parseJwt(sessionStorage.getItem("JWTToken"))
+    if (JWTToken.value == null && localStorage.getItem("JWTToken") != null) {
+      JWTTokenInfo.value = parseJwt(localStorage.getItem("JWTToken"))
     }
     return JWTTokenInfo.value != null ? JWTTokenInfo.value.authToken : null
   }
@@ -148,9 +148,9 @@ export const useSecurityStore = defineStore('security', () =>
   {
     if (
       JWTTokenInfo.value == null &&
-      sessionStorage.getItem("JWTToken") != null
+      localStorage.getItem("JWTToken") != null
     ) {
-      JWTTokenInfo.value = parseJwt(sessionStorage.getItem("JWTToken"))
+      JWTTokenInfo.value = parseJwt(localStorage.getItem("JWTToken"))
     }
     //user impersonated
     if (switch_user.value && "id" in switch_user.value) {
@@ -163,9 +163,9 @@ export const useSecurityStore = defineStore('security', () =>
   {
     if (
       JWTTokenInfo.value == null &&
-      sessionStorage.getItem("JWTToken") != null
+      localStorage.getItem("JWTToken") != null
     ) {
-      JWTTokenInfo.value = parseJwt(sessionStorage.getItem("JWTToken"));
+      JWTTokenInfo.value = parseJwt(localStorage.getItem("JWTToken"));
     }
     return JWTTokenInfo.value != null ? JWTTokenInfo.value.email : null;
   }
@@ -174,9 +174,9 @@ export const useSecurityStore = defineStore('security', () =>
   {
     if (
       JWTTokenInfo.value == null &&
-      sessionStorage.getItem("JWTToken") != null
+      localStorage.getItem("JWTToken") != null
     ) {
-      JWTTokenInfo.value = parseJwt(sessionStorage.getItem("JWTToken"))
+      JWTTokenInfo.value = parseJwt(localStorage.getItem("JWTToken"))
     }
     return JWTTokenInfo.value != null ? JWTTokenInfo.value.firstname : null
   }
@@ -185,9 +185,9 @@ export const useSecurityStore = defineStore('security', () =>
   {
     if (
       JWTTokenInfo.value == null &&
-      sessionStorage.getItem("JWTToken") != null
+      localStorage.getItem("JWTToken") != null
     ) {
-      JWTTokenInfo.value = parseJwt(sessionStorage.getItem("JWTToken"))
+      JWTTokenInfo.value = parseJwt(localStorage.getItem("JWTToken"))
     }
     return JWTTokenInfo.value != null ? JWTTokenInfo.value.lastname : null
   }
@@ -204,9 +204,9 @@ export const useSecurityStore = defineStore('security', () =>
   {
     if (
       JWTTokenInfo.value == null &&
-      sessionStorage.getItem("JWTToken") != null
+      localStorage.getItem("JWTToken") != null
     ) {
-      JWTTokenInfo.value = parseJwt(sessionStorage.getItem("JWTToken"))
+      JWTTokenInfo.value = parseJwt(localStorage.getItem("JWTToken"))
     }
     return JWTTokenInfo.value != null ? JWTTokenInfo.value.username : null
   }
@@ -223,8 +223,8 @@ export const useSecurityStore = defineStore('security', () =>
 
   function getIsAuthenticated()
   {
-    if (JWTToken.value == null && sessionStorage.getItem("JWTToken") != null) {
-      JWTToken.value = sessionStorage.getItem("JWTToken")
+    if (JWTToken.value == null && localStorage.getItem("JWTToken") != null) {
+      JWTToken.value = localStorage.getItem("JWTToken")
     }
     return JWTToken.value != null
   }
@@ -304,13 +304,13 @@ export const useSecurityStore = defineStore('security', () =>
         currentUserRoles.value = JWTTokenInfo.value.roles;
       }
       if (JWTToken.value) {
-        sessionStorage.setItem("JWTToken", JWTToken.value);
+        localStorage.setItem("JWTToken", JWTToken.value);
       }
-      sessionStorage.setItem("JWTTokenInfo", JSON.stringify(JWTTokenInfo.value));
+      localStorage.setItem("JWTTokenInfo", JSON.stringify(JWTTokenInfo.value));
 
       for (let i in JWTTokenInfo.value) {
         const value = JWTTokenInfo.value != null ? JWTTokenInfo.value[i] : null;
-        sessionStorage.setItem(
+        localStorage.setItem(
           i,
           value !== null ? String(value) : ''
         );
@@ -330,25 +330,25 @@ export const useSecurityStore = defineStore('security', () =>
   function onRefresh()
   {
     disconnect()
-    JWTToken.value = sessionStorage.getItem("JWTToken");
+    JWTToken.value = localStorage.getItem("JWTToken");
     isAuthenticated.value = JWTToken.value != null;
     if (JWTToken.value != null) {
       JWTTokenInfo.value = parseJwt(JWTToken.value);
       currentUserRoles.value = JWTTokenInfo.value ? JWTTokenInfo.value.roles : [];
-      sessionStorage.setItem("JWTTokenInfo", JSON.stringify(JWTTokenInfo.value));
+      localStorage.setItem("JWTTokenInfo", JSON.stringify(JWTTokenInfo.value));
     }
   }
 
   function destroySessionStorage()
   {
-    sessionStorage.removeItem("JWTToken");
-    sessionStorage.removeItem("JWTTokenInfo");
-    sessionStorage.removeItem("authToken");
-    sessionStorage.removeItem("username");
-    sessionStorage.removeItem("human_iat");
-    sessionStorage.removeItem("human_exp");
-    sessionStorage.removeItem("points");
-    sessionStorage.removeItem("lastPoints");
+    localStorage.removeItem("JWTToken");
+    localStorage.removeItem("JWTTokenInfo");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("username");
+    localStorage.removeItem("human_iat");
+    localStorage.removeItem("human_exp");
+    localStorage.removeItem("points");
+    localStorage.removeItem("lastPoints");
   }
 
   function disconnect()
