@@ -22,9 +22,9 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn @click="onCancel" color="error" :prepend-icon="cancelIcon">{{ $helpers.capitalizeFirstLetter(cancelText)
-          }}</v-btn>
+        }}</v-btn>
         <v-btn @click="onSave" color="success" :prepend-icon="saveIcon">{{ $helpers.capitalizeFirstLetter(saveText)
-          }}</v-btn>
+        }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -37,7 +37,7 @@ import moment from "moment";
 const props = defineProps({
   dialog: Boolean,
   title: String,
-  modelDate: String,
+  modelDate: Date,
   saveIcon: {
     type: String,
     default: 'mdi-content-save'
@@ -79,7 +79,7 @@ const emit = defineEmits(['saveDateTime', 'cancelDateTime'])
 
 const onSave = () =>
 {
-  emit('saveDateTime', moment(moment(new Date(datePicker.value)).format("YYYY-MM-DD") + ' ' + timePicker.value, "YYYY-MM-DD HH:mm").toISOString())
+  emit('saveDateTime', moment(moment(new Date(datePicker.value)).format("YYYY-MM-DD") + ' ' + timePicker.value, "YYYY-MM-DD HH:mm").toDate())
 }
 
 const onCancel = () =>

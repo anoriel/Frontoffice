@@ -95,20 +95,20 @@
             </span>
             <!-- #endregion leadType tag -->
 
-            <v-form v-model="formIsValid" @submit.prevent lazy-validation>
+            <v-form v-model="formIsValid" ref="leadForm" @submit.prevent lazy-validation>
               <!-- #region lead name -->
               <v-row>
                 <v-col col="10" md="9" class="pt-3 pa-0">
                   <v-text-field v-model="lead.customerName" class="leadName" variant="underlined"
                     :label="$helpers.capitalizeFirstLetter($t('lead.customerName'))"
                     :rules="[() => !!lead.customerName || $helpers.capitalizeFirstLetter($t('field required', { field: $helpers.capitalizeFirstLetter($t('lead.customerName')) }))]"
-                    required @keydown.enter.prevent="$event.target.blur()" density="compact" />
+                    required autocomplete="off" density="compact" />
                 </v-col>
                 <v-col col="2" md="3" class="pt-3 pl-3 pa-0 d-flex align-center">
                   <v-text-field v-model="lead.createdAt" :value="$helpers.formatDate(lead.createdAt)" readonly
-                    variant="underlined" :label="$helpers.capitalizeFirstLetter($t('lead.createdAt'))"
-                    prepend-inner-icon="mdi-calendar" required icon-color="primary"
-                    :title="$helpers.formatDateTime(lead.createdAt)" density="compact"
+                    :disabled="!securityStore.hasRole('ROLE_CRM_ADMIN')" variant="underlined"
+                    :label="$helpers.capitalizeFirstLetter($t('lead.createdAt'))" prepend-inner-icon="mdi-calendar"
+                    required icon-color="primary" :title="$helpers.formatDateTime(lead.createdAt)" density="compact"
                     @mousedown:control="dateTimeDialog = true" style="vertical-align: middle;">
                   </v-text-field>
                 </v-col>
@@ -194,23 +194,23 @@
                       <v-col column="3">
                         <v-text-field v-model="lead.name" :class="lead.name ? '' : 'opacity-50-for-label'"
                           density="compact" :label="$helpers.capitalizeFirstLetter($t('name'))" type="text"
-                          @keydown.enter.prevent="$event.target.blur()" />
+                          autocomplete="off" />
                       </v-col>
                       <v-col column="3">
                         <v-text-field v-model="lead.firstname" :class="lead.firstname ? '' : 'opacity-50-for-label'"
                           density="compact" :label="$helpers.capitalizeFirstLetter($t('firstname'))" type="text"
-                          @keydown.enter.prevent="$event.target.blur()" />
+                          autocomplete="off" />
                       </v-col>
                       <v-col column="3">
                         <v-text-field v-model="lead.email" :class="lead.email ? '' : 'opacity-50-for-label'"
                           :rules="[v => !v || /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,5})+$/.test(v) || $helpers.capitalizeFirstLetter($t('e-mail must be valid'))]"
                           density="compact" :label="$helpers.capitalizeFirstLetter($t('lead.email'))" type="email"
-                          @keydown.enter.prevent="$event.target.blur()" />
+                          autocomplete="off" />
                       </v-col>
                       <v-col column="2">
                         <v-text-field v-model="lead.tel" :class="lead.tel ? '' : 'opacity-50-for-label'"
                           :label="$helpers.capitalizeFirstLetter($t('lead.phone'))" type="text" density="compact"
-                          @keydown.enter.prevent="$event.target.blur()" />
+                          autocomplete="off" />
                       </v-col>
                     </v-row>
                     <v-row>
@@ -251,13 +251,13 @@
                         <v-row>
                           <v-col class="pa-0">
                             <v-text-field v-model="lead.address1" density="compact"
-                              :label="$helpers.capitalizeFirstLetter($t('lead.address1'))" />
+                              :label="$helpers.capitalizeFirstLetter($t('lead.address1'))" autocomplete="off" />
                           </v-col>
                         </v-row>
                         <v-row>
                           <v-col class="pa-0">
                             <v-text-field v-model="lead.address2" density="compact"
-                              :label="$helpers.capitalizeFirstLetter($t('lead.address2'))" />
+                              :label="$helpers.capitalizeFirstLetter($t('lead.address2'))" autocomplete="off" />
                           </v-col>
                         </v-row>
                       </v-col>
@@ -265,11 +265,11 @@
                         <v-row>
                           <v-col class="pa-0 pe-3" cols="4">
                             <v-text-field v-model="lead.zipCode" density="compact"
-                              :label="$helpers.capitalizeFirstLetter($t('lead.zipCode'))" />
+                              :label="$helpers.capitalizeFirstLetter($t('lead.zipCode'))" autocomplete="off" />
                           </v-col>
                           <v-col class="pa-0" cols="8">
                             <v-text-field v-model="lead.city" density="compact"
-                              :label="$helpers.capitalizeFirstLetter($t('lead.city'))" />
+                              :label="$helpers.capitalizeFirstLetter($t('lead.city'))" autocomplete="off" />
                           </v-col>
                         </v-row>
                         <v-row>
@@ -316,6 +316,14 @@
                           v-model="lead.countryOfDestination" :multiple="false" />
                       </v-col>
                     </v-row>
+                    <v-row>
+                      <v-col>
+                        <v-textarea v-model="lead.needsDescription"
+                          :label="$helpers.capitalizeFirstLetter($t('lead.needsDescription'))"
+                          :rules="[() => !!lead.needsDescription || $helpers.capitalizeFirstLetter($t('field required', { field: $helpers.capitalizeFirstLetter($t('lead.needsDescription')) }))]"
+                          required auto-grow />
+                      </v-col>
+                    </v-row>
                   </fieldset>
                 </v-col>
               </v-row>
@@ -332,11 +340,11 @@
                     <v-row>
                       <v-col column="6">
                         <v-text-field v-model="lead.registrationNumber" density="compact"
-                          :label="$helpers.capitalizeFirstLetter($t('lead.registrationNumber'))" />
+                          :label="$helpers.capitalizeFirstLetter($t('lead.registrationNumber'))" autocomplete="off" />
                       </v-col>
                       <v-col column="6">
                         <v-text-field v-model="lead.vatNumber" density="compact"
-                          :label="$helpers.capitalizeFirstLetter($t('lead.vatNumber'))" />
+                          :label="$helpers.capitalizeFirstLetter($t('lead.vatNumber'))" autocomplete="off" />
                       </v-col>
                     </v-row>
                   </fieldset>
@@ -371,7 +379,7 @@
                       <v-col>
                         <p class="text-caption" style="margin-top: -15px">{{
                           $helpers.capitalizeFirstLetter($t('priority'))
-                        }}</p>
+                          }}</p>
                         <v-rating hover :length="5" :size="32" v-model="lead.priority" active-color="primary"
                           density="compact" />
                       </v-col>
@@ -406,7 +414,7 @@
                       <v-col v-if="securityStore.hasRole('ROLE_CRM_ADMIN')">
                         <v-text-field v-model="lead.originDescription" density="compact"
                           prepend-inner-icon="mdi-map-marker-plus"
-                          :label="$helpers.capitalizeFirstLetter($t('lead.originDescription'))" />
+                          :label="$helpers.capitalizeFirstLetter($t('lead.originDescription'))" autocomplete="off" />
                       </v-col>
                     </v-row>
                   </fieldset>
@@ -598,8 +606,9 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
 import _ from "lodash";
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 const router = useRouter()
+const route = useRoute()
 import { useLeadStore } from '@/stores/lead';
 const leadStore = useLeadStore();
 import { useLeadCommentStore } from '@/stores/leadComment';
@@ -626,6 +635,7 @@ import SelectObject from '@/components/searchComponents/SelectObject.vue';
 import UtilisateurComponent from '@/components/UtilisateurComponent.vue';
 import YesNoDialog from '@/components/YesNoDialog.vue'
 import { useGlobalStore } from '@/stores/global';
+import { LeadOriginDTO } from '@/models/LeadOriginDTO';
 
 
 interface MergedLeadCommentLeadHistory
@@ -645,10 +655,6 @@ const props = defineProps({
   id: {
     type: [String, Number],
     default: null
-  },
-  duplicateLead: {
-    type: String,
-    default: null,
   }
 });
 
@@ -656,6 +662,7 @@ const customer = ref<CustomerInterface | null>(null)
 const formIsValid = ref(false);
 const leadActivities = ref<Record<string, LeadActivity[]>>({})
 const lead = ref<LeadInterface>({});
+const leadForm = ref();// form for validation
 const clonedLead = ref<LeadInterface>({});
 const linkCustomerDialog = ref(false)
 const mediaObjects = ref<File[]>([])
@@ -691,6 +698,7 @@ watch(
     }
   }
 )
+watch(() => props.id, itemWatcher)
 
 onMounted(async () =>
 {
@@ -698,19 +706,7 @@ onMounted(async () =>
     await leadTypeStore.findAll();
   }
   leadTypes.value = leadTypeStore.list as LeadTypeInterface[]
-  if (props.id === null || props.id === "new") {
-    lead.value = {
-      createdAt: new Date(Date.now()),
-      origin: { "@id": "/api/lead_origins/4", "@type": "LeadOrigin", "id": 4, "name": "ajout manuel", "isDeleted": false, "stringValue": "ajout manuel" },
-    };
-    if (props.duplicateLead != null) {
-      duplicateLeadRefresh()
-    }
-  } else {
-    lead.value = await leadStore.find(_.isNumber(props.id) ? props.id : parseInt(props.id));
-  }
-  clonedLead.value = _.cloneDeep(lead.value);
-  getActivity();
+  itemWatcher()
 })
 
 async function addComment()
@@ -731,9 +727,9 @@ async function addComment()
 
 function cancelModifications()
 {
-  watchLeadValue.value = false;
-  lead.value = _.cloneDeep(clonedLead.value);
-  getModifications();
+  // watchLeadValue.value = false;
+  // lead.value = _.cloneDeep(clonedLead.value);
+  // getModifications();
   clearCurrentTimeout();
 }
 
@@ -778,21 +774,22 @@ async function downloadMediaObject(mediaObject: MediaObjectInterface)
 
 function duplicateLead()
 {
-  router.push({ name: "lead.page", params: { id: "new", duplicateLead: JSON.stringify(lead.value) } });
+  if (lead.value.id) {
+    router.push({ name: "lead.page", params: { id: "new" }, query: { duplicateLead: lead.value.id } });
+  }
 }
 
 function duplicateLeadRefresh()
 {
-  lead.value = JSON.parse(props.duplicateLead);
   delete lead.value["@id"];
-  lead.value.id = 0;
+  lead.value.id = undefined;
   lead.value.needsDescription = undefined;
   lead.value.createdAt = new Date(Date.now());
   lead.value.annualExpectedIncome = undefined;
   lead.value.monthlyExpectedIncome = undefined;
   lead.value.punctualExpectedIncome = undefined;
   lead.value.incomeProbability = undefined;
-  lead.value.origin = { "@id": "/api/lead_origins/4", "@type": "LeadOrigin", "id": 4, "name": "ajout manuel", "isDeleted": false, "stringValue": "ajout manuel" };
+  lead.value.origin = new LeadOriginDTO();
   lead.value.refusalReasons = [];
   lead.value.leadHistories = [];
   lead.value.leadComments = [];
@@ -903,6 +900,27 @@ function getVisibleTypesList()
   return leadTypes.value.filter(function (el) { return !el.isHidden; }).reverse();
 }
 
+async function itemWatcher()
+{
+  if ((props.id === null || props.id === "new") && route.query.duplicateLead === null) {
+    lead.value = {
+      createdAt: new Date(Date.now()),
+      origin: new LeadOriginDTO(),
+      rgpdAccepted: null,
+      onNewsletterList: null,
+    };
+  } else {
+    let id = (route.query.duplicateLead ?? props.id) as number;
+    lead.value = await leadStore.find(id);
+    if (route.query.duplicateLead != null) {
+      duplicateLeadRefresh();
+    }
+  }
+  clonedLead.value = _.cloneDeep(lead.value);
+  getActivity();
+  leadForm.value?.validate();
+}
+
 function linkCustomer()
 {
   lead.value.customer = customer.value;
@@ -918,7 +936,7 @@ async function save()
 {
   clearCurrentTimeout();
   watchLeadValue.value = false;
-  lead.value = await leadStore.save(_.cloneDeep(lead.value));
+  lead.value = await leadStore.save(_.cloneDeep(lead.value)) as LeadInterface;
   if (clonedLead.value.id) {
     clonedLead.value = _.cloneDeep(lead.value);
     getActivity();

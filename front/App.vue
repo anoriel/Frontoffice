@@ -52,9 +52,9 @@
 
         <v-list>
           <v-list-item append-icon="mdi-logout" link @click="logout()">
-            <v-list-item-title>{{
-              $helpers.capitalizeFirstLetter($t('logout'))
-              }}</v-list-item-title>
+            <v-list-item-title>
+              {{ $helpers.capitalizeFirstLetter($t('logout')) }}
+            </v-list-item-title>
             <template v-slot:append>
               <v-icon color="primary"></v-icon>
             </template>
@@ -187,6 +187,7 @@ router.afterEach((to, from) =>
   } else
   {
     globalStore.isLoadingWithLock = true
+    setTimeout(() => { globalStore.isLoadingWithLock = false }, 5000);//close dialog loading after 5sec to avoir waiting time if data is longer to load
   }
 
   //save last url if not on login page and authenticated

@@ -119,7 +119,7 @@ export function useBaseStore()
     try {
       let response = await api.value.find(id);
       isLoading.value = false;
-      item.value = response.data;
+      item.value = parseItemResponse(response);
       return response.data;
     } catch (err: any) {
       isLoading.value = false;
@@ -464,6 +464,17 @@ export function useBaseStore()
     isLoading.value = false;
   }
 
+  function parseItemResponse(response: AxiosResponse<any, any, {}>)
+  {
+    if ('createdAt' in response.data) {
+      response.data.createdAt = moment(new Date(response.data.createdAt)).toDate()
+    }
+    if ('lastUpdatedAt' in response.data) {
+      response.data.lastUpdatedAt = moment(new Date(response.data.lastUpdatedAt)).toDate()
+    }
+    return response.data;
+  }
+
   function reset()
   {
     isLoading.value = false;
@@ -507,8 +518,8 @@ export function useBaseStore()
       }
       if (response != null) {
         isLoading.value = false;
-        item.value = response.data;
-        return response.data;
+        item.value = parseItemResponse(response);
+        return item.value;
       }
     } catch (err: any) {
       isLoading.value = false;

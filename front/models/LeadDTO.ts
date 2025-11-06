@@ -30,8 +30,8 @@ export class LeadDTO extends Item implements LeadInterface
   public serviceType?: ServiceTypeInterface;
   public serviceDomain?: ServiceDomainInterface;
   public needsDescription: string = '';
-  public onNewsletterList?: boolean;
-  public rgpdAccepted?: boolean;
+  public onNewsletterList?: boolean | null | undefined;
+  public rgpdAccepted?: boolean | null | undefined;
   public businessSector?: BusinessSectorInterface;
   public leadType?: LeadTypeInterface;
   public user?: UserInterface;

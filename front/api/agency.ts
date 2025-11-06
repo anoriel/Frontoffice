@@ -7,7 +7,7 @@ const thisApi = {
   baseUrl: "/agencies",
   findAllActive()
   {
-    return axios.get('/agencies?actif=true&orderBy[pays.iso3166]=asc&pagination=false');
+    return axios.get('/agencies?active=true&orderBy[pays.iso3166]=asc&pagination=false');
   },
 }
 

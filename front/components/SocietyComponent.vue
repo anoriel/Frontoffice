@@ -1,7 +1,7 @@
 <template>
   <span class="text-no-wrap">
     <FlagIcon :code="getIso3166()" size="18" class="mr-1" circle />
-    <span class="d-inline-block">{{ society.nom }}</span>
+    {{ $helpers.capitalizeFirstLetter(society.pays.iso3166) }}, {{ $helpers.capitalizeFirstLetter(society.nom) }}
   </span>
 </template>
 

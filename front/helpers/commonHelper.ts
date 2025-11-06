@@ -543,7 +543,7 @@ export default function useCommonHelper()
     return returnValue;
   }
 
-  function getVariant(currentValue: boolean | undefined, option: { text: string; value: boolean | null; })
+  function getVariant(currentValue: boolean | null | undefined, option: { text: string; value: boolean | null; })
   {
     let variant = 'secondary';
     if (option.value === true) {

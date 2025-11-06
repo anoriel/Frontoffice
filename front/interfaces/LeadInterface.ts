@@ -18,8 +18,8 @@ export interface LeadInterface extends ItemInterface
   serviceType?: any;
   serviceDomain?: any;
   needsDescription?: string;
-  onNewsletterList?: boolean;
-  rgpdAccepted?: boolean;
+  onNewsletterList?: boolean | null | undefined;
+  rgpdAccepted?: boolean | null | undefined;
   businessSector?: any;
   leadType?: any;
   user?: any;

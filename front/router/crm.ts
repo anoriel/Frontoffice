@@ -115,7 +115,7 @@ const moduleRoutes: RouteRecordRaw[] = [
       title: "lead.page",
       hasRole: "ROLE_CRM"
     },
-    props: (route) => ({ id: route.params.id, duplicateLead: null }),
+    props: (route) => ({ id: route.params.id }),
   }
 ];
 

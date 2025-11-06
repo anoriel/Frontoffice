@@ -22,7 +22,7 @@
 
       <v-list v-if="getFilteredSettingsByStorageName().length" density="compact">
         <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('personal parameters'))
-          }}</v-list-subheader>
+        }}</v-list-subheader>
         <v-list-item v-for="item in getFilteredSettingsByStorageName()" :key="item.id" :value="item.id"
           @click="loadFilters(item)">
           <v-list-item-title>
@@ -33,7 +33,7 @@
       <v-divider></v-divider>
       <v-list v-if="getPublicSettingsByStorageName().length" density="compact">
         <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('public parameters'))
-          }}</v-list-subheader>
+        }}</v-list-subheader>
         <v-list-item v-for="item in getPublicSettingsByStorageName()" :key="item.id" :value="item.id"
           @click="loadFilters(item)">
           <v-list-item-title>
@@ -315,6 +315,7 @@ function addAnItem()
   {
     return;
   }
+  globalStore.isLoadingWithLock = true;
   router.push({ name: props.moduleName + ".page", params: { id: "new" } });
 }
 
