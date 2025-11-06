@@ -2,8 +2,8 @@
   <v-container fluid class="w-100 position-relative">
     <v-app-bar density="compact" variant="flat">
       <v-spacer></v-spacer>
-      <v-btn v-if="nbModifications && !lead.isLoading" size="x-small" class="bg-warning position-relative p-0 pr-1 mr-1"
-        @click="cancelModifications()" :disabled="lead.isLoading">
+      <v-btn v-if="nbModifications && formIsValid !== false && !lead.isLoading" size="x-small"
+        class="bg-warning position-relative p-0 pr-1 mr-1" @click="cancelModifications()" :disabled="lead.isLoading">
         <v-icon>mdi-cancel</v-icon>
         {{ $helpers.capitalizeFirstLetter($t('cancel')) }}
       </v-btn>
@@ -218,7 +218,10 @@
                     </v-row>
                     <v-row>
                       <v-col column="6">
-                        <p class="text-caption">{{ $helpers.capitalizeFirstLetter($t('lead.onNewsletterList')) }}</p>
+                        <p class="text-caption">
+                          <v-icon color="blue-darken-4">mdi-email-fast</v-icon>
+                          {{ $helpers.capitalizeFirstLetter($t('lead.onNewsletterList')) }}
+                        </p>
                         <v-btn-toggle v-model="lead.onNewsletterList" density="compact" border divided>
                           <v-btn v-for="(option, key) in $helpers.optionsNullTrueFalse" :key="key" :value="option.value"
                             :color="$helpers.getVariant(lead.onNewsletterList, option)">
@@ -227,7 +230,10 @@
                         </v-btn-toggle>
                       </v-col>
                       <v-col column="6">
-                        <p class="text-caption">{{ $helpers.capitalizeFirstLetter($t('lead.rgpdAccepted')) }}</p>
+                        <p class="text-caption">
+                          <v-icon color="blue-darken-4">mdi-book-information-variant</v-icon>
+                          {{ $helpers.capitalizeFirstLetter($t('lead.rgpdAccepted')) }}
+                        </p>
                         <v-btn-toggle v-model="lead.rgpdAccepted" density="compact" border divided>
                           <v-btn v-for="(option, key) in $helpers.optionsNullTrueFalse" :key="key" :value="option.value"
                             :color="$helpers.getVariant(lead.rgpdAccepted, option)">
@@ -441,8 +447,8 @@
               <v-card class="ma-5">
                 <v-card-text>
                   <v-textarea v-model="newComment" :placeholder="$helpers.capitalizeFirstLetter($t('comment'))" rows="3"
-                    max-rows="6" density="compact" />
-                  <v-file-input v-model="mediaObjects" multiple class="mt-3" density="compact" />
+                    max-rows="6" density="compact" :disabled="!lead.id" />
+                  <v-file-input v-model="mediaObjects" multiple class="mt-3" density="compact" :disabled="!lead.id" />
                   <div v-for="(file, index) in mediaObjects" :key="index">
                     <v-icon>mdi-file</v-icon>
                     {{ file.name }}<i>&nbsp;({{ $helpers.formatBytesArray(file.size, true) }})</i>
@@ -458,8 +464,6 @@
           <v-row v-if="!Object.keys(leadActivities).length" class="text-center">
             <v-col class="mb-5">
               {{ $helpers.capitalizeFirstLetter($t('lead.no activity')) }}
-              {{ newComment ? 'true' : 'false' }}
-              {{ lead.id ? 'true' : 'false' }}
             </v-col>
           </v-row>
           <template v-else>
@@ -1013,6 +1017,7 @@ async function save()
     getActivity();
     getModifications();
   } else {
+    useGlobalStore().pageHasChanges = false;
     router.push({ name: "lead.page", params: { id: lead.value.id } });
   }
 }
