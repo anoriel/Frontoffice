@@ -966,9 +966,11 @@ function getVisibleTypesList()
 
 async function itemWatcher()
 {
-  if ((props.id === null || props.id === "new") && route.query.duplicateLead === null) {
+  if ((props.id === null || props.id === "new") && typeof route.query.duplicateLead === 'undefined') {
     lead.value = {
       createdAt: new Date(Date.now()),
+      customerName: undefined,
+      needsDescription: undefined,
       origin: new LeadOriginDTO(),
       leadType: new LeadTypeDTO(),
       rgpdAccepted: null,
@@ -983,7 +985,11 @@ async function itemWatcher()
     duplicateLeadRefresh();
   }
   getActivity();
-  leadForm.value?.validate();
+  //need to set a tiemout as input rules verification needs a delay
+  setTimeout(() =>
+  {
+    leadForm.value?.validate();
+  }, 200);
 }
 
 function linkCustomer()
