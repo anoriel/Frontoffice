@@ -88,6 +88,10 @@
       </v-list-item>
     </v-list>
   </v-dialog>
+
+  <yes-no-dialog :dialog="leaveDialog" :title="$t('are you sure you want to leave this page?')"
+    :message="$t('changes you made may not be saved')" :yes-text="$t('leave')" :no-text="$t('cancel')"
+    @yes="confirmLeave" @no="leaveDialog = false" :maxWidth="800" />
 </template>
 
 <style>
@@ -138,7 +142,7 @@ import { useSecurityStore } from './stores/security'
 const securityStore = useSecurityStore()
 import { useGlobalStore } from './stores/global'
 const globalStore = useGlobalStore()
-import { ref } from 'vue'
+import { onMounted, ref, shallowRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 const router = useRouter()
 const route = useRoute()
@@ -147,11 +151,13 @@ const helpers = useCommonHelper()
 import { useI18n } from "vue-i18n";
 const { t } = useI18n({ useScope: "global" });
 
+import YesNoDialog from '@/components/YesNoDialog.vue'
 
 const appTitle = import.meta.env.VITE_APP_TITLE
 const releaseVersion = import.meta.env.VITE_RELEASE_VERSION
 const environment = import.meta.env.VITE_ENV
-
+const leaveDialog = shallowRef(false);
+const routeToLeave = ref(undefined);
 
 
 let axiosIsLoading = ref(false)
@@ -162,38 +168,80 @@ let axiosMaxRequests = ref(0)
 securityStore.onRefresh()
 
 
-router.beforeEach(async (to, from) =>
+router.beforeEach(async (to, from, next) =>
 {
   if (!securityStore.getIsAuthenticated() && to.name !== 'login'
   )
   {
     securityStore.returnUrl = to.fullPath;
-    return { name: 'login' }
+    next({ name: 'login' })
+  }
+  else if (globalStore.pageHasChanges)
+  {
+    routeToLeave.value = to;
+    leaveDialog.value = true;
+    next(false);
+  } else
+  {
+    next();
   }
 })
+
+function confirmLeave()
+{
+  if (routeToLeave.value)
+  {
+    globalStore.pageHasChanges = false;
+    leaveDialog.value = false;
+    router.push(routeToLeave.value);
+    routeToLeave.value = undefined;
+  }
+}
+
+onMounted(async () =>
+{
+  window.addEventListener("beforeunload", beforeUnloadHandler);
+})
+const beforeUnloadHandler = (event) =>
+{
+  if (globalStore.pageHasChanges)
+  {
+    // Recommended
+    event.preventDefault();
+
+    // Included for legacy support, e.g. Chrome/Edge < 119
+    event.returnValue = true;
+  } else
+  {
+    console.log('rien à faire')
+  }
+};
 
 //routes that do not require loading with lock
 const routeNamesWithoutLock = ['login', 'error-403', 'error-404', 'error-500', 'home', 'welcome'];
 
 router.afterEach((to, from) =>
 {
-  //set page title
-  document.title = appTitle + (to?.meta?.title ? (' - ' + helpers.capitalizeFirstLetter(t(to.meta.title))) : '');
+  if (!globalStore.pageHasChanges)
+  {
+    //set page title
+    document.title = appTitle + (to?.meta?.title ? (' - ' + helpers.capitalizeFirstLetter(t(to.meta.title))) : '');
 
-  //set loading with lock only if the route is not in the list of routes without lock
-  if (routeNamesWithoutLock.includes(to.name))
-  {
-    globalStore.isLoadingWithLock = false
-  } else
-  {
-    globalStore.isLoadingWithLock = true
-    setTimeout(() => { globalStore.isLoadingWithLock = false }, 5000);//close dialog loading after 5sec to avoir waiting time if data is longer to load
-  }
+    //set loading with lock only if the route is not in the list of routes without lock
+    if (routeNamesWithoutLock.includes(to.name))
+    {
+      globalStore.isLoadingWithLock = false
+    } else
+    {
+      globalStore.isLoadingWithLock = true
+      setTimeout(() => { globalStore.isLoadingWithLock = false }, 10000);//close dialog loading after 10sec to avoir waiting time if data is longer to load
+    }
 
-  //save last url if not on login page and authenticated
-  if (to.name !== 'login' && securityStore.getIsAuthenticated())
-  {
-    securityStore.lastUrl = to.fullPath;
+    //save last url if not on login page and authenticated
+    if (to.name !== 'login' && securityStore.getIsAuthenticated())
+    {
+      securityStore.lastUrl = to.fullPath;
+    }
   }
 });
 

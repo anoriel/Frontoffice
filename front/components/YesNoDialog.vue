@@ -1,5 +1,5 @@
 <template>
-  <v-dialog :model-value="showDialog" max-width="400" @after-leave="$emit('no')">
+  <v-dialog :model-value="showDialog" :max-width="maxWidth" @after-leave="$emit('no')">
     <v-card>
       <v-img src="/images/bg-header.png" class="align-end" gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)" cover>
         <v-card-title class="text-white">
@@ -33,6 +33,11 @@ const props = defineProps({
   yesText: {
     type: String,
     default: 'Yes'
+  },
+  maxWidth: {
+    type: Number,
+    default: 400,
+    required: false,
   },
   noIcon: {
     type: String,

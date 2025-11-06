@@ -8,7 +8,7 @@ export class LeadOriginDTO extends Item implements LeadOriginInterface
 
   constructor(
     rawData: LeadOriginInterface = {
-      id: undefined,
+      id: 4,
       name: "ajout manuel",
       isDeleted: false,
       stringValue: "ajout manuel",

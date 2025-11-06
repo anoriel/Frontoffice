@@ -7,7 +7,16 @@
         <v-icon color="white" style="vertical-align: top;">mdi-menu-right</v-icon>
       </template>
       <template v-slot:item="{ item }">
-        <v-breadcrumbs-item :to="getPath(item)" :class="{ 'font-italic': item.name == router.currentRoute.value.name }" color="blue-darken-4">
+        <router-link v-if="getPath(item)" :to="item"
+          :class="{ 'font-italic': item.name == router.currentRoute.value.name }" class="text-blue-darken-4">
+          <FlagIcon v-if="item.meta && item.meta.flag" :code="item.meta && item.meta.flag" class="mr-1" />
+          <v-icon v-if="item.meta && item.meta.icon" size="smaller" class="mr-1">
+            {{ item.meta.icon }}
+          </v-icon>
+          {{ $helpers.capitalizeFirstLetter($t(item.name)) }}
+        </router-link>
+        <v-breadcrumbs-item v-else :class="{ 'font-italic': item.name == router.currentRoute.value.name }"
+          color="blue-darken-4">
           <FlagIcon v-if="item.meta && item.meta.flag" :code="item.meta && item.meta.flag" class="mr-1" />
           <v-icon v-if="item.meta && item.meta.icon" size="smaller" class="mr-1">
             {{ item.meta.icon }}
@@ -61,5 +70,15 @@ function getPath(item)
 <style>
 .v-breadcrumbs-divider {
   padding: 0 !important;
+}
+
+.v-breadcrumbs a {
+  text-decoration: none;
+  ;
+}
+
+.v-breadcrumbs a:hover {
+  text-decoration: underline;
+  ;
 }
 </style>

@@ -11,6 +11,7 @@ export const useGlobalStore = defineStore('global', () =>
   const showColumnsDialog = shallowRef(false)
   const showFiltersDialog = shallowRef(false)
   const showSettingsDialog = shallowRef(false)
+  const pageHasChanges = shallowRef(false);
 
   function setIsBackgroundLoading(val: boolean)
   {
@@ -38,6 +39,7 @@ export const useGlobalStore = defineStore('global', () =>
     backgroundLoadingRequestsCount,
     isBackgroundLoading,
     isLoadingWithLock,
+    pageHasChanges,
     perPage,
     perPageOptions,
     showColumnsDialog,

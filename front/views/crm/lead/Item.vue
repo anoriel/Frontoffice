@@ -83,7 +83,7 @@
             </div>
           </div>
 
-          <v-skeleton-loader v-if="JSON.stringify(lead) === '{}'" type="table-row-divider@60" />
+          <v-skeleton-loader v-if="JSON.stringify(lead) === '{}'" type="table-row-divider@48" />
           <v-container v-else fluid class="leadDiv bg-light-blue-lighten-5" :class="lead.leadType?.name"
             min-height="200">
             <!-- #region leadType tag -->
@@ -382,7 +382,7 @@
                       <v-col>
                         <p class="text-caption" style="margin-top: -15px">{{
                           $helpers.capitalizeFirstLetter($t('priority'))
-                        }}</p>
+                          }}</p>
                         <v-rating hover :length="5" :size="32" v-model="lead.priority" active-color="primary"
                           density="compact" />
                       </v-col>
@@ -693,6 +693,7 @@ import UtilisateurComponent from '@/components/UtilisateurComponent.vue';
 import YesNoDialog from '@/components/YesNoDialog.vue'
 import { useGlobalStore } from '@/stores/global';
 import { LeadOriginDTO } from '@/models/LeadOriginDTO';
+import { LeadTypeDTO } from '@/models/LeadTypeDTO';
 
 
 interface MergedLeadCommentLeadHistory
@@ -846,20 +847,17 @@ function duplicateLead()
 
 function duplicateLeadRefresh()
 {
+  watchLeadValue.value = false;
   delete lead.value["@id"];
   lead.value.id = undefined;
-  lead.value.needsDescription = undefined;
   lead.value.createdAt = new Date(Date.now());
-  lead.value.annualExpectedIncome = undefined;
-  lead.value.monthlyExpectedIncome = undefined;
-  lead.value.punctualExpectedIncome = undefined;
-  lead.value.incomeProbability = undefined;
   lead.value.origin = new LeadOriginDTO();
+  lead.value.leadType = new LeadTypeDTO();
   lead.value.refusalReasons = [];
   lead.value.leadHistories = [];
   lead.value.leadComments = [];
-  lead.value.leadType = undefined;
   getActivity();
+  getModifications();
 }
 
 function getActivity()
@@ -958,6 +956,7 @@ function getModifications()
     }
   })
   nbModifications.value = Object.keys(modificationsList.value).length;
+  useGlobalStore().pageHasChanges = nbModifications.value > 0;
 }
 
 function getVisibleTypesList()
@@ -971,17 +970,18 @@ async function itemWatcher()
     lead.value = {
       createdAt: new Date(Date.now()),
       origin: new LeadOriginDTO(),
+      leadType: new LeadTypeDTO(),
       rgpdAccepted: null,
       onNewsletterList: null,
     };
   } else {
     let id = (route.query.duplicateLead ?? props.id) as number;
     lead.value = await leadStore.find(id);
-    if (route.query.duplicateLead != null) {
-      duplicateLeadRefresh();
-    }
   }
   clonedLead.value = _.cloneDeep(lead.value);
+  if (route.query.duplicateLead != null) {
+    duplicateLeadRefresh();
+  }
   getActivity();
   leadForm.value?.validate();
 }
