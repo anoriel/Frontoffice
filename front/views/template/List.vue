@@ -62,7 +62,7 @@
     </v-btn>
   </v-app-bar>
 
-  <v-container fluid class="w-100 h-100 overflow-auto">
+  <v-container fluid class="w-100">
     <v-data-table-server :hover="true" v-model:items-per-page="itemsPerPage" :headers="visibleFields" striped="even"
       :items="serverItems" :items-length="totalItems" :loading="loading" @update:options="loadItems"
       v-model:page="store.currentPage" density="compact" v-model:sort-by="sortBy" fixed-header style="max-height: 99%;"

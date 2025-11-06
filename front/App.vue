@@ -64,7 +64,7 @@
     </v-app-bar>
     <nav-bar />
     <page-title />
-    <v-main style="height: 100vh;">
+    <v-main>
       <router-view />
     </v-main>
     <div class="copyright">

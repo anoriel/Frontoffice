@@ -121,23 +121,23 @@ export const useLeadStore = defineStore('lead', () =>
     if (item.needsDescription == null) {
       item.needsDescription = "";
     }
-    if (item.leadComments != null) {
+    if (item.leadComments?.length) {
       for (let property in item.leadComments) {
-        if (item.leadComments[property] != null && typeof (item.leadComments[property]) == "object" && '@id' in item.leadComments[property]) {
+        if (item.leadComments[property] != null && typeof (item.leadComments[property]) == "object" && '@id' in item.leadComments[property] && item.leadComments[property]['@id']) {
           item.leadComments[property] = item.leadComments[property]['@id'];
         }
       }
     }
-    if (item.leadHistories != null) {
+    if (item.leadHistories?.length) {
       for (let property in item.leadHistories) {
-        if (item.leadHistories[property] != null && typeof (item.leadHistories[property]) == "object" && '@id' in item.leadHistories[property]) {
+        if (item.leadHistories[property] != null && typeof (item.leadHistories[property]) == "object" && '@id' in item.leadHistories[property] && item.leadHistories[property]['@id']) {
           item.leadHistories[property] = item.leadHistories[property]['@id'];
         }
       }
     }
-    if (item.refusalReasons != null) {
+    if (item.refusalReasons?.length) {
       for (let property in item.refusalReasons) {
-        if (item.refusalReasons[property] != null && typeof (item.refusalReasons[property]) == "object" && '@id' in item.refusalReasons[property]) {
+        if (item.refusalReasons[property] != null && typeof (item.refusalReasons[property]) == "object" && '@id' in item.refusalReasons[property] && item.refusalReasons[property]['@id']) {
           item.refusalReasons[property] = item.refusalReasons[property]['@id'];
         }
       }

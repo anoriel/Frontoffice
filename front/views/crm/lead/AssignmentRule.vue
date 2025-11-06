@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="w-100 h-100 overflow-auto position-relative">
+  <v-container fluid class="w-100 position-relative">
     <v-row class="flex-row-reverse position-fixed right-0 mt-0 mr-2" style="z-index: 9;">
       <v-badge location="top right" color="error" v-if="timeBeforeSave != null" :content="timeBeforeSave">
         <v-btn :disabled="!originItems.length || !assignmentRulesListAreValid()" color="success" @click="save()"
@@ -168,34 +168,29 @@
         </template>
 
         <template v-slot:[`item.user`]="{ item }">
-          <v-container v-if="item.user">
-            <v-card class="w-100 pb-1">
-              <v-list-item :prepend-avatar="$helpers.getGravatarURL(item.user.email, 40, $gravatarDefaultImage)"
-                :title="item.user.prenom + ' ' + item.user.nom"></v-list-item>
-            </v-card>
-          </v-container>
+          <v-card class="w-100 pb-1" v-if="item.user">
+            <v-list-item :prepend-avatar="$helpers.getGravatarURL(item.user.email, 40, $gravatarDefaultImage)"
+              :title="item.user.prenom + ' ' + item.user.nom" density="compact" />
+          </v-card>
         </template>
 
         <template v-slot:[`item.rules`]="{ item, value }">
-          <v-container>
-            <v-row v-for="(key, i) in Object.keys(value)" :key="item.id + '-' + key" align="center"
-              :class="{ 'mt-5': i > 0 }">
-              <v-container>
-                <v-card class="w-100 pb-1">
-                  <template v-slot:subtitle>
-                    <small class="left-1 position-absolute top-0 font-weight-bold">{{
-                      $helpers.capitalizeFirstLetter($te('lead.' + key) ?
-                        $t('lead.' + key) : $t(key)) }}</small>
-                  </template>
-                  <span v-for="element in value[key]" :key="element" class="ma-3">
-                    <country-component v-if="['countryOfEstablishment', 'countryOfDestination'].includes(key)"
-                      :country="countryStore.getById(element)" />
-                    <v-chip v-else color="success">{{ getStringValue(key, element) }}</v-chip>
-                  </span>
-                </v-card>
-              </v-container>
-            </v-row>
-          </v-container>
+          <v-row v-for="(key, i) in Object.keys(value)" :key="item.id + '-' + key" align="center" class="mt-0">
+            <v-container>
+              <v-card class="w-100 pb-1">
+                <template v-slot:subtitle>
+                  <small class="left-1 position-absolute top-0 font-weight-bold">{{
+                    $helpers.capitalizeFirstLetter($te('lead.' + key) ?
+                      $t('lead.' + key) : $t(key)) }}</small>
+                </template>
+                <span v-for="element in value[key]" :key="element" class="ma-3">
+                  <country-component v-if="['countryOfEstablishment', 'countryOfDestination'].includes(key)"
+                    :country="countryStore.getById(element)" />
+                  <v-chip v-else color="success">{{ getStringValue(key, element) }}</v-chip>
+                </span>
+              </v-card>
+            </v-container>
+          </v-row>
         </template>
 
         <template v-slot:[`item.actions`]="{ item }">
@@ -639,3 +634,9 @@ async function updated(item)
   }
 }
 </script>
+
+<style>
+.v-table__wrapper {
+  overflow: hidden !important;
+}
+</style>

@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="w-100 h-100 overflow-auto position-relative">
+  <v-container fluid class="w-100 position-relative">
     <v-app-bar density="compact" variant="flat">
       <v-spacer></v-spacer>
       <v-btn v-if="nbModifications && !lead.isLoading" size="x-small" class="bg-warning position-relative p-0 pr-1 mr-1"
@@ -77,12 +77,15 @@
             <div class="arrow_button_cartouche d-flex flex-row-reverse position-relative" border="primary lg">
               <button v-for="leadType, index in getVisibleTypesList()" :key="index"
                 :ref="'typeList[' + leadType.name + ']'" class="arrow_button"
-                :disabled="leadType.id == lead.leadType?.id" @click="changeType(leadType)">
+                :disabled="leadType.id == lead?.leadType?.id" @click="changeType(leadType)">
                 {{ $helpers.capitalizeFirstLetter($t('lead.' + leadType.name)) }}
               </button>
             </div>
           </div>
-          <v-container fluid class="leadDiv bg-light-blue-lighten-5" :class="lead.leadType?.name" min-height="200">
+
+          <v-skeleton-loader v-if="JSON.stringify(lead) === '{}'" type="table-row-divider@60" />
+          <v-container v-else fluid class="leadDiv bg-light-blue-lighten-5" :class="lead.leadType?.name"
+            min-height="200">
             <!-- #region leadType tag -->
             <span v-if="lead.leadType?.name == 'won'" class="wonTag text-success">
               {{ $helpers.capitalizeFirstLetter($t('lead.won')) }}
@@ -531,7 +534,7 @@
     </v-row>
   </v-container>
 
-  <yes-no-dialog ref="deleteDialog" :dialog="yesNoDialog" :title="$t('confirm deletion')"
+  <yes-no-dialog :dialog="yesNoDialog" :title="$t('confirm deletion')"
     :message="$t('are you sure you want to delete this item?')" :yes-text="$t('delete')" :no-text="$t('cancel')"
     @yes="confirmDelete" @no="yesNoDialog = false" />
 
@@ -601,6 +604,57 @@
     </v-card>
 
   </v-dialog>
+
+
+  <v-dialog v-model="setRefusalReasonDialog" max-width="800" @after-leave="resetModal()">
+    <v-card>
+      <v-img src="/images/bg-header.png" class="align-end" gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)" cover>
+        <v-card-title class="text-white">
+          <img src="/images/asd-group-logo-couleur-transparent-white.png" alt="ASD GROUP" title="ASD GROUP" height="48"
+            style="vertical-align: middle;" class="mr-3" />
+          {{ $helpers.capitalizeFirstLetter($t('lead.refusalReasons')) }}
+        </v-card-title>
+      </v-img>
+
+      <v-card-text>
+        <v-row>
+          <v-col>
+            <v-list v-if="leadRefusalReasonStore.list.length">
+              <v-list-item density="compact"
+                v-for="(refusalReason, index) in leadRefusalReasonStore.list as LeadRefusalReasonInterface[]"
+                :key="index">
+                <v-checkbox :label="refusalReason.name" v-model="lead.refusalReasons" :value="refusalReason"
+                  density="compact" hide-details></v-checkbox>
+              </v-list-item>
+            </v-list>
+          </v-col>
+        </v-row>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn @click="setRefusalReasonDialog = false" color="error" prepend-icon="mdi-close">{{
+          $helpers.capitalizeFirstLetter($t('cancel')) }}</v-btn>
+        <v-tooltip :disabled="lead.refusalReasons && lead.refusalReasons.length > 0" location="top" color="warning">
+          <template v-slot:activator="{ props }" class="ml-1">
+            <span v-bind="props">
+              <v-btn color="success" variant="flat" @click="validateRefusal()"
+                :disabled="!lead.refusalReasons || !lead.refusalReasons.length" prepend-icon="mdi-link"
+                :class="{ 'cursor-not-allowed': formIsValid === false }">
+                {{ $helpers.capitalizeFirstLetter($t('mark as', { "status": $t('lead.lost') })) }}
+              </v-btn>
+            </span>
+          </template>
+          <span>
+            {{ $helpers.capitalizeFirstLetter($t('field required', {
+              field: $helpers.capitalizeFirstLetter($t('lead.refusalReasons'))
+            }))
+            }}
+          </span>
+        </v-tooltip>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -614,7 +668,9 @@ const leadStore = useLeadStore();
 import { useLeadCommentStore } from '@/stores/leadComment';
 const leadCommentStore = useLeadCommentStore();
 import { useLeadTypeStore } from '@/stores/leadType';
-const leadTypeStore = useLeadTypeStore()
+const leadTypeStore = useLeadTypeStore();
+import { useLeadRefusalReasonStore } from '@/stores/leadRefusalReason';
+const leadRefusalReasonStore = useLeadRefusalReasonStore();
 import { useMediaObjectStore } from '@/stores/mediaObject';
 import { useSecurityStore } from '@/stores/security';
 const securityStore = useSecurityStore();
@@ -626,6 +682,7 @@ import { CustomerInterface } from '@/interfaces/CustomerInterface';
 import { LeadCommentInterface } from '@/interfaces/LeadCommentInterface';
 import { LeadHistoryInterface } from '@/interfaces/LeadHistoryInterface';
 import { LeadInterface } from '@/interfaces/LeadInterface';
+import { LeadRefusalReasonInterface } from '@/interfaces/LeadRefusalReasonInterface';
 import { LeadTypeInterface } from '@/interfaces/LeadTypeInterface';
 import { MediaObjectInterface } from '@/interfaces/MediaObjectInterface';
 import { UserInterface } from '@/interfaces/UserInterface';
@@ -668,6 +725,7 @@ const linkCustomerDialog = ref(false)
 const mediaObjects = ref<File[]>([])
 const newComment = ref(null);
 const savingDelay = ref(3);//delay before saving in seconds
+const setRefusalReasonDialog = ref(false);
 const timeBeforeSave = ref<number | undefined>(undefined)
 const timeoutBeforeSave = ref<NodeJS.Timeout | undefined>(undefined)
 const yesNoDialog = ref(false)
@@ -706,6 +764,11 @@ onMounted(async () =>
     await leadTypeStore.findAll();
   }
   leadTypes.value = leadTypeStore.list as LeadTypeInterface[]
+
+  if (!leadRefusalReasonStore.list.length) {
+    await leadRefusalReasonStore.findAll();
+  }
+
   itemWatcher()
 })
 
@@ -718,10 +781,12 @@ async function addComment()
     "lead": lead.value['@id'],
     "mediaObjects": mediaObjects.value,
   };
-  let newLeadComment = await leadCommentStore.save(comment);
+  let newLeadComment = await leadCommentStore.save(comment) as LeadCommentInterface;
   newComment.value = null;
   mediaObjects.value = [];
-  lead.value.leadHistories.unshift(newLeadComment);
+  if (lead.value.leadComments && newLeadComment) {
+    lead.value.leadComments.unshift(newLeadComment);
+  }
   getActivity();
 }
 
@@ -746,9 +811,7 @@ function changeTypeByName(leadTypeName: string)
 
 function changeTypeToLost()
 {
-  // $refs['refusalReasonsModal'].show();
-  console.log("changeTypeToLost")
-  //TODO: terminer la fonction marqué comme perdu
+  setRefusalReasonDialog.value = true;
 }
 
 function clearCurrentTimeout()
@@ -990,6 +1053,12 @@ async function transformIntoProspect()
     clonedLead.value = _.cloneDeep(lead.value);
     linkCustomerDialog.value = false;
   }, 200);
+}
+
+function validateRefusal()
+{
+  changeTypeByName('lost');
+  setRefusalReasonDialog.value = false;
 }
 </script>
 

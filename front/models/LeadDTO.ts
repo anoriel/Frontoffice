@@ -37,7 +37,7 @@ export class LeadDTO extends Item implements LeadInterface
   public user?: UserInterface;
   public agency?: AgencyInterface;
   public society?: SocietyInterface;
-  public leadComments?: LeadCommentInterface;
+  public leadComments: LeadCommentInterface[] = [];
   public origin?: LeadOriginInterface;
   public address1?: string;
   public address2?: string;

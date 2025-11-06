@@ -1,5 +1,6 @@
 import { CustomerInterface } from './CustomerInterface';
 import { ItemInterface } from './ItemInterface';
+import { LeadOriginInterface } from './LeadOriginInterface';
 
 export interface LeadInterface extends ItemInterface
 {
@@ -27,7 +28,7 @@ export interface LeadInterface extends ItemInterface
   agency?: any;
   society?: any;
   leadComments?: any;
-  origin?: any;
+  origin?: LeadOriginInterface | null | undefined;
   address1?: string;
   address2?: string;
   city?: string;

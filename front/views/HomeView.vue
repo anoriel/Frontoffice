@@ -1,5 +1,5 @@
 <template>
-  <v-container class="w-100 h-100 overflow-auto">
+  <v-container class="w-100">
     <v-row>
       <v-col>
         <h1>{{ $helpers.capitalizeFirstLetter($t('welcome to ASD ERP, please select a link from the menu')) }}</h1>

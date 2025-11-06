@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="w-100 h-100 overflow-auto position-relative">
+  <v-container fluid class="w-100 position-relative">
     <v-data-table-server :hover="true" :headers="visibleColumns" striped="even" :items="currentlyLoggedUsersList"
       :items-length="currentlyLoggedUsersList.length" density="compact" :loading-text="$t('loading')"
       :loading="userStore.isLoading" v-model:page="userStore.currentPage">

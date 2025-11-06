@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="w-100 h-100 overflow-auto position-relative">
+  <v-container fluid class="w-100 position-relative">
     <v-row>
       <v-col>
         <v-text-field v-model="userFilter" :label="$helpers.capitalizeFirstLetter($t('userFilter'))"
