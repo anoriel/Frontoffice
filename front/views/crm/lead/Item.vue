@@ -379,7 +379,7 @@
                       <v-col>
                         <p class="text-caption" style="margin-top: -15px">{{
                           $helpers.capitalizeFirstLetter($t('priority'))
-                          }}</p>
+                        }}</p>
                         <v-rating hover :length="5" :size="32" v-model="lead.priority" active-color="primary"
                           density="compact" />
                       </v-col>
@@ -761,10 +761,12 @@ function clearCurrentTimeout()
 
 function confirmDelete()
 {
-  // leadStore.delete(lead.value.id).then(() =>
-  // {
-  router.push({ name: 'lead.list' });
-  // });
+  if (lead.value && _.isNumber(lead.value.id)) {
+    leadStore.deleteItem(lead.value.id).then(() =>
+    {
+      router.push({ name: 'lead.list' });
+    });
+  }
 }
 
 async function downloadMediaObject(mediaObject: MediaObjectInterface)
