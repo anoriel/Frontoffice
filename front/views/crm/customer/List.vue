@@ -1,5 +1,5 @@
 <template>
-  <List componentPath="crm" moduleName="customer" :addItem='false' />
+  <List moduleName="customer" :addItem='false' />
 </template>
 
 <script setup lang="ts">

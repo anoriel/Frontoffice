@@ -3,11 +3,12 @@
     <v-autocomplete v-model="model" :items="list" :item-title="getObjectName" item-value="id" :label="label" auto-focus
       clearable auto-select-first min-width="150" density="compact" :chips="chips" :closable-chips="closableChips"
       return-object :multiple="multiple" @update:search="searchItem" :loading="store?.isLoading ? 'error' : false"
-      :prepend-inner-icon="prependIcon" autocomplete="off">
+      :prepend-inner-icon="prependIcon" autocomplete="off" ref="selectBox">
       <template v-slot:selection="{ item }">
         <agency-component v-if="fieldObjectType == 'agency'" :agency="item.raw" />
         <country-component v-else-if="fieldObjectType == 'country'" :country="item.raw" />
         <customer-component v-else-if="fieldObjectType == 'customer'" :customer="item.raw" />
+        <invoice-condition-component v-else-if="fieldObjectType == 'invoiceCondition'" :invoice-condition="item.raw" />
         <society-component v-else-if="fieldObjectType == 'society'" :society="item.raw" />
         <utilisateur-component v-else-if="fieldObjectType == 'user'" :user="item.raw" />
         <v-chip v-else-if="item.raw" :style="getCssForText(item.raw)" density="compact" class="text-no-wrap">
@@ -19,6 +20,8 @@
           <template v-slot:title>
             <agency-component v-if="fieldObjectType == 'agency'" :agency="item.raw" />
             <country-component v-else-if="fieldObjectType == 'country'" :country="item.raw" />
+            <invoice-condition-component v-else-if="fieldObjectType == 'invoiceCondition'"
+              :invoice-condition="item.raw" />
             <customer-component v-else-if="fieldObjectType == 'customer'" :customer="item.raw" />
             <society-component v-else-if="fieldObjectType == 'society'" :society="item.raw" />
             <utilisateur-component v-else-if="fieldObjectType == 'user'" :user="item.raw" />
@@ -42,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef, ref, onMounted } from 'vue';
+import { shallowRef, ref, onMounted, watch } from 'vue';
 import useCommonHelper from '@/helpers/commonHelper'
 const helpers = useCommonHelper()
 import { useI18n } from "vue-i18n";
@@ -51,6 +54,7 @@ import { useAgencyStore } from '@/stores/agency';
 import { useBusinessSectorStore } from '@/stores/businessSector';
 import { useCountryStore } from '@/stores/country';
 import { useCustomerStore } from '@/stores/customer';
+import { useInvoiceConditionStore } from '@/stores/invoiceCondition';
 import { useLeadTypeStore } from '@/stores/leadType';
 import { useLeadOriginStore } from '@/stores/leadOrigin';
 import { useServiceDomainStore } from '@/stores/serviceDomain';
@@ -61,6 +65,7 @@ import { useUserStore } from '@/stores/user';
 import AgencyComponent from "@/components/AgencyComponent.vue";
 import CountryComponent from '@/components/CountryComponent.vue';
 import CustomerComponent from '@/components/CustomerComponent.vue';
+import InvoiceConditionComponent from '../InvoiceConditionComponent.vue';
 import SocietyComponent from '@/components/SocietyComponent.vue';
 import UtilisateurComponent from '@/components/UtilisateurComponent.vue'
 import { ItemInterface } from '@/interfaces/ItemInterface';
@@ -68,10 +73,6 @@ import { useCustomerTypeStore } from '@/stores/customerType';
 import _ from 'lodash';
 
 const props = defineProps({
-  fieldname: {
-    type: String,
-    required: true,
-  },
   fieldObjectType: {
     type: String,
     required: true,
@@ -107,6 +108,11 @@ const props = defineProps({
       return []
     }
   },
+  parent: {//parent is a potential filter to find items
+    type: Object,
+    required: false,
+    default: undefined
+  },
   preloadData: {
     type: Boolean,
     required: false,
@@ -125,7 +131,7 @@ const props = defineProps({
 
 const list = ref<Array<any>>([]);
 const model = defineModel<any>()
-
+const selectBox = ref<(HTMLElement & { focus: () => void }) | null>(null);
 
 const store = shallowRef<any>(null);
 
@@ -146,6 +152,9 @@ onMounted(async () =>
       break;
     case "customerType":
       store.value = useCustomerTypeStore()
+      break;
+    case "invoiceCondition":
+      store.value = useInvoiceConditionStore()
       break;
     case "leadOrigin":
       store.value = useLeadOriginStore()
@@ -180,11 +189,12 @@ onMounted(async () =>
   }
   if (store.value && store.value.list.length) {
     list.value = JSON.parse(JSON.stringify(store.value.list));
-  } else if (props.preloadData) {
-    console.log('module for ' + props.fieldname + ' is unknown')
+  } else if (!store.value) {
+    console.log('module for ' + props.label + ' is unknown')
   }
 })
 
+watch(() => props.parent, parentWatcher)
 
 function getCssForText(item: ItemInterface)
 {
@@ -206,10 +216,22 @@ function getStringValue(item: ItemInterface)
 
 const loadData = async (text: string) =>
 {
-  if (props.preloadData) return;
+  if (props.preloadData || props.parent) return;
   list.value = [];
   if (text.length < 3) return;
   list.value = await store.value.findByName(text);
+}
+
+async function parentWatcher()
+{
+  model.value = null;
+  list.value = [];
+  if (props.parent) {
+    list.value = await store.value.findByParent(props.parent);
+    if (selectBox.value) {
+      selectBox.value.focus();
+    }
+  }
 }
 
 const searchItem = _.debounce(loadData, 1000);

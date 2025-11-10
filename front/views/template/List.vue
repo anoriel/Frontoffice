@@ -6,14 +6,14 @@
       <v-icon>mdi-plus-circle-outline</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('add' +
         $helpers.capitalizeFirstLetter(moduleName))) }}
     </v-btn>
-    <v-btn class="p-0 pr-1 mr-3 bg-primary" size="x-small" @click="exportList" :disabled="loading">
+    <v-btn v-if="canExport" class="p-0 pr-1 mr-3 bg-primary" size="x-small" @click="exportList" :disabled="loading">
       <v-icon>mdi-file-excel</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('export')) }}
     </v-btn>
 
 
 
     <v-menu open-delay="10" close-delay="10"
-      v-if="settingsStore.settingsByStorageName[store.localStorageName] && settingsStore.settingsByStorageName[store.localStorageName].length > 0">
+      v-if="canSavetSettings && settingsStore.settingsByStorageName[store.localStorageName] && settingsStore.settingsByStorageName[store.localStorageName].length > 0">
       <template v-slot:activator="{ props }" :disabled="loading">
         <v-btn v-bind="props" class="p-0 pr-1 mr-1 bg-secondary" size="x-small" :disabled="loading">
           <v-icon>mdi-cloud-download</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('load settings')) }}
@@ -22,7 +22,7 @@
 
       <v-list v-if="getFilteredSettingsByStorageName().length" density="compact">
         <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('personal parameters'))
-        }}</v-list-subheader>
+          }}</v-list-subheader>
         <v-list-item v-for="item in getFilteredSettingsByStorageName()" :key="item.id" :value="item.id"
           @click="loadFilters(item)">
           <v-list-item-title>
@@ -33,7 +33,7 @@
       <v-divider></v-divider>
       <v-list v-if="getPublicSettingsByStorageName().length" density="compact">
         <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('public parameters'))
-        }}</v-list-subheader>
+          }}</v-list-subheader>
         <v-list-item v-for="item in getPublicSettingsByStorageName()" :key="item.id" :value="item.id"
           @click="loadFilters(item)">
           <v-list-item-title>
@@ -43,8 +43,8 @@
       </v-list>
     </v-menu>
 
-    <v-btn class="p-0 pr-1 mr-1 bg-secondary" size="x-small" @click="globalStore.showSettingsDialog = true"
-      :disabled="loading">
+    <v-btn v-if="canSavetSettings" class="p-0 pr-1 mr-1 bg-secondary" size="x-small"
+      @click="globalStore.showSettingsDialog = true" :disabled="loading">
       <v-icon>mdi-cloud-upload</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('save settings')) }}
     </v-btn>
     <v-badge location="top right" color="warning" :model-value="store.getNumberOfFilters() > 0"
@@ -56,8 +56,9 @@
         &nbsp;{{ $helpers.capitalizeFirstLetter($t('filters')) }}
       </v-btn>
     </v-badge>
-    <v-btn class="p-0 pr-1 bg-secondary mr-1" size="x-small" :title="$helpers.capitalizeFirstLetter($t('columns'))"
-      @click="globalStore.showColumnsDialog = true" :disabled="loading">
+    <v-btn v-if="canSavetSettings" class="p-0 pr-1 bg-secondary mr-1" size="x-small"
+      :title="$helpers.capitalizeFirstLetter($t('columns'))" @click="globalStore.showColumnsDialog = true"
+      :disabled="loading">
       <v-icon>mdi-table-column-plus-after</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('columns')) }}
     </v-btn>
   </v-app-bar>
@@ -70,8 +71,13 @@
 
       <!-- #region top -->
       <template v-slot:top>
-        <small class="text-center" v-if="totalItems">
-          <i>{{ totalItems }} {{ $t("record", totalItems) }}</i>
+        <small class="text-center">
+          <i v-if="!store.pageCountIsLoading && totalItems > 0">{{ totalItems.toLocaleString() }} {{ $t("record",
+            totalItems) }}</i>
+          <span v-else-if="store.pageCountIsLoading">
+            <v-progress-circular color="white" indeterminate :size="20" :width="2"></v-progress-circular>&nbsp;{{
+              $t('getting total records') }}...
+          </span>
         </small>
         <v-row>
           <v-col class="position-relative">
@@ -79,8 +85,9 @@
               :label="$helpers.capitalizeFirstLetter($t('per page'))" density="compact"
               @update:model-value="itemsPerPage = parseInt($event, 10)" class="position-absolute right-0"
               style="min-width: 120px;" />
-            <v-pagination :total-visible="7" v-model="store.currentPage" :length="Math.ceil(totalItems / itemsPerPage)"
-              rounded="circle" density="compact" active-color="blue-darken-4" color="blue-darken-4"></v-pagination>
+            <v-pagination v-if="!store.pageCountIsLoading" :total-visible="7" v-model="store.currentPage"
+              :length="Math.ceil(totalItems / itemsPerPage)" rounded="circle" density="compact"
+              active-color="blue-darken-4" color="blue-darken-4"></v-pagination>
           </v-col>
         </v-row>
       </template>
@@ -208,8 +215,13 @@
       <template v-slot:bottom>
         <v-row>
           <v-col>
-            <v-pagination :total-visible="7" v-model="store.currentPage" :length="Math.ceil(totalItems / itemsPerPage)"
-              rounded="circle" density="compact" active-color="blue-darken-4" color="blue-darken-4"></v-pagination>
+            <v-pagination v-if="!store.pageCountIsLoading" :total-visible="7" v-model="store.currentPage"
+              :length="Math.ceil(totalItems / itemsPerPage)" rounded="circle" density="compact"
+              active-color="blue-darken-4" color="blue-darken-4"></v-pagination>
+            <span v-else>
+              <v-progress-circular color="white" indeterminate :size="20" :width="2"></v-progress-circular>&nbsp;{{
+                $t('getting total records') }}...
+            </span>
           </v-col>
         </v-row>
       </template>
@@ -228,7 +240,8 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, shallowRef } from "vue";
+import { computed, onMounted, ref, shallowRef, watch } from "vue";
+import merge from 'deepmerge-json';
 import { useRoute, useRouter } from 'vue-router'
 const router = useRouter()
 const route = useRoute()
@@ -250,9 +263,10 @@ import SocietyComponent from '@/components/SocietyComponent.vue';
 import ColumnsDialog from "./ColumnsDialog.vue";
 import FiltersDialog from "./FiltersDialog.vue";
 import UtilisateurComponent from "@/components/UtilisateurComponent.vue";
-import { isArray } from "lodash";
+import _ from "lodash";
 import SaveSettingsDialog from "./SaveSettingsDialog.vue";
 import { useSecurityStore } from "@/stores/security";
+import { useVatInvoiceStore } from "@/stores/vatInvoice";
 
 
 const props = defineProps({
@@ -260,9 +274,20 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
-  componentPath: {
-    type: String,
-    required: true,
+  additionnalFilters: {
+    type: Object,
+    required: false,
+    default: {},
+  },
+  canExport: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
+  canSavetSettings: {
+    type: Boolean,
+    required: false,
+    default: true,
   },
   moduleName: {
     type: String,
@@ -279,17 +304,21 @@ switch (props.moduleName)
   case "lead":
     store.value = useLeadStore()
     break;
+  case "vatInvoice":
+    store.value = useVatInvoiceStore()
+    break;
 }
 
 
 const itemsPerPage = shallowRef(globalStore.perPage)
-const loading = shallowRef(true)
+const loading = shallowRef(false)
 const rowBeingEdited = shallowRef({})
 const searchFilters = ref(JSON.parse(JSON.stringify(store.value.getSearchFilters())))
 const showColumns = shallowRef(false)
 const serverItems = shallowRef([])
 const sortBy = ref(JSON.parse(JSON.stringify(store.value.getOrderBy())))
 const totalItems = shallowRef(0)
+const isNewQuery = ref(true)//to check if getPageCount must be called
 
 const defaultColumns = computed(() =>
 {
@@ -308,6 +337,11 @@ onMounted(async () =>
     await countryStore.findAll()
   }
 })
+
+watch(() => props.additionnalFilters, (newVal) =>
+{
+  loadItems({ page: store.value.currentPage, itemsPerPage: itemsPerPage.value, sortBy: sortBy.value, groupBy: [], search: searchFilters.value })
+});
 
 function addAnItem()
 {
@@ -346,6 +380,17 @@ function getPublicSettingsByStorageName()
   return settingsStore.settingsByStorageName[store.value.localStorageName].filter(e => e.user?.id !== useSecurityStore().getId() && e.isPublic);
 }
 
+async function getPageCount(search)
+{
+  let searchValue = searchFilters.value;
+  if (props.additionnalFilters)
+  {
+    searchValue = merge(searchFilters.value, props.additionnalFilters);
+  }
+  totalItems.value = await store.value.getPageCount(searchValue);
+  isNewQuery.value = false;//no need to count again if search does not change
+}
+
 function loadFilters(item)
 {
   saveFilters(item.context);
@@ -353,15 +398,30 @@ function loadFilters(item)
 
 async function loadItems({ page, itemsPerPage, sortBy, groupBy, search })
 {
+  let searchValue = _.cloneDeep(searchFilters.value);
+  if (props.additionnalFilters)
+  {
+    let canContinue = true;
+    Object.keys(props.additionnalFilters).forEach(key =>
+    {
+      if (typeof props.additionnalFilters[key] === 'undefined') { canContinue = false; }
+    })
+    if (!canContinue) { return; }
+    searchValue = merge(searchFilters.value, props.additionnalFilters);
+  }
   loading.value = true;
-  if (isArray(sortBy))
+  if (_.isArray(sortBy))
   {
     sortBy = sortBy[0] ?? store.value.getOrderBy(true)[0]
   }
-  await store.value.findPage(page, itemsPerPage, sortBy, searchFilters.value)
+  let result = await store.value.findPage(page, itemsPerPage, sortBy, searchValue);
   serverItems.value = store.value.list
-  totalItems.value = store.value.totalItems
   loading.value = false;
+  if (isNewQuery.value)//call getCount only if new query, not page changing
+  {
+    totalItems.value = store.value.totalItems ?? 0
+    getPageCount(searchValue)
+  }
 }
 
 function openItemPage(event, item, index)
@@ -464,7 +524,7 @@ function saveFilters(filters)
   globalStore.showFiltersDialog = false
   Object.keys(filters).forEach((key) =>
   {
-    if (isArray(filters[key]) && filters[key].length === 0)
+    if (_.isArray(filters[key]) && filters[key].length === 0)
     {
       delete filters[key]
     }
@@ -472,6 +532,8 @@ function saveFilters(filters)
   searchFilters.value = filters
   store.value.setSearchFilters(JSON.parse(JSON.stringify(searchFilters.value)))
   store.value.currentPage = 1
+  isNewQuery.value = true;//count again as search has changed
+
   loadItems({ page: store.value.currentPage, itemsPerPage: itemsPerPage.value, sortBy: sortBy.value, groupBy: [], search: searchFilters.value })
 }
 

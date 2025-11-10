@@ -26,7 +26,8 @@ export function useBaseStore()
   const error = ref(null)
   const item = ref(null as ItemInterface | null)
   const list = ref([] as ItemInterface[])
-  const totalItems = ref(0)
+  const pageCountIsLoading = ref(false);
+  const totalItems = ref<Number | null>(0)
 
 
   const availableFields = ref<AvailableFieldInterface[]>([])
@@ -45,7 +46,7 @@ export function useBaseStore()
   const defaultContext = ref<DefaultContextInterface>({
     currentPage: 1,
     filters: {},
-    sortBy: { key: 'id', order: 'asc' } as DatatableSortByInterface,
+    sortBy: { key: 'createdAt', order: 'asc' } as DatatableSortByInterface,
     version: '0.0',
     visibleFields: [],
   })
@@ -271,6 +272,11 @@ export function useBaseStore()
   function getById(id: number)
   {
     return list.value.find(e => e.id == id)
+  }
+
+  function getPageCount(_searchFilters?: any)
+  {
+    return totalItems.value;
   }
 
   function getContext()
@@ -579,6 +585,7 @@ export function useBaseStore()
     isLoading,
     item,
     list,
+    pageCountIsLoading,
     totalItems,
     localStorageName,
     mapping,
@@ -593,6 +600,7 @@ export function useBaseStore()
     getFiltersDiff,
     getNumberOfFilters,
     getOrderBy,
+    getPageCount,
     getSearchFilters,
     getVisibleFields,
     hasError,
