@@ -1,6 +1,7 @@
 import axios from "@/plugins/axios/axios";
 import api_base from './api_base'
 import merge from 'deepmerge-json'
+import _ from "lodash";
 
 const thisApi = {
   baseUrl: '/vat_invoices',
@@ -17,12 +18,8 @@ const thisApi = {
       return [];
     }
     let url = `vat/getByInvoiceCondition/${invoiceConditionId}?`;
-    if (page) {
-      filtersArray["page"] = page;
-    }
-    if (perPage) {
-      filtersArray["perPage"] = perPage;
-    }
+    filtersArray["page"] = page;
+    filtersArray["itemsPerPage"] = perPage;
     filtersArray["orderBy"] = orderBy;
     url += this.getArrayFilters(filtersArray).join("&");
     return axios.get(url);
@@ -48,9 +45,10 @@ const thisApi = {
       if (filtersArray[element] != null && (typeof filtersArray[element] === 'object' || Array.isArray(filtersArray[element])) && 'id' in filtersArray[element]) {
         arrayFilters.push(element + "=" + filtersArray[element]['id']);
       }
-      else if (filtersArray[element] != null && filtersArray[element].length) {
+      else if (_.isNumber(filtersArray[element]) || (filtersArray[element] != null && filtersArray[element].length)) {
         arrayFilters.push(element + "=" + encodeURIComponent(filtersArray[element]));
       }
+      console.log(element, filtersArray[element], arrayFilters);
     });
     return arrayFilters;
   }

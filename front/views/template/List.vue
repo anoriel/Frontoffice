@@ -218,10 +218,6 @@
             <v-pagination v-if="!store.pageCountIsLoading" :total-visible="7" v-model="store.currentPage"
               :length="Math.ceil(totalItems / itemsPerPage)" rounded="circle" density="compact"
               active-color="blue-darken-4" color="blue-darken-4"></v-pagination>
-            <span v-else>
-              <v-progress-circular color="white" indeterminate :size="20" :width="2"></v-progress-circular>&nbsp;{{
-                $t('getting total records') }}...
-            </span>
           </v-col>
         </v-row>
       </template>

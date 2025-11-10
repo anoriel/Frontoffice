@@ -3,7 +3,7 @@ import thisAPI from '@/api/vatInvoice'
 import { useBaseStore } from './baseStore';
 import { DatatableSortByInterface } from '@/interfaces/DatatableSortByInterface';
 import useCommonHelper from '../helpers/commonHelper'
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { CustomerInterface } from '@/interfaces/CustomerInterface';
 import { InvoiceConditionInterface } from '@/interfaces/InvoiceconditionInterface';
 const helpers = useCommonHelper()
@@ -46,6 +46,7 @@ export const useVatInvoiceStore = defineStore('vatInvoice', () =>
     parseArrays,
     reset,
     save,
+    setContextKey,
     setSearchFilters,
     setVisibleFields,
     resetError,
@@ -86,6 +87,15 @@ export const useVatInvoiceStore = defineStore('vatInvoice', () =>
 
   const customer = ref<CustomerInterface | null>(null)
   const invoiceCondition = ref<InvoiceConditionInterface | null>(null)
+
+  watch(() => customer.value, () =>
+  {
+    setContextKey("customer", JSON.stringify(customer.value));
+  });
+  watch(() => invoiceCondition.value, () =>
+  {
+    setContextKey("invoiceCondition", JSON.stringify(invoiceCondition.value));
+  });
 
   async function findPage(page: number, perPage: number, sortBy: DatatableSortByInterface, filtersArray: any, _isNullArray?: any, _isNotNullArray?: any)
   {

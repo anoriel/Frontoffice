@@ -28,6 +28,9 @@ import SelectObject from '@/components/searchComponents/SelectObject.vue';
 
 const invoiceConditionSelect = ref(null)
 
+vatInvoiceStore.customer = JSON.parse(vatInvoiceStore.getContextKey('customer'))
+vatInvoiceStore.invoiceCondition = JSON.parse(vatInvoiceStore.getContextKey('invoiceCondition'))
+
 function getFilters()
 {
   return {
