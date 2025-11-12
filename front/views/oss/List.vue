@@ -1,15 +1,7 @@
 <template>
-  <v-container fluid class="w-100 position-relative">
-    {{ router.currentRoute.value.name }}
-  </v-container>
+  <List moduleName="ossIntegration" :addItem='false' :canExport="false" :canSavetSettings="false" />
 </template>
 
-<script setup>
-import { useRouter } from 'vue-router'
-const router = useRouter()
-import { useGlobalStore } from '@/stores/global';
-useGlobalStore().isLoadingWithLock = false
+<script setup lang="ts">
+import List from '@/views/template/List.vue';
 </script>
-
-
-<style scoped></style>

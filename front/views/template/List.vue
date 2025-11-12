@@ -22,7 +22,7 @@
 
       <v-list v-if="getFilteredSettingsByStorageName().length" density="compact">
         <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('personal parameters'))
-        }}</v-list-subheader>
+          }}</v-list-subheader>
         <v-list-item v-for="item in getFilteredSettingsByStorageName()" :key="item.id" :value="item.id"
           @click="loadFilters(item)">
           <v-list-item-title>
@@ -33,7 +33,7 @@
       <v-divider></v-divider>
       <v-list v-if="getPublicSettingsByStorageName().length" density="compact">
         <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('public parameters'))
-        }}</v-list-subheader>
+          }}</v-list-subheader>
         <v-list-item v-for="item in getPublicSettingsByStorageName()" :key="item.id" :value="item.id"
           @click="loadFilters(item)">
           <v-list-item-title>
@@ -140,9 +140,13 @@
         <agency-component v-if="object.type == 'agency' && value" :agency="value" />
         <contact-component v-else-if="object.type == 'contact' && value" :contact="value" />
         <country-component v-else-if="object.type == 'country' && value" :country="value" />
+        <customer-component v-else-if="object.type == 'customer' && value" :customer="value" />
+        <invoice-condition-component v-else-if="object.type == 'invoiceCondition' && value" :invoiceCondition="value" />
         <society-component v-else-if="object.type == 'society' && value" :society="value" />
         <UtilisateurComponent v-else-if="object.type == 'user' && value" :user="value" />
-        <v-chip v-else-if="value" :style="$helpers.getCssForText(value.stringValue)">{{ value.stringValue }}</v-chip>
+        <v-chip v-else-if="value" :color="getClass(value)" :style="getStyle(value)">
+          {{ $te(value.stringValue) ? $helpers.capitalizeFirstLetter($t(value.stringValue)) : value.stringValue }}
+        </v-chip>
       </template>
       <!-- #endregion specific object keys-->
 
@@ -152,10 +156,13 @@
           <agency-component v-if="list.type == 'agency' && object" :agency="object" />
           <contact-component v-else-if="list.type == 'contact' && object" :contact="object" />
           <country-component v-else-if="list.type == 'country' && object" :country="object" />
+          <customer-component v-else-if="list.type == 'customer' && object" :customer="object" />
+          <invoice-condition-component v-else-if="list.type == 'invoiceCondition' && object"
+            :invoiceCondition="object" />
           <society-component v-else-if="list.type == 'society' && object" :society="object" />
           <UtilisateurComponent v-else-if="list.type == 'user' && object" :user="object" />
-          <v-chip v-else-if="object" :style="$helpers.getCssForText(object.stringValue)">
-            {{ object.stringValue }}
+          <v-chip v-else-if="object" :color="getClass(object)" :style="getStyle(object)">
+            {{ $te(object.stringValue) ? $helpers.capitalizeFirstLetter($t(object.stringValue)) : object.stringValue }}
           </v-chip>
         </template>
       </template>
@@ -250,6 +257,7 @@ import useCommonHelper from '@/helpers/commonHelper'
 const helpers = useCommonHelper()
 import { useCustomerStore } from "@/stores/customer";
 import { useLeadStore } from '@/stores/lead'
+import { useOssIntegrationStore } from "@/stores/ossIntegration";
 import { useCountryStore } from '@/stores/country'
 const countryStore = useCountryStore()
 import { useSettingsStore } from '@/stores/settings'
@@ -258,6 +266,8 @@ const settingsStore = useSettingsStore()
 import AgencyComponent from "@/components/AgencyComponent.vue";
 import ContactComponent from "@/components/ContactComponent.vue";
 import CountryComponent from '@/components/CountryComponent.vue';
+import CustomerComponent from "@/components/CustomerComponent.vue";
+import InvoiceConditionComponent from "@/components/InvoiceConditionComponent.vue";
 import SocietyComponent from '@/components/SocietyComponent.vue';
 import ColumnsDialog from "./ColumnsDialog.vue";
 import FiltersDialog from "./FiltersDialog.vue";
@@ -302,6 +312,9 @@ switch (props.moduleName)
     break;
   case "lead":
     store.value = useLeadStore()
+    break;
+  case "ossIntegration":
+    store.value = useOssIntegrationStore()
     break;
   case "vatInvoice":
     store.value = useVatInvoiceStore()
@@ -367,6 +380,18 @@ async function exportList()
     fields
   );
   helpers.saveToExcel(props.moduleName, exportList);
+}
+
+function getClass(object)
+{
+  if (!('cssClass' in object)) return;
+  return object.cssClass;
+}
+
+function getStyle(object)
+{
+  if (('cssClass' in object)) return;
+  return helpers.getCssForText(object.stringValue);
 }
 
 function getFilteredSettingsByStorageName()

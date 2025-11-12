@@ -1,7 +1,7 @@
 <template>
   <span class="text-no-wrap">
-    <FlagIcon :code="getIso3166()" size="18" class="mr-1" circle />
-    <span class="d-inline-block">{{ customer.nomSociete }}</span>
+    <FlagIcon v-if="customer.country?.iso3166" :code="getIso3166()" size="18" class="mr-1" circle />
+    <span class="d-inline-block">{{ customer.stringValue }}</span>
   </span>
 </template>
 
@@ -21,7 +21,7 @@ const props = defineProps({
 function getIso3166(): CountryCode
 {
   let code = props.customer.country?.iso3166 as CountryCode
-  if (code.toLowerCase() == 'xi') {
+  if (code?.toLowerCase() == 'xi') {
     code = 'gb-nir';
   }
   return code;

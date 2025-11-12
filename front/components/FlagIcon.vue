@@ -9,14 +9,15 @@ const props = defineProps<{
   title?: string | ((country: string) => string)
 }>()
 
-const country: string =
-  new Intl.DisplayNames(['en'], { type: 'region' }).of(props.code.slice(0, 2).toUpperCase()) || 'Unknown'
+const country: string = (props.code ?
+  new Intl.DisplayNames(['en'], { type: 'region' }).of(props.code.slice(0, 2).toUpperCase()) : null) || 'Unknown'
 const computedTitle: string =
   props.title instanceof Function ? props.title(country) : props.title || country
 </script>
 
 <template>
-  <span class="fi" :class="[props.square || props.circle ? 'fis' : '', `fi-${props.code.toLowerCase()}`, props.circle ? 'round' : '']"
+  <span class="fi"
+    :class="[props.square || props.circle ? 'fis' : '', props.code ? `fi-${props.code.toLowerCase()}` : '', props.circle ? 'round' : '']"
     :style="props.size ? `font-size:${props.size}px` : undefined" :title="computedTitle" />
 </template>
 

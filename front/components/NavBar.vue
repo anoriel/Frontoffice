@@ -4,7 +4,7 @@
       <v-btn v-for="route in filteredRoutes" :key="route.name" text :title="route.meta?.title" variant="flat"
         rounded="0" class="mr-1" color="primary" :class="{ 'disabled': route.meta.isDisabled }">
         <template v-slot:prepend>
-          <FlagIcon v-if="route.meta.flag" :code="route.meta.flag" size="18" />
+          <FlagIcon v-if="route.meta.flag" :code="route.meta.flag" size="18" class="v-icon opacity-60" />
           <v-icon v-else-if="route.meta.icon">{{ route.meta.icon }}</v-icon>
         </template>
         {{ $helpers.capitalizeFirstLetter($t(route.name)) }}
@@ -19,7 +19,7 @@
               :class="{ 'disabled': child.meta.isDisabled }">
               <v-list-item-title>{{ $helpers.capitalizeFirstLetter($t(child.name)) }}</v-list-item-title>
               <template v-slot:prepend>
-                <FlagIcon v-if="child.meta.flag" :code="child.meta.flag" />
+                <FlagIcon v-if="child.meta.flag" :code="child.meta.flag" class="v-icon opacity-60" />
                 <v-icon v-else-if="child.meta.icon">{{ child.meta.icon }}</v-icon>
               </template>
               <template v-slot:append v-if="child.meta.isDropdown">
@@ -34,7 +34,7 @@
                     :class="{ 'disabled': subChild.meta.isDisabled }">
                     <v-list-item-title>{{ $helpers.capitalizeFirstLetter($t(subChild.name)) }}</v-list-item-title>
                     <template v-slot:prepend>
-                      <FlagIcon v-if="subChild.meta.flag" :code="subChild.meta.flag" />
+                      <FlagIcon v-if="subChild.meta.flag" :code="subChild.meta.flag" class="v-icon opacity-60" />
                       <v-icon v-else-if="subChild.meta.icon">{{ subChild.meta.icon }}</v-icon>
                     </template>
                   </v-list-item>

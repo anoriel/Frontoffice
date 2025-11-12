@@ -1,10 +1,11 @@
 import { RouteRecordRaw } from "vue-router";
 import OSSDashboard from "../views/oss/Dashboard.vue";
 import OSSIntegration from "../views/oss/Integration.vue";
+import OSSList from "../views/oss/List.vue";
 
 const moduleRoutes: RouteRecordRaw[] = [
   {
-    name: "OSS.OSS",
+    name: "menu.OSS",
     path: "",
     component: OSSDashboard,
     meta: {
@@ -15,12 +16,13 @@ const moduleRoutes: RouteRecordRaw[] = [
   },
   {
     path: "/oss/dashboard",
-    component: OSSDashboard,
+    component: OSSList,
     name: "OSS.dashboard",
     meta: {
       isDisabled: false,
+      flag: 'eu',
       title: "OSS.dashboardTitle",
-      parent: "OSS.OSS",
+      parent: "menu.OSS",
       hasRole: "ROLE_OSS"
     },
   },

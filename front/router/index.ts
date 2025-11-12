@@ -7,7 +7,6 @@ import Login from "../views/Login.vue"
 import adminRoutes from "./admin";
 import crmRoutes from "./crm";
 import customsRoutes from "./customs";
-import ossRoutes from "./oss";
 import vatRoutes from "./vat";
 
 const baseRoutes: RouteRecordRaw[] = [
@@ -45,7 +44,7 @@ const baseRoutes: RouteRecordRaw[] = [
   },
 ]
 
-const routes = baseRoutes.concat(crmRoutes, customsRoutes, ossRoutes, vatRoutes, adminRoutes);
+const routes = baseRoutes.concat(crmRoutes, customsRoutes, vatRoutes, adminRoutes);
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
