@@ -18,8 +18,11 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
-
+import { onMounted, ref, shallowRef, watch } from 'vue'
+import useCommonHelper from '@/helpers/commonHelper';
+const helper = useCommonHelper();
+import { useGlobalStore } from '@/stores/global'
+const globalStore = useGlobalStore()
 import { useVatInvoiceStore } from '@/stores/vatInvoice';
 const vatInvoiceStore = useVatInvoiceStore();
 import { useInvoiceConditionStore } from '@/stores/invoiceCondition';
@@ -30,17 +33,19 @@ import SelectObject from '@/components/searchComponents/SelectObject.vue';
 
 const invoiceConditionSelect = ref(null)
 const invoiceConditionsList = ref([])
+const watchCustomer = shallowRef(false)
+const watchInvoiceCondition = shallowRef(false)
 
 
 onMounted(async () =>
 {
   let customer = vatInvoiceStore.getContextKey('customer')
+  let invoiceCondition = vatInvoiceStore.getContextKey('invoiceCondition')
   if (customer)
   {
     vatInvoiceStore.customer = JSON.parse(customer)
     await parentWatcher()
   }
-  let invoiceCondition = vatInvoiceStore.getContextKey('invoiceCondition')
   if (invoiceCondition)
   {
     vatInvoiceStore.invoiceCondition = JSON.parse(invoiceCondition)
@@ -48,16 +53,30 @@ onMounted(async () =>
 })
 
 watch(() => vatInvoiceStore.customer, parentWatcher)
+watch(() => vatInvoiceStore.invoiceCondition, invoiceConditionWatcher)
 
+function invoiceConditionWatcher()
+{
+  if (watchInvoiceCondition.value === false)
+  {
+    watchInvoiceCondition.value = true;
+    return;
+  }
+  vatInvoiceStore.currentPage = 1;
+}
 
 async function parentWatcher()
 {
-  vatInvoiceStore.invoiceCondition = null;
+  if (watchCustomer.value === false)
+  {
+    watchCustomer.value = true;
+    return;
+  }
   invoiceConditionsList.value = [];
   if (vatInvoiceStore.customer)
   {
     invoiceConditionsList.value = await invoiceConditionStore.findByParent(vatInvoiceStore.customer);
-    if (invoiceConditionSelect.value)
+    if (invoiceConditionSelect.value && !globalStore.isLoadingWithLock)
     {
       invoiceConditionSelect.value.focus();
     }
