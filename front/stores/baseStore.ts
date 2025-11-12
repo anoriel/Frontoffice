@@ -36,8 +36,10 @@ export function useBaseStore()
     'count': [],//will display a number in data table, a list in forms
     'date': [],//will display a date in data table, start/end date calendar in forms
     'datetime': [],//will display a datetime in data table, start/end datetime calendar in forms
+    'float4': [],//to format a number into a float with 4 digits
     'object': [],//will display specific template for this object in data table, a specific multiple select box in forms (ex: agency, society, country, ...)
     'objectsList': [],//will display specific template for this object(s) in data table, a specific multiple select box in forms (ex: agency, society, country, ...)
+    'period': [],//will display a period (YYYY-MM) in data table, start/end datetime calendar in forms
     'progressBar': [],//will display progress bar in data table, a simple select box in forms
     'string': [],//will display string value in data table, a multiple select box in forms
     'stringsList': [],//will display string value(s) in data table, a multiple select box in forms
@@ -309,7 +311,7 @@ export function useBaseStore()
       context.value[key] = JSON.parse(JSON.stringify((defaultContext.value as any)[key]));
       localStorage.setItem(localStorageName.value + ".context", JSON.stringify(context.value));
     } else if (key != null && typeof (defaultContext.value as any)[key] == 'undefined') {
-      console.log(key);
+      console.log(`WARNING: ${key} not in defaultContext`);
     }
 
     return context.value[key];

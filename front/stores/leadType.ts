@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import thisAPI from '@/api/leadType'
 import { useBaseStore } from './baseStore';
-import { LeadType } from '@/interfaces/LeadTypeInterface';
+import { LeadTypeInterface } from '@/interfaces/LeadTypeInterface';
 import { ref, watch } from 'vue';
 
 export const useLeadTypeStore = defineStore('leadType', () =>
@@ -42,9 +42,9 @@ export const useLeadTypeStore = defineStore('leadType', () =>
   {
     let arr = JSON.parse(JSON.stringify(list.value));
     if (!arr.length) { return 0; }
-    arr = arr.filter(function (e: LeadType) { return !e.isHidden; });
+    arr = arr.filter(function (e: LeadTypeInterface) { return !e.isHidden; });
     if (!arr.length) { return 0; }
-    arr = arr.sort(function (a: LeadType, b: LeadType) { return a.position < b.position ? -1 : (a.position > b.position ? 1 : 0); });
+    arr = arr.sort(function (a: LeadTypeInterface, b: LeadTypeInterface) { return a.position < b.position ? -1 : (a.position > b.position ? 1 : 0); });
     return arr.pop().position; // Return the highest position
   }
 
@@ -52,12 +52,12 @@ export const useLeadTypeStore = defineStore('leadType', () =>
   {
     let arr = JSON.parse(JSON.stringify(list.value));
     if (!arr.length) { return 0; }
-    arr = arr.filter(function (e: LeadType) { return !e.isHidden; });
+    arr = arr.filter(function (e: LeadTypeInterface) { return !e.isHidden; });
     if (!arr.length) { return 0; }
-    arr = arr.sort(function (a: LeadType, b: LeadType) { return a.position < b.position ? -1 : (a.position > b.position ? 1 : 0); });
+    arr = arr.sort(function (a: LeadTypeInterface, b: LeadTypeInterface) { return a.position < b.position ? -1 : (a.position > b.position ? 1 : 0); });
     return arr[0].position; // Return the lowest position
   }
-  function getColorByValue(value: LeadType | null)
+  function getColorByValue(value: LeadTypeInterface | null)
   {
     if (value == null) { return 'warning' }
     switch (value?.name) {
@@ -74,8 +74,8 @@ export const useLeadTypeStore = defineStore('leadType', () =>
         return 'grey-darken-4';
     }
   }
-  function getValue(value: LeadType | null) { return value ? value.position - lowestLeadTypePosition.value : 0 }
-  function getVariantByValue(value: LeadType | null)
+  function getValue(value: LeadTypeInterface | null) { return value ? value.position - lowestLeadTypePosition.value : 0 }
+  function getVariantByValue(value: LeadTypeInterface | null)
   {
     if (value == null) { return 'warning' }
     switch (value?.name) {

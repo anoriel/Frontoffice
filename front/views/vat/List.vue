@@ -9,7 +9,7 @@
       <v-col>
         <select-object fieldname="invoice condition" fieldObjectType="invoiceCondition" ref="invoiceConditionSelect"
           :label="$helpers.capitalizeFirstLetter($t('invoice condition'))" :preloadData="false"
-          v-model="vatInvoiceStore.invoiceCondition" :multiple="false" :parent="vatInvoiceStore.customer" />
+          v-model="vatInvoiceStore.invoiceCondition" :multiple="false" :fieldObjectEnum="invoiceConditionsList" />
       </v-col>
     </v-row>
   </v-container>
@@ -18,18 +18,51 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 import { useVatInvoiceStore } from '@/stores/vatInvoice';
 const vatInvoiceStore = useVatInvoiceStore();
+import { useInvoiceConditionStore } from '@/stores/invoiceCondition';
+const invoiceConditionStore = useInvoiceConditionStore();
 
 import List from '@/views/template/List.vue';
 import SelectObject from '@/components/searchComponents/SelectObject.vue';
 
 const invoiceConditionSelect = ref(null)
+const invoiceConditionsList = ref([])
 
-vatInvoiceStore.customer = JSON.parse(vatInvoiceStore.getContextKey('customer'))
-vatInvoiceStore.invoiceCondition = JSON.parse(vatInvoiceStore.getContextKey('invoiceCondition'))
+
+onMounted(async () =>
+{
+  let customer = vatInvoiceStore.getContextKey('customer')
+  if (customer)
+  {
+    vatInvoiceStore.customer = JSON.parse(customer)
+    await parentWatcher()
+  }
+  let invoiceCondition = vatInvoiceStore.getContextKey('invoiceCondition')
+  if (invoiceCondition)
+  {
+    vatInvoiceStore.invoiceCondition = JSON.parse(invoiceCondition)
+  }
+})
+
+watch(() => vatInvoiceStore.customer, parentWatcher)
+
+
+async function parentWatcher()
+{
+  vatInvoiceStore.invoiceCondition = null;
+  invoiceConditionsList.value = [];
+  if (vatInvoiceStore.customer)
+  {
+    invoiceConditionsList.value = await invoiceConditionStore.findByParent(vatInvoiceStore.customer);
+    if (invoiceConditionSelect.value)
+    {
+      invoiceConditionSelect.value.focus();
+    }
+  }
+}
 
 function getFilters()
 {

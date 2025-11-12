@@ -48,7 +48,6 @@ const thisApi = {
       else if (_.isNumber(filtersArray[element]) || (filtersArray[element] != null && filtersArray[element].length)) {
         arrayFilters.push(element + "=" + encodeURIComponent(filtersArray[element]));
       }
-      console.log(element, filtersArray[element], arrayFilters);
     });
     return arrayFilters;
   }

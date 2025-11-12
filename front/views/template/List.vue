@@ -22,7 +22,7 @@
 
       <v-list v-if="getFilteredSettingsByStorageName().length" density="compact">
         <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('personal parameters'))
-          }}</v-list-subheader>
+        }}</v-list-subheader>
         <v-list-item v-for="item in getFilteredSettingsByStorageName()" :key="item.id" :value="item.id"
           @click="loadFilters(item)">
           <v-list-item-title>
@@ -33,7 +33,7 @@
       <v-divider></v-divider>
       <v-list v-if="getPublicSettingsByStorageName().length" density="compact">
         <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('public parameters'))
-          }}</v-list-subheader>
+        }}</v-list-subheader>
         <v-list-item v-for="item in getPublicSettingsByStorageName()" :key="item.id" :value="item.id"
           @click="loadFilters(item)">
           <v-list-item-title>
@@ -185,6 +185,9 @@
             <span v-bind="props" class="text-no-wrap">{{ $helpers.formatDate(value) }}</span>
           </template>
         </v-tooltip>
+      </template>
+      <template v-for="key in store.fieldsByType.float4" v-slot:[`item.${key}`]="{ value }" :key="key">
+        {{ parseFloat(value).toFixed(4) }}
       </template>
       <template v-for="object in store.fieldsByType.progressBar" v-slot:[`item.${object.name}`]="{ value }"
         :key="object">

@@ -6,6 +6,9 @@ import useCommonHelper from '../helpers/commonHelper'
 import { ref, watch } from 'vue';
 import { CustomerInterface } from '@/interfaces/CustomerInterface';
 import { InvoiceConditionInterface } from '@/interfaces/InvoiceconditionInterface';
+import { merge } from 'lodash';
+import { AxiosResponse } from 'axios';
+import moment from 'moment';
 const helpers = useCommonHelper()
 
 
@@ -32,7 +35,6 @@ export const useVatInvoiceStore = defineStore('vatInvoice', () =>
 
     deleteItem,
     exportList,
-    find,
     findAll,
     hasError,
     hasItems,
@@ -73,13 +75,20 @@ export const useVatInvoiceStore = defineStore('vatInvoice', () =>
       { "key": "createdAt" },
     ],
   }
+  //add customer and invoicecontion to the default context as they are not part of base defaultContext
+  merge(defaultContext.value, {
+    customer: null,
+    invoiceCondition: null,
+  })
 
   fieldsByType.value.boolean = []
   fieldsByType.value.count = []
-  fieldsByType.value.date = []
-  fieldsByType.value.datetime = []
+  fieldsByType.value.date = ['invoiceDate']
+  fieldsByType.value.datetime = ['createdAt']
+  fieldsByType.value.float4 = ['taxFreeAmount', 'taxAmount', 'VATRate']
   fieldsByType.value.object = []
   fieldsByType.value.objectsList = []
+  fieldsByType.value.period = ['currentPeriod']
   fieldsByType.value.progressBar = []
   fieldsByType.value.string = []
 
@@ -114,6 +123,23 @@ export const useVatInvoiceStore = defineStore('vatInvoice', () =>
     }
   }
 
+  async function find(id: number)
+  {
+    isLoading.value = true;
+    error.value = null;
+    item.value = null;
+    try {
+      let response = await api.value.find(id);
+      isLoading.value = false;
+      item.value = parseItemResponse(response);
+      return item.value;
+    } catch (err: any) {
+      isLoading.value = false;
+      error.value = err;
+      return null;
+    }
+  }
+
   function getActionOnOpeningItem(id: number)
   {
     let url = helpers.legacyIntranetUrl + "/admin/vue_tva_facture_detail.php?action_suivante=affiche_modifier&id=" + id;
@@ -135,6 +161,28 @@ export const useVatInvoiceStore = defineStore('vatInvoice', () =>
       return null;
     }
   }
+
+  function parseItemResponse(response: AxiosResponse<any, any, {}>)
+  {
+    if ('createdAt' in response.data) {
+      response.data.createdAt = moment(new Date(response.data.createdAt)).format('YYYY-MM-DD HH:mm:ss')
+    }
+    if ('invoiceDate' in response.data) {
+      response.data.invoiceDate = moment(new Date(response.data.invoiceDate)).format('YYYY-MM-DD')
+    }
+    if ('currentPeriod' in response.data) {
+      response.data.currentPeriod = moment(new Date(response.data.currentPeriod)).format('YYYY-MM-DD')
+    }
+    //formatPeriod
+    if ('customer' in response.data) {
+      response.data.thirdParty = response.data.customer.stringValue;
+    }
+    if ('operationType' in response.data) {
+      response.data.operationType = response.data.operationType.code;
+    }
+    return response.data;
+  }
+
 
   return {
     availableFields,

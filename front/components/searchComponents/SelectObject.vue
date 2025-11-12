@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef, ref, onMounted, watch } from 'vue';
+import { shallowRef, ref, onMounted } from 'vue';
 import useCommonHelper from '@/helpers/commonHelper'
 const helpers = useCommonHelper()
 import { useI18n } from "vue-i18n";
@@ -71,6 +71,7 @@ import UtilisateurComponent from '@/components/UtilisateurComponent.vue'
 import { ItemInterface } from '@/interfaces/ItemInterface';
 import { useCustomerTypeStore } from '@/stores/customerType';
 import _ from 'lodash';
+import { watch } from 'vue';
 
 const props = defineProps({
   fieldObjectType: {
@@ -108,11 +109,6 @@ const props = defineProps({
       return []
     }
   },
-  parent: {//parent is a potential filter to find items
-    type: Object,
-    required: false,
-    default: undefined
-  },
   preloadData: {
     type: Boolean,
     required: false,
@@ -129,7 +125,7 @@ const props = defineProps({
   },
 })
 
-const list = ref<Array<any>>([]);
+const list = shallowRef<Array<any>>([]);
 const model = defineModel<any>()
 const selectBox = ref<(HTMLElement & { focus: () => void }) | null>(null);
 
@@ -175,9 +171,6 @@ onMounted(async () =>
       store.value = useUserStore()
       break;
     default:
-      if (props.fieldObjectEnum && props.fieldObjectEnum.length) {
-        list.value = props.fieldObjectEnum;
-      }
       break;
   }
   if (store.value && !store.value.list.length && props.preloadData) {
@@ -187,14 +180,25 @@ onMounted(async () =>
       await store.value.findAll();
     }
   }
-  if (store.value && store.value.list.length) {
+  if (props.fieldObjectEnum && props.fieldObjectEnum.length) {
+    updateList();
+  } else if (store.value && store.value.list.length) {
     list.value = JSON.parse(JSON.stringify(store.value.list));
   } else if (!store.value) {
     console.log('module for ' + props.label + ' is unknown')
   }
 })
 
-watch(() => props.parent, parentWatcher)
+watch(() => props.fieldObjectEnum, updateList)
+
+function focus()
+{
+  if (selectBox.value) {
+    selectBox.value.focus();
+  }
+}
+
+defineExpose({ focus });
 
 function getCssForText(item: ItemInterface)
 {
@@ -216,22 +220,15 @@ function getStringValue(item: ItemInterface)
 
 const loadData = async (text: string) =>
 {
-  if (props.preloadData || props.parent) return;
+  if (props.preloadData || (props.fieldObjectEnum && props.fieldObjectEnum.length)) return;
   list.value = [];
   if (text.length < 3) return;
   list.value = await store.value.findByName(text);
 }
 
-async function parentWatcher()
+function updateList()
 {
-  model.value = null;
-  list.value = [];
-  if (props.parent) {
-    list.value = await store.value.findByParent(props.parent);
-    if (selectBox.value) {
-      selectBox.value.focus();
-    }
-  }
+  list.value = (props.fieldObjectEnum ? props.fieldObjectEnum : []) as any[]
 }
 
 const searchItem = _.debounce(loadData, 1000);
