@@ -3,9 +3,9 @@
     <v-app-bar color="blue-darken-4" image="/images/bg-header.png" density="compact">
       <v-app-bar-title>
         <router-link :to="{ name: 'welcome' }" id="logo" style="cursor: pointer;">
-          <img src="/images/asd-group-logo-couleur-transparent-white.png" :alt="appTitle" :title="appTitle"
+          <img src="/images/asd-group-logo-couleur-transparent-white.png" alt="ASD Group" title="ASD Group"
             height="48" />
-          {{ appTitle }}
+          <img src="/images/logoERP.png" :alt="appTitle" :title="appTitle" height="36" />
         </router-link>
 
         <v-btn color="primary" :href="$helpers.getLegacyIntranetUrl()" class="ml-16" variant="elevated" elevation="5"
