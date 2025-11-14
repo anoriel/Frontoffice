@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import moment from "moment";
+import moment from "moment-timezone";
 import * as ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { SHA1, SHA256 } from 'crypto-js';
@@ -190,14 +190,14 @@ export default function useCommonHelper()
   function dateRangePickerLocaleRanges(this: Vue3Instance): DateRanges
   {
     const ranges: DateRanges = {};
-    ranges[capitalizeFirstLetter(t('dateRangePicker.today'))] = [moment().toDate(), moment().toDate()];
-    ranges[capitalizeFirstLetter(t('dateRangePicker.yesterday'))] = [moment().subtract(1, 'days').toDate(), moment().subtract(1, 'days').toDate()];
-    ranges[capitalizeFirstLetter(t('dateRangePicker.thisMonth'))] = [moment().startOf('month').toDate(), moment().endOf('month').endOf('day').toDate()];
-    ranges[capitalizeFirstLetter(t('dateRangePicker.lastMonth'))] = [moment().subtract(1, 'months').startOf('month').toDate(), moment().subtract(1, 'months').endOf('month').endOf('day').toDate()];
-    ranges[capitalizeFirstLetter(t('dateRangePicker.thisQuarter'))] = [moment().startOf('quarter').toDate(), moment().endOf('quarter').endOf('day').toDate()];
-    ranges[capitalizeFirstLetter(t('dateRangePicker.lastQuarter'))] = [moment().subtract(1, 'quarters').startOf('quarter').toDate(), moment().subtract(1, 'quarters').endOf('quarter').endOf('day').toDate()];
-    ranges[capitalizeFirstLetter(t('dateRangePicker.thisYear'))] = [moment().startOf('year').toDate(), moment().endOf('year').endOf('day').toDate()];
-    ranges[capitalizeFirstLetter(t('dateRangePicker.lastYear'))] = [moment().subtract(1, 'years').startOf('year').toDate(), moment().subtract(1, 'years').endOf('year').endOf('day').toDate()];
+    ranges[capitalizeFirstLetter(t('dateRangePicker.today'))] = [moment().tz("Europe/Paris").toDate(), moment().tz("Europe/Paris").toDate()];
+    ranges[capitalizeFirstLetter(t('dateRangePicker.yesterday'))] = [moment().tz("Europe/Paris").subtract(1, 'days').toDate(), moment().tz("Europe/Paris").subtract(1, 'days').toDate()];
+    ranges[capitalizeFirstLetter(t('dateRangePicker.thisMonth'))] = [moment().tz("Europe/Paris").startOf('month').toDate(), moment().tz("Europe/Paris").endOf('month').endOf('day').toDate()];
+    ranges[capitalizeFirstLetter(t('dateRangePicker.lastMonth'))] = [moment().tz("Europe/Paris").subtract(1, 'months').startOf('month').toDate(), moment().tz("Europe/Paris").subtract(1, 'months').endOf('month').endOf('day').toDate()];
+    ranges[capitalizeFirstLetter(t('dateRangePicker.thisQuarter'))] = [moment().tz("Europe/Paris").startOf('quarter').toDate(), moment().tz("Europe/Paris").endOf('quarter').endOf('day').toDate()];
+    ranges[capitalizeFirstLetter(t('dateRangePicker.lastQuarter'))] = [moment().tz("Europe/Paris").subtract(1, 'quarters').startOf('quarter').toDate(), moment().tz("Europe/Paris").subtract(1, 'quarters').endOf('quarter').endOf('day').toDate()];
+    ranges[capitalizeFirstLetter(t('dateRangePicker.thisYear'))] = [moment().tz("Europe/Paris").startOf('year').toDate(), moment().tz("Europe/Paris").endOf('year').endOf('day').toDate()];
+    ranges[capitalizeFirstLetter(t('dateRangePicker.lastYear'))] = [moment().tz("Europe/Paris").subtract(1, 'years').startOf('year').toDate(), moment().tz("Europe/Paris").subtract(1, 'years').endOf('year').endOf('day').toDate()];
     return ranges;
   }
 
@@ -376,28 +376,28 @@ export default function useCommonHelper()
   function formatDate(value: string | Date | null | undefined): string | undefined
   {
     if (value) {
-      return moment(new Date(String(value))).format("YYYY-MM-DD");
+      return moment(new Date(String(value))).tz("Europe/Paris").format("YYYY-MM-DD");
     }
   }
 
   function formatDateTime(value: string | Date | null | undefined): string | undefined
   {
     if (value) {
-      return moment(new Date(String(value))).format("YYYY-MM-DD HH:mm:ss");
+      return moment(new Date(String(value))).tz("Europe/Paris").format("YYYY-MM-DD HH:mm:ss");
     }
   }
 
   function formatDateTimeZulu(value: string | Date | null | undefined): string | undefined
   {
     if (value) {
-      return moment(new Date(String(value))).format("YYYY-MM-DDThh:mm:ssZ");
+      return moment(new Date(String(value))).tz("Europe/Paris").format("YYYY-MM-DDThh:mm:ssZ");
     }
   }
 
   function formatPeriod(value: string | Date | null | undefined): string | undefined
   {
     if (value) {
-      return moment(new Date(String(value))).format("YYYY-MM");
+      return moment(new Date(String(value))).tz("Europe/Paris").format("YYYY-MM");
     }
   }
 
@@ -505,7 +505,7 @@ export default function useCommonHelper()
   function getHourFromDate(value: string | Date | null | undefined): string | undefined
   {
     if (value) {
-      return moment(new Date(String(value))).format("HH:mm:ss");
+      return moment(new Date(String(value))).tz("Europe/Paris").format("HH:mm:ss");
     }
   }
 

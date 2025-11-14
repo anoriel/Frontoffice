@@ -32,7 +32,7 @@
 
 <script setup>
 import { onMounted, ref, watch } from 'vue';
-import moment from "moment";
+import moment from "moment-timezone";
 
 const props = defineProps({
   dialog: Boolean,
@@ -71,15 +71,15 @@ watch(() => props.modelDate, (newVal) =>
   {
     theDate = new Date().toIso();
   }
-  datePicker.value = moment(new Date(props.modelDate)).format("YYYY-MM-DD");
-  timePicker.value = moment(new Date(props.modelDate)).format("HH:mm");
+  datePicker.value = moment(new Date(props.modelDate)).tz("Europe/Paris").format("YYYY-MM-DD");
+  timePicker.value = moment(new Date(props.modelDate)).tz("Europe/Paris").format("HH:mm");
 });
 
 const emit = defineEmits(['saveDateTime', 'cancelDateTime'])
 
 const onSave = () =>
 {
-  emit('saveDateTime', moment(moment(new Date(datePicker.value)).format("YYYY-MM-DD") + ' ' + timePicker.value, "YYYY-MM-DD HH:mm").toDate())
+  emit('saveDateTime', moment(moment(new Date(datePicker.value)).tz("Europe/Paris").format("YYYY-MM-DD") + ' ' + timePicker.value, "YYYY-MM-DD HH:mm").toDate())
 }
 
 const onCancel = () =>

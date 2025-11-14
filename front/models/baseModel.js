@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment from "moment-timezone";
 
 export default class BaseModel
 {
@@ -16,7 +16,7 @@ export default class BaseModel
     {
       if (rawData.id) this.setNumber("id", rawData.id);
       if (rawData.created) this.setString("created", rawData.created);
-      else this.setString("created", moment().format("YYYY-MM-DD HH:mm:ss"))
+      else this.setString("created", moment().tz("Europe/Paris").format("YYYY-MM-DD HH:mm:ss"))
     }
   }
 

@@ -2,6 +2,7 @@ import axios from "@/plugins/axios/axios";
 import api_base from './api_base'
 import merge from 'deepmerge-json'
 import _ from "lodash";
+import { FilterArrayItemInterface } from "@/interfaces/FilterArrayItemInterface";
 
 const thisApi = {
   baseUrl: '/vat_invoices',
@@ -13,41 +14,38 @@ const thisApi = {
   },
   findPage(page: number, perPage: number, orderBy: string, _orderSort: string, filtersArray: any)
   {
-    let invoiceConditionId = filtersArray['invoiceConditionId'];
-    if (invoiceConditionId === undefined) {
+    let invoiceCondition = filtersArray.find((e: FilterArrayItemInterface) => { return e.key == 'invoiceConditionId' });
+    if (invoiceCondition === undefined) {
       return [];
     }
-    let url = `vat/getByInvoiceCondition/${invoiceConditionId}?`;
-    filtersArray["page"] = page;
-    filtersArray["itemsPerPage"] = perPage;
-    filtersArray["orderBy"] = orderBy;
+    let id = invoiceCondition.value;
+    let url = `vat/getByInvoiceCondition/${id}?`;
+    filtersArray.push({ key: "page", value: page });
+    filtersArray.push({ key: "itemsPerPage", value: perPage });
+    filtersArray.push({ key: "orderBy", value: orderBy });
     url += this.getArrayFilters(filtersArray).join("&");
     return axios.get(url);
   },
   getPageCount(filtersArray?: any)
   {
-    let invoiceConditionId = filtersArray['invoiceConditionId'];
-    if (invoiceConditionId === undefined) {
+    let invoiceCondition = filtersArray.find((e: FilterArrayItemInterface) => { return e.key == 'invoiceConditionId' });
+    if (invoiceCondition === undefined) {
       return 0;
     }
-    let url = "/vat/getCountByInvoiceCondition/" + invoiceConditionId + "?";
+    let id = invoiceCondition.value;
+    let url = `vat/getCountByInvoiceCondition/${id}?`;
     url += this.getArrayFilters(filtersArray).join("&");
     return axios.get(url);
   },
 
-  getArrayFilters(filtersArray?: any)
+  getArrayFilters(filtersArray: FilterArrayItemInterface[])
   {
-
     let arrayFilters: any[] = [];
-    Object.keys(filtersArray).forEach(element =>
+    filtersArray.forEach((element) =>
     {
-      if (element == 'invoiceConditionId') return;
-      if (filtersArray[element] != null && (typeof filtersArray[element] === 'object' || Array.isArray(filtersArray[element])) && 'id' in filtersArray[element]) {
-        arrayFilters.push(element + "=" + filtersArray[element]['id']);
-      }
-      else if (_.isNumber(filtersArray[element]) || (filtersArray[element] != null && filtersArray[element].length)) {
-        arrayFilters.push(element + "=" + encodeURIComponent(filtersArray[element]));
-      }
+      if (element.key == 'invoiceConditionId') return;
+
+      arrayFilters.push(element.key + "=" + element.value);
     });
     return arrayFilters;
   }

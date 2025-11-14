@@ -13,6 +13,11 @@ const vuetify = createVuetify({
     ...components,
     VDateInput,
   },
+  date: {
+    locale: {
+      en: 'fr-FR',
+    },
+  },
   directives,
   icons: {
     defaultSet: 'mdi',

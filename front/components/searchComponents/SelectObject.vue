@@ -37,7 +37,7 @@
             $t('loading') }}...
         </v-list-item>
         <v-list-item class="text-no-wrap" v-else>{{ $helpers.capitalizeFirstLetter($t('no data available'))
-          }}</v-list-item>
+        }}</v-list-item>
       </template>
     </v-autocomplete>
   </div>
@@ -45,18 +45,24 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef, ref, onMounted } from 'vue';
+import { shallowRef, ref, onMounted, watch } from 'vue';
+import _ from 'lodash';
 import useCommonHelper from '@/helpers/commonHelper'
 const helpers = useCommonHelper()
 import { useI18n } from "vue-i18n";
 const { t, te } = useI18n({ useScope: "global" });
+
+import { ItemInterface } from '@/interfaces/ItemInterface';
+
 import { useAgencyStore } from '@/stores/agency';
 import { useBusinessSectorStore } from '@/stores/businessSector';
 import { useCountryStore } from '@/stores/country';
 import { useCustomerStore } from '@/stores/customer';
+import { useCustomerTypeStore } from '@/stores/customerType';
 import { useInvoiceConditionStore } from '@/stores/invoiceCondition';
 import { useLeadTypeStore } from '@/stores/leadType';
 import { useLeadOriginStore } from '@/stores/leadOrigin';
+import { useOperationTypeStore } from '@/stores/operationType';
 import { useServiceDomainStore } from '@/stores/serviceDomain';
 import { useServiceTypeStore } from '@/stores/serviceType';
 import { useSocietyStore } from '@/stores/society';
@@ -68,10 +74,6 @@ import CustomerComponent from '@/components/CustomerComponent.vue';
 import InvoiceConditionComponent from '../InvoiceConditionComponent.vue';
 import SocietyComponent from '@/components/SocietyComponent.vue';
 import UtilisateurComponent from '@/components/UtilisateurComponent.vue'
-import { ItemInterface } from '@/interfaces/ItemInterface';
-import { useCustomerTypeStore } from '@/stores/customerType';
-import _ from 'lodash';
-import { watch } from 'vue';
 
 const props = defineProps({
   fieldObjectType: {
@@ -157,6 +159,9 @@ onMounted(async () =>
       break;
     case "leadType":
       store.value = useLeadTypeStore()
+      break;
+    case "operationType":
+      store.value = useOperationTypeStore()
       break;
     case "serviceDomain":
       store.value = useServiceDomainStore()

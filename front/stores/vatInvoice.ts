@@ -49,6 +49,7 @@ export const useVatInvoiceStore = defineStore('vatInvoice', () =>
     reset,
     save,
     setContextKey,
+    setMapping,
     setSearchFilters,
     setVisibleFields,
     resetError,
@@ -81,16 +82,21 @@ export const useVatInvoiceStore = defineStore('vatInvoice', () =>
     invoiceCondition: null,
   })
 
-  fieldsByType.value.boolean = []
-  fieldsByType.value.count = []
   fieldsByType.value.date = ['invoiceDate']
   fieldsByType.value.datetime = ['createdAt']
   fieldsByType.value.float4 = ['taxFreeAmount', 'taxAmount', 'VATRate']
-  fieldsByType.value.object = []
-  fieldsByType.value.objectsList = []
   fieldsByType.value.period = ['currentPeriod']
-  fieldsByType.value.progressBar = []
-  fieldsByType.value.string = []
+  fieldsByType.value.string = ['operationType']
+
+  //override customMapping for better display in filter dialog
+  customMapping.value = {
+    number: {},
+    operationType: { type: 'object', object: 'operationType', queryPrefix: 'operationType' },
+    invoiceDate: { type: 'date' },
+    currentPeriod: { type: 'date' },
+  }
+
+  setMapping()
 
   localStorageName.value = "CrmVatInvoice"
 
@@ -106,10 +112,12 @@ export const useVatInvoiceStore = defineStore('vatInvoice', () =>
     setContextKey("invoiceCondition", JSON.stringify(invoiceCondition.value));
   });
 
-  async function findPage(page: number, perPage: number, sortBy: DatatableSortByInterface, filtersArray: any, _isNullArray?: any, _isNotNullArray?: any)
+  async function findPage(page: number, perPage: number, sortBy: DatatableSortByInterface, filters: any)
   {
     isLoading.value = true;
     error.value = null;
+    let parsed = parseArrays(filters);
+    let filtersArray = parsed[0];
     try {
       let response = await thisAPI.findPage(page, perPage, sortBy.property ?? sortBy.key, sortBy.order, filtersArray);
       list.value = response.data;
@@ -146,12 +154,14 @@ export const useVatInvoiceStore = defineStore('vatInvoice', () =>
     return { url: url };
   }
 
-  async function getPageCount(searchFilters?: any)
+  async function getPageCount(filters?: any)
   {
     pageCountIsLoading.value = true;
     error.value = null;
+    let parsed = parseArrays(filters);
+    let filtersArray = parsed[0];
     try {
-      let response = await thisAPI.getPageCount(searchFilters);
+      let response = await thisAPI.getPageCount(filtersArray);
       totalItems.value = 'data' in response ? response.data : 0;
       pageCountIsLoading.value = false;
       return totalItems.value;
@@ -165,13 +175,13 @@ export const useVatInvoiceStore = defineStore('vatInvoice', () =>
   function parseItemResponse(response: AxiosResponse<any, any, {}>)
   {
     if ('createdAt' in response.data) {
-      response.data.createdAt = moment(new Date(response.data.createdAt)).format('YYYY-MM-DD HH:mm:ss')
+      response.data.createdAt = moment(new Date(response.data.createdAt)).tz("Europe/Paris").format('YYYY-MM-DD HH:mm:ss')
     }
     if ('invoiceDate' in response.data) {
-      response.data.invoiceDate = moment(new Date(response.data.invoiceDate)).format('YYYY-MM-DD')
+      response.data.invoiceDate = moment(new Date(response.data.invoiceDate)).tz("Europe/Paris").format('YYYY-MM-DD')
     }
     if ('currentPeriod' in response.data) {
-      response.data.currentPeriod = moment(new Date(response.data.currentPeriod)).format('YYYY-MM-DD')
+      response.data.currentPeriod = moment(new Date(response.data.currentPeriod)).tz("Europe/Paris").format('YYYY-MM-DD')
     }
     //formatPeriod
     if ('customer' in response.data) {

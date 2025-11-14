@@ -22,7 +22,7 @@
 
       <v-list v-if="getFilteredSettingsByStorageName().length" density="compact">
         <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('personal parameters'))
-          }}</v-list-subheader>
+        }}</v-list-subheader>
         <v-list-item v-for="item in getFilteredSettingsByStorageName()" :key="item.id" :value="item.id"
           @click="loadFilters(item)">
           <v-list-item-title>
@@ -33,7 +33,7 @@
       <v-divider></v-divider>
       <v-list v-if="getPublicSettingsByStorageName().length" density="compact">
         <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('public parameters'))
-          }}</v-list-subheader>
+        }}</v-list-subheader>
         <v-list-item v-for="item in getPublicSettingsByStorageName()" :key="item.id" :value="item.id"
           @click="loadFilters(item)">
           <v-list-item-title>
@@ -48,7 +48,8 @@
       <v-icon>mdi-cloud-upload</v-icon>&nbsp;{{ $helpers.capitalizeFirstLetter($t('save settings')) }}
     </v-btn>
     <v-badge location="top right" color="warning" :model-value="store.getNumberOfFilters() > 0"
-      :content="store.getNumberOfFilters()" class="mb-1 mt-1 mr-1" :class="{ 'mr-3': store.getNumberOfFilters() > 0 }">
+      v-if="Object.keys(store.mapping).length" :content="store.getNumberOfFilters()" class="mb-1 mt-1 mr-1"
+      :class="{ 'mr-3': store.getNumberOfFilters() > 0 }">
       <v-btn size="x-small" :title="$helpers.capitalizeFirstLetter($t('filters'))"
         class="bg-secondary position-relative p-0 pr-1" @click="globalStore.showFiltersDialog = true"
         :disabled="loading">
@@ -63,11 +64,11 @@
     </v-btn>
   </v-app-bar>
 
-  <v-container fluid class="w-100">
+  <v-container fluid>
     <v-data-table-server :hover="true" v-model:items-per-page="itemsPerPage" :headers="visibleFields" striped="even"
       :items="serverItems" :items-length="totalItems" :loading="loading" @update:options="loadItems"
       v-model:page="store.currentPage" density="compact" v-model:sort-by="sortBy" fixed-header style="max-height: 99%;"
-      @click:row="(event, { item, index }) => openItemPage(event, item, index)" :row-props="rowClasses">
+      @click:row="(event, { item, index }) => openItemPage(event, item, index)" :row-props="rowClasses" overflow-x>
 
       <!-- #region top -->
       <template v-slot:top>
@@ -79,7 +80,7 @@
               $t('getting total records') }}...
           </span>
         </small>
-        <v-row>
+        <v-row overflow-x>
           <v-col class="position-relative">
             <v-select :model-value="itemsPerPage" :items="globalStore.perPageOptions"
               :label="$helpers.capitalizeFirstLetter($t('per page'))" density="compact"
@@ -384,13 +385,13 @@ async function exportList()
 
 function getClass(object)
 {
-  if (!('cssClass' in object)) return;
+  if (!(_.isObject(object)) || !('cssClass' in object)) return;
   return object.cssClass;
 }
 
 function getStyle(object)
 {
-  if (('cssClass' in object)) return;
+  if (!(_.isObject(object)) || !('cssClass' in object)) return;
   return helpers.getCssForText(object.stringValue);
 }
 
@@ -411,7 +412,7 @@ async function getPageCount(search)
   {
     searchValue = merge(searchFilters.value, props.additionnalFilters);
   }
-  totalItems.value = await store.value.getPageCount(searchValue);
+  totalItems.value = await store.value.getPageCount(searchValue) ?? 0;
   isNewQuery.value = false;//no need to count again if search does not change
 }
 

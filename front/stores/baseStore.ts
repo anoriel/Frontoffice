@@ -8,15 +8,11 @@ import { IriTemplateMappingInterface } from "@/interfaces/IriTemplateMappingInte
 import { isArray, isBoolean, isObject } from "lodash";
 import { DefaultContextInterface } from "@/interfaces/DefaultContextInterface";
 import { MappingTypeInterface } from "@/interfaces/MappingTypeInterface";
-import moment from "moment";
+import moment from "moment-timezone";
 import { AxiosResponse } from "axios";
 import useCommonHelper from '../helpers/commonHelper'
+import { FilterArrayItemInterface } from "@/interfaces/FilterArrayItemInterface";
 const helpers = useCommonHelper()
-interface FilterArrayItem
-{
-  key: string;
-  value: any;
-}
 
 export function useBaseStore()
 {
@@ -184,22 +180,7 @@ export function useBaseStore()
           defaultContext.value.filters[variable] = searchValue;
         });
 
-        let newMapping: Record<string, MappingTypeInterface> = {};
-        //sorting by custom mapping if provided
-        Object.keys(customMapping.value).forEach(function (key)
-        {
-          if (!customMapping.value[key].hidden) {//we ignore hidden fields
-            newMapping[key] = { ...mapping.value[key], ...customMapping.value[key] };
-          }
-        });
-        //adding eventually missing mapping
-        Object.keys(mapping.value).forEach(function (key)
-        {
-          if (!(key in customMapping.value)) {
-            newMapping[key] = mapping.value[key];
-          }
-        });
-        mapping.value = newMapping;
+        setMapping();
 
         //we get the list of fields from the first item of the list
         let fields = Object.keys(list.value[0]).filter(function (e)
@@ -380,10 +361,12 @@ export function useBaseStore()
     return { name: 'login' };
   }
 
-  let filtersArray: FilterArrayItem[] = [];
+  let filtersArray: FilterArrayItemInterface[] = [];
   let isNullArray: string[] = [];
   let isNotNullArray: string[] = [];
-  function parseArrays(filters: any): [FilterArrayItem[], string[], string[]]
+  var src = "baseStore";
+
+  function parseArrays(filters: any): [FilterArrayItemInterface[], string[], string[]]
   {
     filtersArray = [];
     isNullArray = [];
@@ -394,24 +377,36 @@ export function useBaseStore()
         if (!isArray(value)) {//single value
           parseData(key, value);
         } else {//array of values
-          if (moment.isDate(value)) {//date or datetime range
+          if (moment(new Date(value[0])).tz("Europe/Paris").isValid()) {//date or datetime range
             if (value.length == 1) {//only one date
               filtersArray.push({
                 'key': key,
-                'value': helpers.formatDate(value[0])
+                'value': moment(new Date(value[0])).tz("Europe/Paris")
               });
             } else if (value.length >= 2) {//date range
               //we take the first and last value of the array
-              value.sort((a: Date, b: Date) => a.getTime() - b.getTime());
-              //we push the after and before filters
-              filtersArray.push({
-                'key': key + '[after]',
-                'value': helpers.formatDate(value[0])
+              value.sort(function (a, b)
+              {
+                return new Date(a).getTime() - new Date(b).getTime();
               });
-              filtersArray.push({
-                'key': key + '[before]',
-                'value': helpers.formatDate(value.pop())
-              });
+              let startDate = moment(new Date(value[0])).tz("Europe/Paris"),
+                endDate = moment(new Date(value.pop())).tz("Europe/Paris");
+              if (startDate.format("YYYY-MM-DD") == endDate.format("YYYY-MM-DD")) {//same date, we only take one
+                filtersArray.push({
+                  'key': key,
+                  'value': startDate.format("YYYY-MM-DD")
+                });
+              } else {
+                //we push the after and before filters
+                filtersArray.push({
+                  'key': key + '[after]',
+                  'value': startDate.format("YYYY-MM-DD HH:mm:ss")
+                });
+                filtersArray.push({
+                  'key': key + '[before]',
+                  'value': endDate.format("YYYY-MM-DD HH:mm:ss")
+                });
+              }
             }
           } else {//list of values
             for (let j in value) {
@@ -421,7 +416,7 @@ export function useBaseStore()
           }
         }
       } else {
-        console.log("Unknown mapping for filter " + key + " with value ", value);
+        console.log(src, "Unknown mapping for filter " + key + " with value ", value);
       }
     });
     return [filtersArray, isNullArray, isNotNullArray];
@@ -437,19 +432,17 @@ export function useBaseStore()
     }
 
     if (key in customMapping.value && 'queryPrefix' in customMapping.value[key]) {//it's a sub-property of an object, we need to prefix it
-      key = customMapping.value[key].queryPrefix + '.' + value.id;
-      stringValue = true;
-      canBeBoolan = true;
+      key = customMapping.value[key].queryPrefix + '.id';
     }
 
     if (canBeBoolan && isBoolean(value)) {
       stringValue = value ? true : false;
     }
 
-    if (stringValue == -1) {
+    if (stringValue === -1) {
       isNullArray.push(key);
     }
-    else if (stringValue == 0) {
+    else if (stringValue === 0) {
       isNotNullArray.push(key);
     }
     else {
@@ -475,10 +468,10 @@ export function useBaseStore()
   function parseItemResponse(response: AxiosResponse<any, any, {}>)
   {
     if ('createdAt' in response.data) {
-      response.data.createdAt = moment(new Date(response.data.createdAt)).toDate()
+      response.data.createdAt = moment(new Date(response.data.createdAt)).tz("Europe/Paris").toDate()
     }
     if ('lastUpdatedAt' in response.data) {
-      response.data.lastUpdatedAt = moment(new Date(response.data.lastUpdatedAt)).toDate()
+      response.data.lastUpdatedAt = moment(new Date(response.data.lastUpdatedAt)).tz("Europe/Paris").toDate()
     }
     return response.data;
   }
@@ -560,6 +553,26 @@ export function useBaseStore()
     return context.value;
   }
 
+  function setMapping()
+  {
+    let newMapping: Record<string, MappingTypeInterface> = {};
+    //sorting by custom mapping if provided
+    Object.keys(customMapping.value).forEach(function (key)
+    {
+      if (!customMapping.value[key].hidden) {//we ignore hidden fields
+        newMapping[key] = { ...mapping.value[key], ...customMapping.value[key] };
+      }
+    });
+    //adding eventually missing mapping
+    Object.keys(mapping.value).forEach(function (key)
+    {
+      if (!(key in customMapping.value)) {
+        newMapping[key] = mapping.value[key];
+      }
+    });
+    mapping.value = newMapping;
+  }
+
   function setSearchFilters(searchFilters: Record<string, any>)
   {
     filters.value = searchFilters;
@@ -616,6 +629,7 @@ export function useBaseStore()
     save,
     setContext,
     setContextKey,
+    setMapping,
     setSearchFilters,
     setVisibleFields,
   }
