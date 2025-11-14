@@ -95,6 +95,14 @@
 </template>
 
 <style>
+html {
+  overflow-x: auto !important;
+}
+
+.v-application__wrap {
+  max-width: unset !important;
+}
+
 .gravatar {
   vertical-align: bottom;
 }
