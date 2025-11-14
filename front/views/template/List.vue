@@ -22,7 +22,7 @@
 
       <v-list v-if="getFilteredSettingsByStorageName().length" density="compact">
         <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('personal parameters'))
-        }}</v-list-subheader>
+          }}</v-list-subheader>
         <v-list-item v-for="item in getFilteredSettingsByStorageName()" :key="item.id" :value="item.id"
           @click="loadFilters(item)">
           <v-list-item-title>
@@ -33,7 +33,7 @@
       <v-divider></v-divider>
       <v-list v-if="getPublicSettingsByStorageName().length" density="compact">
         <v-list-subheader color="primary">{{ $helpers.capitalizeFirstLetter($t('public parameters'))
-        }}</v-list-subheader>
+          }}</v-list-subheader>
         <v-list-item v-for="item in getPublicSettingsByStorageName()" :key="item.id" :value="item.id"
           @click="loadFilters(item)">
           <v-list-item-title>
@@ -145,7 +145,7 @@
         <invoice-condition-component v-else-if="object.type == 'invoiceCondition' && value" :invoiceCondition="value" />
         <society-component v-else-if="object.type == 'society' && value" :society="value" />
         <UtilisateurComponent v-else-if="object.type == 'user' && value" :user="value" />
-        <v-chip v-else-if="value" :color="getClass(value)" :style="getStyle(value)">
+        <v-chip v-else-if="value" :class="getClass(value)" :style="getStyle(value)">
           {{ $te(value.stringValue) ? $helpers.capitalizeFirstLetter($t(value.stringValue)) : value.stringValue }}
         </v-chip>
       </template>
@@ -386,7 +386,7 @@ async function exportList()
 function getClass(object)
 {
   if (!(_.isObject(object)) || !('cssClass' in object)) return;
-  return object.cssClass;
+  return 'bg-' + object.cssClass;
 }
 
 function getStyle(object)
