@@ -90,7 +90,7 @@ export const useVatInvoiceStore = defineStore('vatInvoice', () =>
 
   //override customMapping for better display in filter dialog
   customMapping.value = {
-    number: {},
+    number: { type: 'string' },
     operationType: { type: 'object', object: 'operationType', queryPrefix: 'operationType' },
     invoiceDate: { type: 'date' },
     currentPeriod: { type: 'date' },
