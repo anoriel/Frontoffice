@@ -1,4 +1,5 @@
 import { RouteRecordRaw } from "vue-router";
+import OSSIntegration from "../views/oss/Integration.vue";
 import OSSList from "../views/oss/List.vue";
 import VATDashboard from "../views/vat/Dashboard.vue";
 import VATIntegration from "../views/vat/Integration.vue";
@@ -39,9 +40,9 @@ const moduleRoutes: RouteRecordRaw[] = [
     },
   },
   {
-    path: "/oss/dashboard",
+    path: "/oss/list",
     component: OSSList,
-    name: "OSS.dashboard",
+    name: "OSS.list",
     meta: {
       isDisabled: false,
       flag: 'eu',
@@ -49,6 +50,18 @@ const moduleRoutes: RouteRecordRaw[] = [
       parent: "menu.VAT",
       hasRole: "ROLE_TVA"
     },
+  },
+  {
+    name: "OSS.integration",
+    path: "/oss/integration/:id",
+    component: OSSIntegration,
+    meta: {
+      parent: "OSS.list",
+      isHidden: true,
+      title: "OSS.integrationTitle",
+      hasRole: "ROLE_TVA"
+    },
+    props: (route) => ({ id: route.params.id }),
   },
   {
     path: "/vat/operations",

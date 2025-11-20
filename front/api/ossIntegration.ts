@@ -1,6 +1,8 @@
 import axios from "@/plugins/axios/axios";
 import api_base from './api_base'
 import merge from 'deepmerge-json'
+import { FileIntegrationValidatedColumnInterface } from "@/interfaces/FileIntegrationValidatedColumnInterface";
+import { FileImportationErrorInterface } from "@/interfaces/FileImportationErrorInterface";
 
 const thisApi = {
   baseUrl: '/oss_integrations',
@@ -14,6 +16,19 @@ const thisApi = {
   {
     let url = `${this.baseUrl}?deleted=0&page=${page}&itemsPerPage=${perPage}&orderBy[createdAt]=desc&orderBy[id]=desc`;
     return axios.get(url);
+  },
+  getFileLinesDetail(id: number)
+  {
+    let url = "integration/getLinesDetail/" + id;
+    return axios.get(url);
+  },
+  setColumns(id: number, validatedColumnsList: FileImportationErrorInterface[])
+  {
+    return axios.patch("/oss/validateColumns/" + id, { validatedColumnsList: validatedColumnsList, });
+  },
+  setReplacements(id: number, dataErrorsList: FileImportationErrorInterface)
+  {
+    return axios.patch("/oss/replacements/" + id, { dataErrorsList: dataErrorsList, });
   },
 }
 
@@ -64,12 +79,6 @@ export default merged
 //   {
 //     return axios.patch("/api/oss/validateColumns/" + id, {
 //       validatedColumnsList: validatedColumnsList,
-//     });
-//   },
-//   setReplacements(id, dataErrorsList)
-//   {
-//     return axios.patch("/api/oss/replacements/" + id, {
-//       dataErrorsList: dataErrorsList,
 //     });
 //   },
 // };

@@ -1,9 +1,13 @@
 export interface AvailableFieldInterface
 {
-  key: string,//nom du champ
-  fieldType?: string,//type du champ, ex:string, date, boolean, object, objectsList, progressBar
-  filterableOnExistance?: boolean,//peut-on filtrer sur l'existance ou non de ce champ, ex:exists[agency] pour un lead
-  sortable?: boolean,//peut-on trier sur ce champ
-  property?: string,//la propriété de l'entité sur laquelle on filtre
-  sortProperty?: string//la propriété de l'entité sur laquelle on trie
+  key: string,//field name
+  fieldType?: string,//field type, ex:string, date, boolean, object, objectsList, progressBar
+  filterableOnExistance?: boolean,//can we filter when this filed exists or not, ex:exists[agency] pour un lead
+  items?: any[],//items list shown in integrations headers to select correct column
+  property?: string,//entity (model, interface, ...) for the selected field
+  sortable?: boolean,//can we sort this field
+  sortProperty?: string//field name to sort
+  title?: string,//field title
+  value?: any,//field value (can be used in integrations with object type)
+  warning?: boolean,
 }

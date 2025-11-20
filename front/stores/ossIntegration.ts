@@ -2,6 +2,12 @@ import { defineStore } from 'pinia'
 import thisAPI from '@/api/ossIntegration'
 import { useBaseStore } from './baseStore';
 import { DatatableSortByInterface } from '@/interfaces/DatatableSortByInterface';
+import { ref } from 'vue';
+import { AvailableFieldInterface } from '@/interfaces/AvailableFieldInterface';
+import { FileIntegrationValidatedColumnInterface } from '@/interfaces/FileIntegrationValidatedColumnInterface';
+import { FileIntegrationStatusInterface } from '@/interfaces/FileIntegrationStatusInterface';
+import { OssIntegrationInterface } from '@/interfaces/OssIntegrationInterface';
+import { FileImportationErrorInterface } from '@/interfaces/FileImportationErrorInterface';
 
 
 export const useOssIntegrationStore = defineStore('ossIntegration', () =>
@@ -26,7 +32,7 @@ export const useOssIntegrationStore = defineStore('ossIntegration', () =>
 
     deleteItem,
     exportList,
-    find,
+    find: baseFind,
     findAll,
     findPage,
     hasError,
@@ -74,6 +80,90 @@ export const useOssIntegrationStore = defineStore('ossIntegration', () =>
 
   localStorageName.value = "CrmOssIntegration"
 
+
+  //file header & lines detail
+  const fileHeaders = ref<AvailableFieldInterface[]>([]);
+  const fileLinesDetail = ref([]);
+
+  async function find(id: number)
+  {
+    let data = await baseFind(id);
+    if (data != null) {
+      const oss = data as OssIntegrationInterface;
+      if (oss.importationParameters?.dataErrorsList) {
+        oss.importationParameters.dataErrorsList.forEach((element) =>
+        {
+          element.replacementValue = null;
+        });
+      }
+    }
+    return data;
+  }
+
+  function getActionOnOpeningItem(id: number)
+  {
+    return { name: 'OSS.integration', params: { id: id } };
+  }
+
+  async function getFileLinesDetail(id: number)
+  {
+    isLoading.value = true;
+    error.value = null;
+    try {
+      let response = await thisAPI.getFileLinesDetail(id);
+      let availableFields: AvailableFieldInterface[] = [];
+      Object.keys(response.data.fileHeaders).forEach((key: string) =>
+      {
+        let element = response.data.fileHeaders[key];
+        element.items.unshift({
+          key: 'ignore',
+          text: 'ignore',
+          value: null,
+        })
+        availableFields.push({
+          'key': key,
+          items: element.items,
+          value: element.value,
+        })
+      });
+      fileHeaders.value = availableFields;
+      fileLinesDetail.value = response.data.fileLinesDetail;
+      return list.value;
+    } catch (error: any) {
+      isLoading.value = false;
+      error.value = error;
+      return null;
+    }
+  }
+
+  async function setColumns(id: number, validatedColumnsList: Record<string, FileIntegrationValidatedColumnInterface>): Promise<FileIntegrationStatusInterface | null>
+  {
+    isLoading.value = true;
+    error.value = null;
+    try {
+      let response = await thisAPI.setColumns(id, validatedColumnsList)
+      return response.data as FileIntegrationStatusInterface;
+    } catch (error: any) {
+      isLoading.value = false;
+      error.value = error;
+      return null;
+    }
+  }
+
+  async function setReplacements(id: number, dataErrorsList: FileImportationErrorInterface[])
+  {
+    isLoading.value = true;
+    error.value = null;
+    try {
+      let response = await thisAPI.setReplacements(id, dataErrorsList)
+      return response.data as FileIntegrationStatusInterface;
+    } catch (error: any) {
+      isLoading.value = false;
+      error.value = error;
+      return null;
+    }
+  }
+
   return {
     availableFields,
     context,
@@ -96,6 +186,7 @@ export const useOssIntegrationStore = defineStore('ossIntegration', () =>
     findPage,
     hasError,
     hasItems,
+    getActionOnOpeningItem,
     getById,
     getContextKey,
     getFiltersDiff,
@@ -111,8 +202,13 @@ export const useOssIntegrationStore = defineStore('ossIntegration', () =>
     resetError,
 
     defaultContext,
+    fileHeaders,
+    fileLinesDetail,
     localStorageName,
 
+    getFileLinesDetail,
     parseArrays,
+    setColumns,
+    setReplacements,
   }
 })

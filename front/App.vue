@@ -99,6 +99,15 @@ html {
   overflow-x: auto !important;
 }
 
+table.stripped>tbody>tr:nth-child(even) {
+  background-image: linear-gradient(0deg, rgba(var(--v-border-color), var(--v-hover-opacity)), rgba(var(--v-border-color), var(--v-hover-opacity)));
+}
+
+table.stripped td,
+table.stripped th {
+  padding: 1vw;
+}
+
 .v-application__wrap {
   max-width: unset !important;
 }
