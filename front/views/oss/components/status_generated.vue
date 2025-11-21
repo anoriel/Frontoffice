@@ -9,7 +9,7 @@
             :width="2"></v-progress-circular>
         </v-tab>
         <v-tab v-for="period in ossIntegrationStore.periods" :key="period.key" :value="period.key">
-          {{ period.key }}
+          {{ $helpers.formatPeriod(period.key) }}
           <v-progress-circular v-if="period.isLoading" color="white" indeterminate :size="20" :width="2" />
         </v-tab>
       </v-tabs>
@@ -28,7 +28,7 @@
           <Oss_table v-else :items="ossIntegrationStore.totals" />
         </v-tabs-window-item>
         <v-tabs-window-item v-for="period in ossIntegrationStore.periods" :key="period.key" :value="period.key">
-          <h2>{{ $helpers.capitalizeFirstLetter($t("totals month list")) }}{{ period.key }}</h2>
+          <h2>{{ $helpers.capitalizeFirstLetter($t("totals month list")) }}{{ $helpers.formatPeriod(period.key) }}</h2>
           <v-skeleton-loader v-if="period.isLoading" type="table-row-divider@12" />
           <Oss_table v-else :items="ossIntegrationStore.totalsByPeriod[period.key]" />
         </v-tabs-window-item>
