@@ -8,7 +8,7 @@ import { FileIntegrationValidatedColumnInterface } from '@/interfaces/FileIntegr
 import { FileIntegrationStatusInterface } from '@/interfaces/FileIntegrationStatusInterface';
 import { OssIntegrationInterface } from '@/interfaces/OssIntegrationInterface';
 import { FileImportationErrorInterface } from '@/interfaces/FileImportationErrorInterface';
-
+import { PeriodInterface } from '@/interfaces/PeriodInterface';
 
 export const useOssIntegrationStore = defineStore('ossIntegration', () =>
 {
@@ -84,9 +84,15 @@ export const useOssIntegrationStore = defineStore('ossIntegration', () =>
   //file header & lines detail
   const fileHeaders = ref<AvailableFieldInterface[]>([]);
   const fileLinesDetail = ref([]);
+  const periods = ref<PeriodInterface[]>([]);
+  const totals = ref([]);
+  const totalsByPeriod = ref<Record<string, any>>({});
 
   async function find(id: number)
   {
+    periods.value = [];
+    totals.value = [];
+    totalsByPeriod.value = {};
     let data = await baseFind(id);
     if (data != null) {
       const oss = data as OssIntegrationInterface;
@@ -133,6 +139,53 @@ export const useOssIntegrationStore = defineStore('ossIntegration', () =>
       isLoading.value = false;
       error.value = error;
       return null;
+    }
+  }
+
+  async function getTotals(id: number)
+  {
+    isLoading.value = true;
+    error.value = null;
+    periods.value = [];
+    totals.value = [];
+    totalsByPeriod.value = {};
+    try {
+      let response = await thisAPI.getTotals(id);
+      response.data.periods.forEach((element: string) =>
+      {
+        periods.value.push({ key: element, isLoading: false });
+      })
+      totals.value = response.data.result;
+      return true;
+    } catch (error: any) {
+      isLoading.value = false;
+      error.value = error;
+      return false;
+    }
+  }
+
+  async function getTotalsByPeriod(id: number, period: string)
+  {
+    error.value = null;
+    totalsByPeriod.value[period] = {};
+    let element = periods.value.find(e => e.key == period)
+    if (element) {
+      element.isLoading = true;
+    }
+    try {
+      let response = await thisAPI.getTotalsByPeriod(id, period)
+      totalsByPeriod.value[period] = response.data;
+      let element = periods.value.find(e => e.key == period)
+      if (element) {
+        element.isLoading = false;
+      }
+      return true;
+    } catch (error: any) {
+      if (element) {
+        element.isLoading = false;
+      }
+      error.value = error;
+      return false;
     }
   }
 
@@ -205,8 +258,13 @@ export const useOssIntegrationStore = defineStore('ossIntegration', () =>
     fileHeaders,
     fileLinesDetail,
     localStorageName,
+    periods,
+    totals,
+    totalsByPeriod,
 
     getFileLinesDetail,
+    getTotals,
+    getTotalsByPeriod,
     parseArrays,
     setColumns,
     setReplacements,

@@ -58,6 +58,8 @@
       <!-- #endregion header-->
       <StatusWaitingForValidation v-if="item.status?.name == 'STATUS_WAITING_FOR_VALIDATION'" :item="item" />
       <StatusDataErrorsMet v-else-if="item.status?.name == 'STATUS_DATA_ERRORS_MET'" :item="item" />
+      <StatusDuplicatesFound v-else-if="item.status?.name == 'STATUS_DUPLICATES_FOUND'" :item="item" />
+      <StatusGenerated v-else-if="item.status?.name == 'STATUS_GENERATED'" :item="item" />
     </v-form>
   </v-container>
 </template>
@@ -73,8 +75,10 @@ const fileIntegrationStatusStore = useFileIntegrationStatusStore();
 
 import CustomerComponent from '@/components/CustomerComponent.vue';
 import DateTimeComponent from '@/components/DateTimeComponent.vue';
-import StatusWaitingForValidation from './components/status_waiting_for_validation.vue';
 import StatusDataErrorsMet from './components/status_data_errors_met.vue';
+import StatusDuplicatesFound from './components/status_duplicates_found.vue';
+import StatusGenerated from './components/status_generated.vue';
+import StatusWaitingForValidation from './components/status_waiting_for_validation.vue';
 import UtilisateurComponent from '@/components/UtilisateurComponent.vue';
 
 const props = defineProps({

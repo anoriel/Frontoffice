@@ -5,19 +5,21 @@ import { FileIntegrationValidatedColumnInterface } from "./FileIntegrationValida
 
 export interface FileImportationParameterInterface
 {
-  "history": {
-    "status": FileHistoryStatusInterface[],
-  },
-  "originalFilename": string,
-  "fileSystem": string,
-  "fiscalDateFromColumn": boolean,
-  "period": Date,
   "columns": {
     [key: string]: FileIntegrationColumnDefinitionInterface
   },
+  "currentImportationLine": number,
+  "dataErrorsList": FileImportationErrorInterface[]
+  "duplicates": any[]
+  "history": {
+    "status": FileHistoryStatusInterface[],
+  },
+  "fileSystem": string,
+  "fiscalDateFromColumn": boolean,
+  "nbFileImportedRows": number,
+  "originalFilename": string,
+  "period": Date,
   "validatedColumnsList": {
     [key: string]: FileIntegrationValidatedColumnInterface
   },
-  "currentImportationLine": number,
-  "dataErrorsList": FileImportationErrorInterface[]
 }

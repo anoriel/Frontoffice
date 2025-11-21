@@ -1,7 +1,6 @@
 import axios from "@/plugins/axios/axios";
 import api_base from './api_base'
 import merge from 'deepmerge-json'
-import { FileIntegrationValidatedColumnInterface } from "@/interfaces/FileIntegrationValidatedColumnInterface";
 import { FileImportationErrorInterface } from "@/interfaces/FileImportationErrorInterface";
 
 const thisApi = {
@@ -20,6 +19,16 @@ const thisApi = {
   getFileLinesDetail(id: number)
   {
     let url = "integration/getLinesDetail/" + id;
+    return axios.get(url);
+  },
+  getTotals(id: number)
+  {
+    let url = "/oss/getTotals/" + id;
+    return axios.get(url);
+  },
+  getTotalsByPeriod(id: number, period: string)
+  {
+    let url = `/oss/getTotalsByPeriod/${id}/${period}`;
     return axios.get(url);
   },
   setColumns(id: number, validatedColumnsList: FileImportationErrorInterface[])
